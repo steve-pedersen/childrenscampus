@@ -1,0 +1,39 @@
+#header-options,
+#module-nav-header,
+.hover-items,
+.next-item,
+.nonvisual-context,
+.module-items-tab-bar,
+.sticky-footer { display: none; }
+
+a { text-decoration: none; color: black;}
+
+#header-logo {
+    font-size: 2em;
+
+}
+#header-description {
+    font-size: 0.8em;
+    margin-top: -0.4em;
+    line-height: 0.8em;
+}
+h1 { font-size: 1.2em; margin-bottom: 0; line-height: 1em;}
+
+#content {
+    border: 1px solid black;
+    padding: 1em;
+    margin: 1em 0;
+}
+
+.module-item {
+    height: auto!important;
+}
+
+#footer,
+.submission .alert { font-size: 0.8em; }
+
+.choice dl { margin-top: 1em; }
+.choice dl dd, .choice dl dt { display: inline-block; margin-left: 1em;}
+.choice dl dt:after {content: ':'; }
+.choice dl dd {border-bottom: 1px solid black; margin-left: 0.5em;}
+.choice dl dt {font-weight: bold; color: #444;}

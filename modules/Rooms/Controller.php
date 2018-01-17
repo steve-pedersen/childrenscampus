@@ -1,0 +1,614 @@
+<?php
+
+class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
+{
+
+    const START_HOUR = 8;
+    const END_HOUR = 19;
+
+    public static function getRouteMap ()
+    {
+        return array(
+            'reservations'              => array('callback' => 'index'),
+            'reservations/view/:id'     => array('callback' => 'view', ':id' => '[0-9]+'),
+            'reservations/upcoming'     => array('callback' => 'upcoming'),
+            'reservations/missed'       => array('callback' => 'missed'),
+            'reservations/observations' => array('callback' => 'observations'),
+            'reservations/override/:id' => array('callback' => 'override', ':id' => '[0-9]+'),
+            'reservations/delete/:id'   => array('callback' => 'delete', ':id' => '[0-9]+'),
+            'reservations/schedule'     => array('callback' => 'schedule'),
+            'reservations/schedule/:id/:year/:month/:day'       => array('callback' => 'schedule',
+                ':id' => '[0-9]+', ':year' => '[0-9]+', ':month' => '[0-9]+', ':day' => '[0-9]+'),
+            'reservations/week/:id/:year/:month/:day'           => array('callback' => 'week',
+                ':id' => '[0-9]+', ':year' => '[0-9]+', ':month' => '[0-9]+', ':day' => '[0-9]+'),
+            'reservations/reserve/:id/:year/:month/:day/:hour'  => array('callback' => 'reserve',
+                ':id' => '[0-9]+', ':year' => '[0-9]+', ':month' => '[0-9]+', ':day' => '[0-9]+', ':hour' => '[0-9]+'),
+
+        );
+    }
+    
+    public function index ()
+    {
+        $viewer = $this->getAccount();
+        $authZ = $this->getAuthorizationManager();
+        $azids = $authZ->getObjectsForWhich($viewer, 'purpose have', 'Purpose');
+        $purposes = $this->schema('Ccheckin_Purposes_Purpose')->getByAzids($azids);
+        
+        if (empty($purposes))
+        {
+            $this->template->nopurpose = true;
+        }
+        else
+        {
+            $observe = false;
+            $participate = false;
+            
+            foreach ($purposes as $purpose)
+            {
+                $object = $purpose->getObject();
+                
+                if (!($object instanceof Ccheckin_Courses_Facet) || $object->course->active) 
+                {
+                    if ($this->hasPermission('purpose observe', $purpose))
+                    {
+                        $observe = true;
+                    }
+                    
+                    if ($this->hasPermission('purpose participate', $purpose))
+                    {
+                        $participate = true;
+                    }
+                }
+            }
+            
+            if ($observe || $participate)
+            {
+                $rooms = array();
+                
+                if ($observe)
+                {
+                    $proto = $this->schema('Ccheckin_Rooms_Room');
+                    $rooms['observe'] = $proto->find($proto->observationType->equals('observe'));
+                }
+                
+                if ($participate)
+                {
+                    $proto = $this->schema('Ccheckin_Rooms_Room');
+                    $rooms['participate'] = $proto->find($proto->observationType->equals('participate'));
+                }
+                
+                $this->template->rooms = $rooms;
+            }
+            else
+            {
+                $this->template->nopurpose = true;
+            }
+        }
+    }
+    
+    // old signature ($roomId = null, $year = 0, $month = 0, $day = 0)
+    public function schedule ()
+    {
+        $this->requirePermission('room view schedule');
+
+        $roomId = (null !== $this->getRouteVariable('id')) ? $this->getRouteVariable('id') : $roomId;
+        $year = (null !== $this->getRouteVariable('year')) ? $this->getRouteVariable('year') : $year;
+        $month = (null !== $this->getRouteVariable('month')) ? $this->getRouteVariable('month') : $month;
+        $day = (null !== $this->getRouteVariable('day')) ? $this->getRouteVariable('day') : $day;
+        
+        if ($roomId)
+        {
+            $room = $this->requireExists($this->schema('Ccheckin_Rooms_Room')->get($roomId));
+            
+            if ($year)
+            {
+                $date = new Date(mktime(0, 0, 0, $month, $day, $year));
+            }
+            else
+            {
+                $date = new Date;
+                $year = $date->getYear();
+                $month = $date->getMonth();
+                $day = $date->getDay();
+            }
+            
+            $prevDate = new Date(strtotime($date->getDate() . ' -1 week'));
+            $nextDate = new Date(strtotime($date->getDate() . ' +1 week'));
+            
+            $calendar = array();
+            
+            $calendar['month'] = $date->getMonthName();
+            $calendar['year'] = $date->getYear();
+            $calendar['date'] = "$year/$month/$day";
+            $calendar['previous'] = 'reservations/schedule/' . $room->id . '/' . $prevDate->getYear() . '/' . $prevDate->getMonth() . '/' . $prevDate->getDay();
+            $calendar['next'] = 'reservations/schedule/' . $room->id . '/'  . $nextDate->getYear() . '/' . $nextDate->getMonth() . '/' . $nextDate->getDay();
+            
+            $weekDayOfFirst = $date->getDayOfWeek();
+            
+            
+            while ($weekDayOfFirst--)
+            {
+                $date = $date->getPrevDay();
+            }
+            
+            $calendar['week'] = $this->buildWeek($room, $date, null, true);
+            $calendar['weekofdate'] = $date;
+            
+            $calendar['times'] = array();
+            
+            for ($i = self::START_HOUR; $i <= self::END_HOUR; $i++)
+            {
+                if (in_array($i, $room->hours))
+                {
+                    $calendar['times'][$i] = ($i < 13 ? $i . ' AM' : ($i % 12) . ' PM');
+                }
+            }
+            
+            $this->template->calendar = $calendar;
+            $this->template->room = $room;
+        }
+        else
+        {
+            $this->template->rooms = $this->schema('Ccheckin_Rooms_Room')->getAll(array('orderBy' => 'name'));
+        }
+    }
+    
+    // $roomId, $year = 0, $month = 0, $day = 0
+    public function week ()
+    {
+        $this->requireLogin();
+
+        $roomId = (null !== $this->getRouteVariable('id')) ? $this->getRouteVariable('id') : $roomId;
+        $year = (null !== $this->getRouteVariable('year')) ? $this->getRouteVariable('year') : $year;
+        $month = (null !== $this->getRouteVariable('month')) ? $this->getRouteVariable('month') : $month;
+        $day = (null !== $this->getRouteVariable('day')) ? $this->getRouteVariable('day') : $day;    
+        
+        $room = $this->requireExists($this->schema('Ccheckin_Rooms_Room')->get($roomId));
+        
+        if ($year)
+        {
+            $date = new Date(mktime(0, 0, 0, $month, $day, $year));
+        }
+        else
+        {
+            $date = new Date;
+            $year = $date->getYear();
+            $month = $date->getMonth();
+            $day = $date->getDay();
+        }
+        
+        $prevDate = new Date(strtotime($date->getDate() . ' -1 week'));
+        $nextDate = new Date(strtotime($date->getDate() . ' +1 week'));
+        
+        $calendar = array();
+        
+        $calendar['month'] = $date->getMonthName();
+        $calendar['year'] = $date->getYear();
+		$calendar['date'] = "$year/$month/$day";
+        $calendar['previous'] = 'reservations/week/' . $room->id . '/' . $prevDate->getYear() . '/' . $prevDate->getMonth() . '/' . $prevDate->getDay();
+        $calendar['next'] = 'reservations/week/' . $room->id . '/'  . $nextDate->getYear() . '/' . $nextDate->getMonth() . '/' . $nextDate->getDay();
+        
+        $weekDayOfFirst = $date->getDayOfWeek();
+              
+        while ($weekDayOfFirst--)
+        {
+            $date = $date->getPrevDay();
+        }
+        
+        $calendar['week'] = $this->buildWeek($room, $date);
+        
+        $calendar['times'] = array();
+        
+        for ($i = self::START_HOUR; $i <= self::END_HOUR; $i++)
+        {
+            $calendar['times'][$i] = ($i < 13 ? $i . ' AM' : ($i % 12) . ' PM');
+        }
+        
+        $this->template->calendar = $calendar;
+        $this->template->room = $room;
+    }
+    
+    public function view ()
+    {
+        $reservationId = $this->getRouteVariable('id');
+        $reservation = $this->requireExists($this->schema('Ccheckin_Rooms_Reservation')->get($reservationId));
+        
+        $this->template->reservation = $reservation;
+        $this->template->dateFormat = "%b %e, %Y at %l %p";
+    }
+    
+    public function upcoming ()
+    {
+        $viewer = $this->requireLogin();             
+        $proto = $this->schema('Ccheckin_Rooms_Reservation');
+        
+        if (!$this->hasPermission('admin'))
+        {
+			$cond = $proto->allTrue(
+                $proto->accountId->equals($viewer->id),
+                $proto->checkedIn->isFalse(),
+                $proto->missed->isFalse()
+            );
+            $reservations = $proto->find($cond);
+        }
+        else
+        {
+            $reservations = $proto->find($proto->checkedIn->isFalse());
+        }
+
+        // $this->addStyleSheet('css/datatables.css');
+        // $this->addJavaScriptFile('js/jquery.dataTables.min.js');
+        // $this->addJavaScriptFile('js/datables.js');
+        
+		$this->template->pAdmin = $this->hasPermission('admin');
+        $this->template->reservations = $reservations;
+    }
+    
+    public function missed ()
+    {
+        $viewer = $this->requireLogin();               
+        $proto = $this->schema('Ccheckin_Rooms_Reservation');
+        
+        if (!$this->hasPermission('admin'))
+        {
+            $cond = $proto->allTrue(
+                $proto->accountId->equals($viewer->id),
+                $proto->missed->isTrue()
+            );
+            $reservations = $proto->find($cond);
+        }
+        else
+        {
+            $reservations = $proto->find($proto->missed->isTrue());
+        }
+        
+		$this->template->pAdmin = $this->hasPermission('admin');
+        $this->template->reservations = $reservations;
+    }
+	
+	public function override ()
+	{
+		$viewer = $this->requireLogin();       
+        $id = $this->getRouteVariable('id');
+        $reservation = $this->requireExists($this->schema('Ccheckin_Rooms_Reservation')->get($id));
+        
+        if (!$this->hasPermission('admin') && $reservation->accountId != $viewer->id)
+        {
+            $this->triggerError('Ccheckin_Master_PermissionErrorHandler');
+            exit;
+        }
+		
+		if ($this->request->getRequestMethod() == 'post')
+        {
+            if ($command = $this->request->getPostParameter('command'))
+            {
+                switch (array_shift(array_keys($command)))
+                {
+                    case 'override':
+                        $now = new Date;
+						$now->setHour($now->getHour() - 1);
+						
+						$observation = $reservation->observation;
+						$observation->startTime = $now;
+						$observation->save();
+						$reservation->checkedIn = true;
+						$reservation->missed = false;
+						$reservation->save();
+                        $this->flash('The person has been checked-in.');
+                        $this->response->redirect('reservations/upcoming');
+                        exit;
+                }
+            }
+        }
+        else
+        {
+            $this->template->reservation = $reservation;
+        }
+	}
+    
+    public function delete ()
+    {
+        $viewer = $this->requireLogin();
+        $id = $this->getRouteVariable('id');
+        $reservation = $this->requireExists($this->schema('Ccheckin_Rooms_Reservation')->get($id));
+        
+        if (!$this->hasPermission('admin') && $reservation->accountId != $viewer->id)
+        {
+            $this->triggerError('Ccheckin_Master_PermissionErrorHandler');
+            exit;
+        }
+        
+        if ($this->request->getRequestMethod() == 'post')
+        {
+            if ($command = $this->request->getPostParameter('command'))
+            {
+                switch (array_shift(array_keys($command)))
+                {
+                    case 'delete':
+                        $reservation->delete();
+                        $this->flash('The reservation has been deleted.');
+                        $this->response->redirect('reservations/upcoming');
+                        exit;
+                }
+            }
+        }
+        else
+        {
+            $this->template->reservation = $reservation;
+        }
+    }
+    
+    // TODO: Verify this route
+    public function reserve ()
+    {
+        $roomId = (null !== $this->getRouteVariable('id')) ? $this->getRouteVariable('id') : $roomId;
+        $year = (null !== $this->getRouteVariable('year')) ? $this->getRouteVariable('year') : $year;
+        $month = (null !== $this->getRouteVariable('month')) ? $this->getRouteVariable('month') : $month;
+        $day = (null !== $this->getRouteVariable('day')) ? $this->getRouteVariable('day') : $day;    
+        $hour = (null !== $this->getRouteVariable('hour')) ? $this->getRouteVariable('hour') : $hour;
+
+        $room = $this->requireExists($this->schema('Ccheckin_Rooms_Room')->get($roomId));
+        $viewer = $this->getAccount();
+        $authZ = $this->getAuthorizationManager();
+        $date = new Date(mktime($hour, 0, 0, $month, $day, $year));
+        $now = new Date;
+        $message = '';
+        $existing = null;
+       
+        // $existing = RoomReservation::GetAccountReservations($viewer);
+        // $message = (empty($existing) ? '' : 'You cannot have more than one reservation at a time.');
+        		
+		if ($command = $this->request->getPostParameter('command'))
+		{
+			switch (array_shift(array_keys($command)))
+			{
+				case 'reserve':
+                    if (empty($existing))
+                    {
+                        $purposeId = $this->request->getPostParameter('purpose');
+                        $duration = $this->request->getPostParameter('duration');
+                        $continue = false;
+                        $end = null;
+                        
+                        if ($duration)
+                        {
+                            $end = clone $date;
+                            $end->setHour($hour + $duration);
+                            
+                            if ($purpose = $this->schema('Ccheckin_Purposes_Purpose')->get($purposeId))
+                            {
+                                if (!($continue = Ccheckin_Rooms_Reservation::GetRoomAvailable($room, $date, $duration)))
+                                {
+                                    $message = 'We cannot reserve the room at this time for ' . $duration . ' hours';
+                                }
+                                
+                                $cdate = clone $date;
+                                $cnow = clone $now;
+                                if (Date::compare($cdate, $cnow) < 0 && !$this->hasPermission('admin'))
+                                {
+                                    $continue = false;
+                                    $message = 'You cannot reserve a room for a date and time that has already passed.';
+                                }
+                            }
+                            else
+                            {
+                                $purpose = null;
+                                $message = 'Please state the purpose for the visit';
+                            }
+                        }
+                        else
+                        {
+                            $message = 'Please state the amount of time for the visit';
+                        }
+                        
+                        if ($continue)
+                        {
+                            $observation = $this->schema('Ccheckin_Rooms_Observation')->createInstance();
+                            $observation->roomId = $room->id;
+                            $observation->purposeId = $purpose->id;
+                            $observation->accountId = $viewer->id;
+                            $observation->save();
+                            
+                            $reservation = $this->schema('Ccheckin_Rooms_Reservation')->createInstance();
+                            $reservation->roomId = $room->id;
+                            $reservation->observationId = $observation->id;
+                            $reservation->accountId = $viewer->id;
+                            $reservation->startTime = $date;
+                            $reservation->endTime = $end;
+                            $reservation->checkedIn = false;
+                            $reservation->save();
+                            
+                            $this->response->redirect('reservations/view/' . $reservation->id);
+                        }
+                    }
+					break;
+			}
+		}
+
+        $azids = $authZ->getObjectsForWhich($viewer, 'purpose have', 'Purpose');
+        $purposes = $this->schema('Ccheckin_Purposes_Purpose')->getByAzids($azids);
+        $purpose = null;
+        
+        foreach ($purposes as $idx => $p)
+        {
+            $object = $p->getObject();
+            
+            if (($object instanceof Ccheckin_Courses_Facet) && !$object->course->active) 
+            {
+                unset($purposes[$idx]);
+            }
+        }
+
+        $purposes = array_values($purposes);
+ 
+        if (count($purposes) == 1)
+        {
+            $purpose = $purposes[0];
+        }
+        
+        $this->setPageTitle('Create Reservation for ' . $room->name . ' on ' . $date->format("%b %e, %Y at %I %p"));
+        $this->template->room = $room;
+        $this->template->purposes = $purposes;
+        $this->template->message = $message;
+        $this->template->purpose = $purpose;
+        $this->template->date = $date;
+        $this->template->dateFormat = "%b %e, %Y at %l %p";
+    }
+
+    public function observations ()
+    {
+        $viewer = $this->requireLogin();
+               
+        $proto = $this->schema('Ccheckin_Rooms_Observation');
+        $cond = $proto->allTrue(
+            $proto->accountId->equals($viewer->id),
+            $proto->startTime->after(new Date(0))
+        );
+        $observations = $proto->find($cond);
+
+        $purposes = array();
+                  
+        foreach ($observations as $observation)
+        {
+            if ($observation->duration > 0)
+            {
+                if (empty($purposes[$observation->purpose->id]))
+                {
+                    $purposes[$observation->purpose->id] = array(
+                        'purpose' => $observation->purpose,
+                        'num' => 0, 
+                        'time' => 0,
+                        'observations' => array()
+                    );
+                }
+                
+                $purposes[$observation->purpose->id]['observations'][] = $observation;
+                $purposes[$observation->purpose->id]['num']++;
+                $purposes[$observation->purpose->id]['time'] += $observation->duration;
+
+            }
+        }
+
+        $this->template->purposes = $purposes;
+    }
+	
+ //    // TODO: Figure out if this is needed or if it should be converted to beforeCallback()
+	// protected function beforeAction ($actionName, $args)
+	// {
+	// 	if (($result = parent::beforeAction($actionName, $args)))
+	// 	{
+	// 		$this->requireLogin();
+	// 	}
+		
+	// 	return $result;
+	// }
+
+    private function buildWeek ($room, $date, $month = null, $reservations = false)
+    {
+        $week = array();
+        
+        for ($i = 0; $i < 7; $i++)
+        {
+            $week[] = $this->buildDay($room, $date, $month, $reservations);
+            $date = $date->getNextDay();
+        }
+        
+        return $week;
+    }
+    
+    private function buildDay ($room, $date, $month = null, $reservations)
+    {
+        
+        $day = array();
+        $today = new Date();
+        
+        if ($today->format("%m/%d/%y") == $date->format("%m/%d/%y"))
+        {
+            $day['today'] = true;
+        }
+		
+		$day['display'] = $date->format("%m/%d/%y");
+        
+        if ($month && $date->getMonth() != $month)
+        {
+            $day['outside'] = true;
+        }
+        
+        $day['dayOfMonth'] = $date->getDay();
+        $day['date'] = $date->getYear() . '/' . $date->getMonth() . '/' . $date->getDay();
+        $day['times'] = $this->buildDayTimes($room, $date, $reservations);
+
+        return $day;
+    }
+    
+    private function buildDayTimes ($room, $day, $reservations)
+    {
+        $times = array();
+        
+        if (in_array($day->getDayOfWeek(), $room->days))
+        {
+            $startTime = clone $day;
+            $endTime = clone $day;
+            $hours = $room->hours;
+            
+            for ($i = self::START_HOUR; $i <= self::END_HOUR; $i++)
+            {
+                if (!in_array($i, $hours))
+                {
+                    $times[$i] = 'unavailable';
+                }
+                else
+                {
+                    $startTime->setMinute(0);
+                    $startTime->setSecond(0);
+                    $endTime->setMinute(0);
+                    $endTime->setSecond(0);
+                    $startTime->setHour($i);
+                    $endTime->setHour($i + 1);
+                    
+                    $tRoomReservation = $this->schema('Ccheckin_Rooms_Reservation');
+                    $cond = $tRoomReservation->allTrue(
+                        $tRoomReservation->roomId->equals($room->id),
+                        $tRoomReservation->startTime->beforeOrEquals($startTime),
+                        $tRoomReservation->endTime->afterOrEquals($endTime)
+                    );
+                    
+                    $reservationRecords = $tRoomReservation->find($cond);
+                    
+                    if ($reservations)
+                    {
+                        $times[$i] = $reservationRecords;
+                    }
+                    else
+                    {
+                        if (count($reservationRecords) < $room->maxObservers)
+                        {
+                            $times[$i] = 'open-space';
+                        }
+                        else
+                        {
+                            $times[$i] = 'full';
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for ($i = self::START_HOUR; $i <= self::END_HOUR; $i++)
+            {
+                if ($reservations)
+                {
+                    $times[$i] = array();
+                }
+                else
+                {
+                    $times[$i] = 'noday';
+                }
+            }
+        }
+        
+        return $times;
+    }
+}
+
