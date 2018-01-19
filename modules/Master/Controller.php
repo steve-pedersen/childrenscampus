@@ -61,20 +61,25 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
 
     protected function afterCallback ($callback)
     {
-        // echo "<pre>"; var_dump('afterCallback'); die;
-        // $this->template->pAdmin = $this->hasPermission('admin');
-        // $this->template->onLoad = $this->onLoadScriptList;
-        // $this->template->userMessageList = $this->userMessageList;
-        // $this->template->includeScripts = $this->includeScriptList;
-        // $this->template->analyticsCode = $this->getApplication()->configuration->getProperty('analyticsTrackingCode');
-        // $this->template->setPageTitle(!empty($this->pageTitle) ? implode(' - ', $this->pageTitle) : '');
+        $this->template->pAdmin = $this->hasPermission('admin');
+        $this->template->onLoad = $this->onLoadScriptList;
+        $this->template->userMessageList = $this->userMessageList;
+        $this->template->includeScripts = $this->includeScriptList;
+        $this->template->analyticsCode = $this->getApplication()->configuration->getProperty('analyticsTrackingCode');
+        $this->template->setPageTitle(!empty($this->pageTitle) ? implode(' - ', $this->pageTitle) : '');
 
-        // $session = $this->request->getSession();
-        // if (isset($session->flashContent))
-        // {
-        //     $this->template->flashContent = $session->flashContent;
-        //     unset($session->flashContent);
-        // }
+        $siteSettings = $this->getApplication()->siteSettings;
+        if ($contactInfo = $siteSettings->getProperty('contact-info'))
+        {
+            $this->template->contactInfo = $contactInfo;
+        }
+
+        $session = $this->request->getSession();
+        if (isset($session->flashContent))
+        {
+            $this->template->flashContent = $session->flashContent;
+            unset($session->flashContent);
+        }
 
         parent::afterCallback($callback);
     }

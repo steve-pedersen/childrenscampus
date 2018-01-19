@@ -14,5 +14,5 @@ resource.</p>
 
 {else}
 
-<a class="btn btn-primary" href="">Return to Children's Campus Check-in</a>
+<a class="btn btn-primary" href="/">Return to Children's Campus Check-in</a>
 {/if}

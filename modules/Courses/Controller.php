@@ -21,7 +21,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         $authZ = $this->getAuthorizationManager();
         $azids = $authZ->getObjectsForWhich($viewer, 'course view', 'Course');
         $courses = $this->schema('Ccheckin_Courses_Course')->getByAzids($azids);
-       
+        
         if (empty($courses))
         {
             $azids = $authZ->getObjectsForWhich($viewer, 'purpose have', 'Purpose');
@@ -49,6 +49,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
             }
         }
         
+        $this->template->canRequest = $this->hasPermission('course request');
         $this->template->courses = $cs;
     }
     

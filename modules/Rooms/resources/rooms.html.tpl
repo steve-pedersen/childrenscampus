@@ -1,4 +1,4 @@
-<h1>Manage Rooms</h1>
+<h1>Manage Rooms</h1><br>
 {if $message}<div class="flash"><div class="message notice"><p>{$message}</p></div></div>{/if}
 <form action="{$smarty.server.REQUEST_URI}" method="post">
     <table class="table">
@@ -23,10 +23,11 @@
 		{/foreach}
 		</tbody>
 	</table>
-    <div class="link-controls">
-        <p><a class="new" href="admin/rooms/edit/new">Create a Room</a></p>
-    </div>
-	<div class="commands">
-        <p><input type="submit" name="command[remove]" value="Remove Selected" /></p>
+	<hr>
+    <div class="link-controls form-group">
+        <a class="btn btn-info" class="new" href="admin/rooms/new">Create a Room</a>
+        {if $rooms}
+        <input class="btn btn-danger" type="submit" name="command[remove]" value="Remove Selected" />
+        {/if}
     </div>
 </form>

@@ -45,8 +45,10 @@ class Ccheckin_Courses_Facet extends Ccheckin_Purposes_AbstractPurpose // NOT? e
 		return self::$Tasks;
 	}
 	
+    // NOTE: Figure this out...
 	public function getTasks ()
 	{
+        return array(); // added this to get the page working temporarily
 		$tasks = $this->getProperty('tasks'); // TODO: Unserialize
 		
 		return ($tasks ? $tasks : array());

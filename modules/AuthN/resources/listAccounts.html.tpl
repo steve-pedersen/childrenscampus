@@ -77,7 +77,7 @@
                 
                 <tbody>
             {foreach item="account" from=$accountList}
-                    <tr class="{cycle values=even,odd}">
+                    <tr class="{cycle values='even,odd'}">
                         <td><a class="text-capitalize" href="modules/log?query={$account->username}">{$account->lastName|escape}, {$account->firstName|escape} {$account->middleName|escape}</a></td>
                         <td>{$account->emailAddress|escape}</td>
                         <td>{$account->username|escape|default:'<span class="detail">n/a</a>'}</td>

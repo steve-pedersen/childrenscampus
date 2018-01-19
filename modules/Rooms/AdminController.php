@@ -67,17 +67,18 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
 
     public function editRoom () 
     {
+        $id = $this->getRouteVariable('id');
         if (!preg_match('/^([0-9]+|new)$/', $id))
         {
             $this->notFound(); exit;
         }
-
+        
         $rooms = $this->schema('Ccheckin_Rooms_Room');
         $errors = array();
         $new = false;
         
         $hours = array(7,8,9,10,11,12,13,14,15,16,17,18,19,20);
-        $days = array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
+        $days = array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', );
         
         if (is_numeric($id))
         {

@@ -38,7 +38,7 @@ class Ccheckin_Rooms_Observation extends Bss_ActiveRecord_BaseWithAuthorization 
     // Possibly add a parameter in here for the 'observation' object in question.
     public function getSemester ()
     {
-        $semesters = $this->schema('Ccheckin_Semesters_Semester');
+        $semesters = $this->getSchema('Ccheckin_Semesters_Semester');
 
         $semester = $semesters->find(
             $semesters->startDate->beforeOrEquals($this->startTime)->andIf(

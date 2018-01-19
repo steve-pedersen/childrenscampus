@@ -91,10 +91,10 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     {
         $this->requirePermission('room view schedule');
 
-        $roomId = (null !== $this->getRouteVariable('id')) ? $this->getRouteVariable('id') : $roomId;
-        $year = (null !== $this->getRouteVariable('year')) ? $this->getRouteVariable('year') : $year;
-        $month = (null !== $this->getRouteVariable('month')) ? $this->getRouteVariable('month') : $month;
-        $day = (null !== $this->getRouteVariable('day')) ? $this->getRouteVariable('day') : $day;
+        $roomId = $this->getRouteVariable('id');
+        $year = $this->getRouteVariable('year');
+        $month = $this->getRouteVariable('month');
+        $day = $this->getRouteVariable('day');
         
         if ($roomId)
         {
@@ -462,7 +462,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         $proto = $this->schema('Ccheckin_Rooms_Observation');
         $cond = $proto->allTrue(
             $proto->accountId->equals($viewer->id),
-            $proto->startTime->after(new Date(0))
+            $proto->startTime->after(new DateTime)
         );
         $observations = $proto->find($cond);
 

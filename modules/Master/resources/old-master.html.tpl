@@ -13,7 +13,6 @@
 		<link href='//fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" type="text/css" href="assets/css/print.css" media="print">
 		<link rel="stylesheet" type="text/css" href="assets/css/app-js.css" media="screen">
-		<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
 		<!-- <script>document.write('<link rel="stylesheet" type="text/css" href="assets/css/app-js.css" media="screen">');</script>  -->
 	</head>
 
@@ -100,87 +99,23 @@
 		</div> 
 		{/if}
 
-
-<!-- MAIN CONTENT -->
-        
-<div class="container" id="content" tabindex="-1">
-	<div class="row">
-
-		{if $viewer}
-		<!-- LEFT NAVIGATION -->		
-        <div class="col-md-3">
-            <div class="sidebar-nav">
-                <div class="well">
-                	<!-- <h3 class="menu-header">Hello, {$userContext->account->firstName|escape}</h3> -->
-                    <ul class="nav left-nav">
-                        <!-- <li class="nav-header"><strong>Hello, {$userContext->account->firstName|escape}</strong></li> -->
-                        <li><a href="reservations">Sign Up For a Visit</a></li>
-                        <li><a href="reports/generator">Create Reports</a></li>
-                        <li><a href="reservations/upcoming">My Reservations</a></li>
-                        <li><a href="reservations/schedule">Room Schedules</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li><a href="courses">View Courses</a></li>
-                        <li><a href="courses/request">Request a Course</a></li>
-                        <li role="separator" class="divider"></li>
-                        <li><a href="admin">Administrate</a></li>
-                        <li><a href="reservations/missed">Missed Reservations</a></li>
-                        <li><a href="reservations/observations">Past Observations</a></li>
-                    </ul>
-                </div>
-                <!--/.well -->
-            </div>
-            <!--/sidebar-nav-fixed -->
-        </div>
-		{/if}
-
-		<!-- MIDDLE - MAIN CONTENT -->
-		{if $viewer}
-		<div class="col-md-6">
-		{else}
-		<div class="col-md-12">
-		{/if}
-		{include file=$contentTemplate}
+		<div class="container">
+			<section>
+				<div class="container" id="content" tabindex="-1">
+				{include file=$contentTemplate}
+				</div>
+			</section>
 		</div>
-		
-		{if $viewer}
-		<!-- RIGHT SIDEBAR - Contact -->
-        <div class="col-md-3">
-            <div class="right-sidebar pull-right">
-                <div class="well">
-					<div id="resources">	
-						<div class="res_box">
-							<h3>Contact</h3>
-							<strong>Children's Campus</strong><br>
 
-							San Francisco State University<br><br>
-							<strong>Physical Address:</strong><br>
-							North State Drive @ Lake Merced Boulevard<br><br>
-							<strong>Mailing Address:</strong><br>
-							1600 Holloway Ave.<br>
-							San Francisco, <abbr title="California">CA</abbr> 94132<br><br>
-							Email: <a href="mailto:children@sfsu.edu">children@sfsu.edu</a><br>
-							Phone: 415-405-4011<br>
-							Fax: 415-405-3832<br>
-						</div>
-					</div>
-<!-- 					{if $contactInfo}
-					<div class="container">
-						<section>
-							<div class="container contact-info-container" id="contactInfo">
-								{$contactInfo}
-							</div>
-						</section>
-					</div>
-					{/if} -->
-                </div>
-                <!--/.well -->
-            </div>
-            <!--/sidebar-nav-fixed -->
-        </div>
-        {/if}
-
-	</div>
-</div>
+		{if $contactInfo}
+		<div class="container">
+			<section>
+				<div class="container contact-info-container" id="contactInfo">
+					{$contactInfo}
+				</div>
+			</section>
+		</div>
+		{/if}
 
 		{if !$viewer}
 		<div id="login-box" class="modal fade">

@@ -12,7 +12,7 @@
     <tfoot>
         <tr>
             <td colspan="2">Total Time Spent</td>
-            <td>{$purposeInfo.time|min2hr}</td>
+            <td>{$purposeInfo.time}</td>
         </tr>
     </tfoot>
     <tbody>
@@ -20,7 +20,7 @@
         <tr>
             <td>{$observation->room->name|escape}</td>
             <td>{$observation->startTime->getDate()|date_format:"%b %e, %Y at %l %p"}</td>
-            <td>{$observation->duration|min2hr}</td>
+            <td>{$observation->duration}</td>
         </tr>
 {/foreach}
     </tbody>

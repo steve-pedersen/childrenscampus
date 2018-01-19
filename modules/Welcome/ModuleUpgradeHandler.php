@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Create the configuration options.
+ * Create the configuration options, which in this case consists of customizable text for the website.
  * 
- * @author      Daniel A. Koepke (dkoepke@sfsu.edu)
+ * @author      Steve Pedersen (pedersen@sfsu.edu)
  * @copyright   Copyright &copy; San Francisco State University
  */
 class Ccheckin_Welcome_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUpgradeHandler
@@ -14,8 +14,12 @@ class Ccheckin_Welcome_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleU
         switch ($fromVersion)
         {
             case 0:
-                $siteSettings->defineProperty('welcome-module', 'Module to show on welcome page', 'int');
-                $siteSettings->defineProperty('welcome-text', 'Text to show on welcome page', 'string');
+                $siteSettings->defineProperty('welcome-text', 'Text to show on login page and homepage once signed in.', 'string');
+                $siteSettings->defineProperty('welcome-title', 'Title to show on page before signed in.', 'string');
+                $siteSettings->defineProperty('welcome-text-extended', 'Additional welcome text for logged in user homepage.', 'string');
+                $siteSettings->defineProperty('notice-warning', 'Warning notice (yellow) for top of homepage.', 'string');
+                $siteSettings->defineProperty('notice-message', 'Regular notice (green) for top of homepage.', 'string');
+                $siteSettings->defineProperty('location-message', 'Text featured below image of Childrens Campus on homepage.', 'string');
                 break;
         }
     }

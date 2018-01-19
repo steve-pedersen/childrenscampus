@@ -12,12 +12,12 @@
 </dl>
 </div>
 {foreachelse}
-<p>you have no courses yet.</p>
+<p class="alert alert-warning">You have no courses yet.</p>
 {/foreach}
 <div class="course-actions">
-    <ul>
-        {if $diva->user->hasPermission('course request')}
-        <li><a href="courses/request">request a course</a></li>
+    <ul class="list-unstyled">
+        {if $canRequest}
+        <li><a href="courses/request" class="btn btn-primary">Request a course</a></li>
         {/if}
     </ul>
 </div>

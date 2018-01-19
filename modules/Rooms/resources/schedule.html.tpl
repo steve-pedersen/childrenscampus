@@ -24,7 +24,7 @@
         <tr>
             <th scope="row">{$timeDisplay}</th>
           {foreach from=$calendar.week item='day'}
-            {assign var='result' value=`$day.times[$time]`}
+            {assign var='result' value="`$day.times[$time]`"}
             <td>
             {foreach item='reservation' from=$result}
                 <p>{$reservation->account->displayName|escape} ({$reservation->observation->purpose->object->course->shortName})</p>
