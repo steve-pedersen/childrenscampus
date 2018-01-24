@@ -18,7 +18,7 @@
     <div class="form-group">
         <label for="room-maxObservers">Maximum number of observers:</label>
         <input class="textfield form-control" type="text" name="room[maxObservers]" id="room-maxObservers" value="{$room->maxObservers}" />
-        {if $errors.maxObservers}<dd class="error">{$errors.maxObservers}</dd>{/if}   
+        {if $errors.maxObservers}<p class="error">{$errors.maxObservers}</p>{/if}   
     </div>
     <div class="form-group">
         <label for="room-description">Description</label>
@@ -43,8 +43,8 @@
                 <td>{$time|date_format:"%l%p"}</td>
                 {foreach from=$days key=daykey item=day}              
                 <td>
-                    <label for="{$day|lcfirst}-{$hour}"><span class="sr-only">{$day|lcfirst} {$hour}</span>
-                    <input name="room[schedule][{$daykey}][{$hourkey}]" id="{$day|lcfirst}-{$hour}" type="checkbox">
+                    <label for="{$day|lcfirst}-{$hour}"><span class="sr-only">{$day|lcfirst} {$hour}</span>                  
+                    <input name="room[schedule][{$daykey}][{$hour}]" id="{$day|lcfirst}-{$hour}" type="checkbox" value="true" {if $schedule && $schedule[$daykey][$hour] == 'true'}checked{/if}>
                     </label>
                 </td>            
                 {/foreach}

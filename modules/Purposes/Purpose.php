@@ -14,7 +14,7 @@ class Ccheckin_Purposes_Purpose extends Bss_ActiveRecord_BaseWithAuthorization /
             'objectId' => array('int', 'nativeName' => 'object_id'),
             'objectType' => array('string', 'nativeName' => 'object_type'),
 
-            'observations' => array('1:N', 'to' => 'Ccheckin_Rooms_Observations', 'reverseOf' => 'purpose', 'orderBy' => array('start_time')),
+            'observations' => array('1:N', 'to' => 'Ccheckin_Rooms_Observation', 'reverseOf' => 'purpose', 'orderBy' => array('start_time')),
         );
     }
 

@@ -4,7 +4,7 @@
 <div class="list-group col-xs-6">   
     <h3><img src="assets/images/icon_rooms.png" class="transparent control_icon" width="64" height="64">Rooms</h3>
     <a class="list-group-item" href="admin/rooms">Manage rooms</a> 
-    <a class="list-group-item" href="admin/rooms/edit/new">Create a room</a> 
+    <a class="list-group-item" href="admin/rooms/new">Create a room</a> 
 </div>
 <div class="list-group col-xs-6">
     <h3><img src="assets/images/icon_course.png" class="transparent control_icon" width="64" height="64">Observations</h3>

@@ -157,21 +157,12 @@
 							North State Drive @ Lake Merced Boulevard<br><br>
 							<strong>Mailing Address:</strong><br>
 							1600 Holloway Ave.<br>
-							San Francisco, <abbr title="California">CA</abbr> 94132<br><br>
+							San Francisco, CA 94132<br><br>
 							Email: <a href="mailto:children@sfsu.edu">children@sfsu.edu</a><br>
 							Phone: 415-405-4011<br>
 							Fax: 415-405-3832<br>
 						</div>
 					</div>
-<!-- 					{if $contactInfo}
-					<div class="container">
-						<section>
-							<div class="container contact-info-container" id="contactInfo">
-								{$contactInfo}
-							</div>
-						</section>
-					</div>
-					{/if} -->
                 </div>
                 <!--/.well -->
             </div>

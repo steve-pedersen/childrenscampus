@@ -31,7 +31,7 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
     {
         $this->setPageTitle('Manage Rooms');
         $roomSchema = $this->schema('Ccheckin_Rooms_Room');
-        $message = '';
+        $message = ''; 
         
         if ($this->request->getRequestMethod() == 'post')
         {
@@ -60,7 +60,7 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
                 }
             }
         }
-        
+
         $this->template->rooms = $roomSchema->getAll(array('orderBy' => 'name'));
         $this->template->message = $message;
     }
@@ -78,12 +78,13 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
         $new = false;
         
         $hours = array(7,8,9,10,11,12,13,14,15,16,17,18,19,20);
-        $days = array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', );
+        $days = array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday');
         
         if (is_numeric($id))
         {
             $room = $this->requireExists($rooms->get($id));
             $this->setPageTitle('Edit Room: ' . $room->name);
+            $this->template->schedule = $room->schedule;
         }
         else
         {
@@ -91,8 +92,8 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
             $room = $rooms->createInstance();
             $this->setPageTitle('Create Room');
         }
-        
-        if ($this->request->getRequestMethod() == 'post')
+
+        if ($this->request->wasPostedByUser())
         {
             if ($command = $this->request->getPostParameter('command'))
             {
@@ -101,7 +102,14 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
                 switch ($action)
                 {
                     case 'save':
-                        $room->absorbData($this->request->getPostParameter('room'));
+                        $roomData = $this->request->getPostParameter('room');
+                        
+                        $room->observationType = $roomData['observationType'];
+                        $room->name = $roomData['name'];
+                        $room->maxObservers = $roomData['maxObservers'];
+                        $room->description = $roomData['description'];
+                        $room->schedule = json_encode($roomData['schedule']);
+
                         $errors = $room->validate();
                         
                         if (empty($errors))

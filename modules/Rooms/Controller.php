@@ -17,6 +17,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             'reservations/override/:id' => array('callback' => 'override', ':id' => '[0-9]+'),
             'reservations/delete/:id'   => array('callback' => 'delete', ':id' => '[0-9]+'),
             'reservations/schedule'     => array('callback' => 'schedule'),
+            'reservations/schedule/:id' => array('callback' => 'schedule', ':id' => '[0-9]+'),
             'reservations/schedule/:id/:year/:month/:day'       => array('callback' => 'schedule',
                 ':id' => '[0-9]+', ':year' => '[0-9]+', ':month' => '[0-9]+', ':day' => '[0-9]+'),
             'reservations/week/:id/:year/:month/:day'           => array('callback' => 'week',
@@ -106,39 +107,55 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             }
             else
             {
-                $date = new Date;
-                $year = $date->getYear();
-                $month = $date->getMonth();
-                $day = $date->getDay();
+                $date = new DateTime;
+                $year = $date->format('Y');
+                $month = $date->format('m');
+                $day = $date->format('d');
             }
             
-            $prevDate = new Date(strtotime($date->getDate() . ' -1 week'));
-            $nextDate = new Date(strtotime($date->getDate() . ' +1 week'));
+            $prevDate = new DateTime(strtotime(time() . ' -1 week'));   // TODO: Check this prev/next stuff ******************
+            $nextDate = new DateTime(strtotime(time() . ' +1 week'));
             
             $calendar = array();
             
-            $calendar['month'] = $date->getMonthName();
-            $calendar['year'] = $date->getYear();
+            $calendar['month'] = $date->format('F');
+            $calendar['year'] = $date->format('Y');
             $calendar['date'] = "$year/$month/$day";
-            $calendar['previous'] = 'reservations/schedule/' . $room->id . '/' . $prevDate->getYear() . '/' . $prevDate->getMonth() . '/' . $prevDate->getDay();
-            $calendar['next'] = 'reservations/schedule/' . $room->id . '/'  . $nextDate->getYear() . '/' . $nextDate->getMonth() . '/' . $nextDate->getDay();
+            $calendar['previous'] = 'reservations/schedule/' . $room->id . '/' . $prevDate->format('Y') . '/' . $prevDate->format('m') . '/' . $prevDate->format('d');
+            $calendar['next'] = 'reservations/schedule/' . $room->id . '/'  . $nextDate->format('Y') . '/' . $nextDate->format('m') . '/' . $nextDate->format('d');
             
-            $weekDayOfFirst = $date->getDayOfWeek();
-            
-            
+            $weekDayOfFirst = $date->format('w'); // $date->getDayOfWeek();
+
+            // TODO: Why are we going down all the way to Sunday? 
             while ($weekDayOfFirst--)
             {
-                $date = $date->getPrevDay();
+                $date = $date->modify('-1 day');
             }
-            
+
             $calendar['week'] = $this->buildWeek($room, $date, null, true);
             $calendar['weekofdate'] = $date;
             
             $calendar['times'] = array();
-            
+
+            // $hours = array();
+            // $longest = 0;
+            // $longestIndex = 0;
+
+            // foreach ($this->schedule as $day => $dayhours)
+            // {
+            //     if (count($dayhours) > $longest)
+            //     {
+            //         $longestIndex = $day;
+            //     }      
+            // }
+            // foreach ($this->schedule[$longestIndex] as $hour => $value)
+            // {          
+            //     $hours[] = (($hour < 13) ? $hour . ' am' : ($hour - 12) . ' pm');
+            // } 
+            $hours = array(7,8,9,10,11,12,13,14,15,16,17,18,19,20);
             for ($i = self::START_HOUR; $i <= self::END_HOUR; $i++)
             {
-                if (in_array($i, $room->hours))
+                if (in_array($i, $hours))
                 {
                     $calendar['times'][$i] = ($i < 13 ? $i . ' AM' : ($i % 12) . ' PM');
                 }
@@ -172,8 +189,8 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         else
         {
             $date = new Date;
-            $year = $date->getYear();
-            $month = $date->getMonth();
+            $year = $date->format('Y');
+            $month = $date->format('m');
             $day = $date->getDay();
         }
         
@@ -183,10 +200,10 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         $calendar = array();
         
         $calendar['month'] = $date->getMonthName();
-        $calendar['year'] = $date->getYear();
+        $calendar['year'] = $date->format('Y');
 		$calendar['date'] = "$year/$month/$day";
-        $calendar['previous'] = 'reservations/week/' . $room->id . '/' . $prevDate->getYear() . '/' . $prevDate->getMonth() . '/' . $prevDate->getDay();
-        $calendar['next'] = 'reservations/week/' . $room->id . '/'  . $nextDate->getYear() . '/' . $nextDate->getMonth() . '/' . $nextDate->getDay();
+        $calendar['previous'] = 'reservations/week/' . $room->id . '/' . $prevDate->format('Y') . '/' . $prevDate->format('m') . '/' . $prevDate->getDay();
+        $calendar['next'] = 'reservations/week/' . $room->id . '/'  . $nextDate->format('Y') . '/' . $nextDate->format('m') . '/' . $nextDate->getDay();
         
         $weekDayOfFirst = $date->getDayOfWeek();
               
@@ -278,12 +295,13 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             exit;
         }
 		
-		if ($this->request->getRequestMethod() == 'post')
+		if ($this->request->wasPostedByUser())
         {
             if ($command = $this->request->getPostParameter('command'))
             {
                 switch (array_shift(array_keys($command)))
                 {
+                    // TODO: Fix this Date stuff ****************************************
                     case 'override':
                         $now = new Date;
 						$now->setHour($now->getHour() - 1);
@@ -318,7 +336,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             exit;
         }
         
-        if ($this->request->getRequestMethod() == 'post')
+        if ($this->request->wasPostedByUser())
         {
             if ($command = $this->request->getPostParameter('command'))
             {
@@ -510,9 +528,9 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         for ($i = 0; $i < 7; $i++)
         {
             $week[] = $this->buildDay($room, $date, $month, $reservations);
-            $date = $date->getNextDay();
+            $date = $date->modify('+1 day'); // $date->getNextDay();
         }
-        
+        // echo "<pre>"; var_dump($week); die;
         return $week;
     }
     
@@ -520,22 +538,22 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     {
         
         $day = array();
-        $today = new Date();
+        $today = new DateTime();
         
-        if ($today->format("%m/%d/%y") == $date->format("%m/%d/%y"))
+        if ($today->format("m/d/y") == $date->format("m/d/y"))
         {
             $day['today'] = true;
         }
 		
-		$day['display'] = $date->format("%m/%d/%y");
+		$day['display'] = $date->format("m/d/y");
         
-        if ($month && $date->getMonth() != $month)
+        if ($month && $date->format('m') != $month)
         {
             $day['outside'] = true;
         }
         
-        $day['dayOfMonth'] = $date->getDay();
-        $day['date'] = $date->getYear() . '/' . $date->getMonth() . '/' . $date->getDay();
+        $day['dayOfMonth'] = $date->format('d');
+        $day['date'] = $date->format('Y') . '/' . $date->format('m') . '/' . $date->format('d');
         $day['times'] = $this->buildDayTimes($room, $date, $reservations);
 
         return $day;
@@ -544,13 +562,28 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     private function buildDayTimes ($room, $day, $reservations)
     {
         $times = array();
-        
-        if (in_array($day->getDayOfWeek(), $room->days))
+        $roomDays = array();
+        $dayHours = array();
+        // echo "<pre>"; var_dump($day); die;
+        foreach ($room->schedule as $scheduleday => $schedulehours)
+        {
+            $roomDays[] = $scheduleday;
+            if (empty($dayHours))
+            {
+                $dayHours = array_keys($schedulehours);
+            }
+        }
+        // $room->schedule[$day->format('N')]
+
+        // if (in_array($day->getDayOfWeek(), $room->days))
+        // if (in_array($day->format('N'), $room->schedule))
+        if (in_array($day->format('N'), $roomDays))
         {
             $startTime = clone $day;
             $endTime = clone $day;
-            $hours = $room->hours;
+            $hours = $dayHours;
             
+            // TODO: Sort out this schedule stuff *******************************************
             for ($i = self::START_HOUR; $i <= self::END_HOUR; $i++)
             {
                 if (!in_array($i, $hours))
@@ -559,12 +592,8 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                 }
                 else
                 {
-                    $startTime->setMinute(0);
-                    $startTime->setSecond(0);
-                    $endTime->setMinute(0);
-                    $endTime->setSecond(0);
-                    $startTime->setHour($i);
-                    $endTime->setHour($i + 1);
+                    $startTime->setTime($i, 0, 0);
+                    $endTime->setTime($i + 1, 0, 0);
                     
                     $tRoomReservation = $this->schema('Ccheckin_Rooms_Reservation');
                     $cond = $tRoomReservation->allTrue(

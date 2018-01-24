@@ -20,6 +20,7 @@ class Ccheckin_Rooms_Room extends Bss_ActiveRecord_BaseWithAuthorization // impl
             'description' => 'string',
             'observationType' => array('string', 'nativeName' => 'observation_type'),
             'maxObservers' => array('string', 'nativeName' => 'max_observers'),
+            'schedule' => 'string',
             'hours' => 'string',
             'days' => 'string',
             
@@ -38,36 +39,52 @@ class Ccheckin_Rooms_Room extends Bss_ActiveRecord_BaseWithAuthorization // impl
 
     public function getDays ()
     {
-        $days = $this->getProperty('days');
+        $days = $this->_fetch('days');
         
         return $days ? $days : array();
     }
     
     public function getHours ()
     {
-        $hours = $this->getProperty('hours');
+        $hours = $this->_fetch('hours');
         
         return $hours ? $hours : array();
+    }
+    
+    public function getSchedule ()
+    {
+        $schedule = json_decode($this->_fetch('schedule'), true);
+        sort($schedule);
+        return $schedule ? $schedule : array();
     }
     
     public function getDisplayHours ()
     {
         $hours = array();
-        
-        foreach ($this->hours as $hour)
+        $longest = 0;
+        $longestIndex = 0;
+
+        foreach ($this->schedule as $day => $dayhours)
         {
-            $hours[] = $hour < 13 ? $hour . ' am' : ($hour - 12) . ' pm';
+            if (count($dayhours) > $longest)
+            {
+                $longestIndex = $day;
+            }      
         }
+        foreach ($this->schedule[$longestIndex] as $hour => $value)
+        {          
+            $hours[] = (($hour < 13) ? $hour . ' am' : ($hour - 12) . ' pm');
+        }           
         
         return implode(', ', $hours);
     }
     
     public function getDisplayDays ()
     {
-        $days = array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
+        $days = array('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday');
         $display = array();
         
-        foreach ($this->days as $day)
+        foreach ($this->schedule as $day => $hours)
         {
             $display[] = $days[$day];
         }
@@ -77,10 +94,10 @@ class Ccheckin_Rooms_Room extends Bss_ActiveRecord_BaseWithAuthorization // impl
     
     public function getShortDays ()
     {
-        $days = array('Su', 'M', 'T', 'W', 'Th', 'F', 'S');
+        $days = array('M', 'T', 'W', 'Th', 'F');
         $display = array();
         
-        foreach ($this->days as $day)
+        foreach ($this->schedule as $day => $hours)
         {
             $display[] = $days[$day];
         }

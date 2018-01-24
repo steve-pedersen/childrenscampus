@@ -67,7 +67,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         $this->template->includeScripts = $this->includeScriptList;
         $this->template->analyticsCode = $this->getApplication()->configuration->getProperty('analyticsTrackingCode');
         $this->template->setPageTitle(!empty($this->pageTitle) ? implode(' - ', $this->pageTitle) : '');
-
+        
         $siteSettings = $this->getApplication()->siteSettings;
         if ($contactInfo = $siteSettings->getProperty('contact-info'))
         {

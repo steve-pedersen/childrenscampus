@@ -1,5 +1,5 @@
 {if $room}
-<h1>{$room->name|escape} schedule for the week of {$calendar.weekofdate->getDate()|date_format}</h1>
+<h1>{$room->name|escape} schedule for the week of {$calendar.weekofdate->format('M j, Y')}</h1>
 <table class="table calendar">
     <caption>
         <a class="nav previous" title="previous week" href="{$calendar.previous}">&lt;&lt;</a>
@@ -24,7 +24,7 @@
         <tr>
             <th scope="row">{$timeDisplay}</th>
           {foreach from=$calendar.week item='day'}
-            {assign var='result' value="`$day.times[$time]`"}
+            {assign var='result' value=$day.times[$time]}
             <td>
             {foreach item='reservation' from=$result}
                 <p>{$reservation->account->displayName|escape} ({$reservation->observation->purpose->object->course->shortName})</p>

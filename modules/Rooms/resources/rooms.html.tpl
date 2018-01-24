@@ -1,7 +1,7 @@
 <h1>Manage Rooms</h1><br>
 {if $message}<div class="flash"><div class="message notice"><p>{$message}</p></div></div>{/if}
 <form action="{$smarty.server.REQUEST_URI}" method="post">
-    <table class="table">
+    <table class="table table-responsive table-striped">
 		<thead>
 			<tr>
 				<th> </th>
@@ -14,11 +14,11 @@
 		<tbody>
 		{foreach item='room' from=$rooms}
 			<tr>
-				<td class="checkbox"><input type="checkbox" name="rooms[{$room->id}]" id="rooms-{$room->id}" value="{$room->id}" /></td>
+				<td><input type="checkbox" name="rooms[{$room->id}]" id="rooms-{$room->id}" value="{$room->id}" /></td>
 				<td><label for="rooms-{$room->id}">{$room->name|escape}</label></td>
 				<td>{$room->maxObservers}</td>
 				<td>{$room->shortDays}</td>
-				<td><a href="admin/rooms/edit/{$room->id}" title="edit {$room->name|escape}">edit</a></td>
+				<td><a href="admin/rooms/{$room->id}" title="edit {$room->name|escape}">edit</a></td>
 			</tr>
 		{/foreach}
 		</tbody>

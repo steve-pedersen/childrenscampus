@@ -18,7 +18,7 @@ class Ccheckin_Welcome_Controller extends Ccheckin_Master_Controller
 	
 	public function index ()
 	{
-
+		
 		if ($user = $this->getUserContext()->getAccount())
 		{
 			// redirect to /home or is that not needed anymore?

@@ -1,8 +1,10 @@
 <?php
-if (file_exists('../vendor/autoload.php'))
+
+if (file_exists('../var/composer/vendor/autoload.php'))
 {
-	require_once '../vendor/autoload.php';
+	require_once '../var/composer/vendor/autoload.php';
 }
+
 require_once 'bss.init.php';
 require_once 'bss/core/Application.php';
 require_once 'bss/core/Request.php';

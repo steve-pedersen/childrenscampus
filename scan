@@ -1,5 +1,5 @@
 #!/bin/sh
 php ../framework/scripts/bss-scan.php
-sudo chown www-data var/ -R
-sudo chmod 0777 var/colophon.conf
+# sudo chown www-data var/ -R
+# sudo chmod 0777 var/colophon.conf
 
