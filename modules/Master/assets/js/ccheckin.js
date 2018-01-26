@@ -1,0 +1,18 @@
+(function ($) {
+
+	// DatePicker 
+	$(function(){
+
+	  $.datepicker.setDefaults(
+	    $.extend( $.datepicker.regional[ '' ] )
+	  );
+	  $( '#startDate' ).datepicker({
+	    formatDate: 'yy-mm-dd'
+	  });
+	  $( '#endDate' ).datepicker({
+	    formatDate: 'yy-mm-dd'
+	  });
+	  
+	});
+
+}(jQuery));

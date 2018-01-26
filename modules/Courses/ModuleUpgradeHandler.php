@@ -10,9 +10,12 @@ class Ccheckin_Courses_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleU
 {
     public function onModuleUpgrade ($fromVersion)
     {
+        $siteSettings = $this->getApplication()->siteSettings;
         switch ($fromVersion)
         {
             case 0:
+                $siteSettings->defineProperty('course-tasks', 'List of tasks that can be assigned to a particular course. JSON encoded data.', 'string');
+                
                 /**
                 *   Create tables
                 */
@@ -24,6 +27,16 @@ class Ccheckin_Courses_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleU
                 $def->addProperty('end_date', 'datetime');
                 $def->addProperty('active', 'datetime');                
                 $def->save();
+
+                $def = $this->createEntityType('ccheckin_course_enrollment_map', $this->getDataSource('Ccheckin_Courses_Course'));
+                $def->addProperty('account_id', 'int', array('primaryKey' => true));
+                $def->addProperty('course_id', 'int', array('primaryKey' => true));
+                $def->addProperty('term', 'string');
+                $def->addProperty('role', 'string');
+                $def->addProperty('enrollment_method', 'string');
+                $def->addForeignKey('bss_authn_accounts', array('account_id' => 'id'));
+                $def->addForeignKey('ccheckin_courses', array('course_id' => 'id'));
+                $def->save();               
 
                 $def = $this->createEntityType('ccheckin_course_facet_types', $this->getDataSource('Ccheckin_Courses_FacetType'));
                 $def->addProperty('id', 'int', array('sequence' => true, 'primaryKey' => true));

@@ -135,9 +135,9 @@
 
 		<!-- MIDDLE - MAIN CONTENT -->
 		{if $viewer}
-		<div class="col-md-6">
+		<div class="col-md-6 main-content">
 		{else}
-		<div class="col-md-12">
+		<div class="col-md-12 main-content">
 		{/if}
 		{include file=$contentTemplate}
 		</div>

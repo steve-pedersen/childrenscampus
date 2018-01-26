@@ -28,7 +28,7 @@
     <div class="form-group">
         <label for="room-schedule">Room Availability</label>
         <table class="table table-condensed table-responsive table-striped table-bordered" id="room-schedule">
-            <thead class="thead-dark">
+            <thead>
             <tr>
                 <th></th>
                 {foreach from=$days item=day}

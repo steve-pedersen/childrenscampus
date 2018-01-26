@@ -1,6 +1,6 @@
 <?php
 
-class Ccheckin_Welcome_AdminController extends Ccheckin_Master_Controller
+class Ccheckin_Welcome_AdminController extends At_Admin_Controller
 {
     public static function getRouteMap ()
     {
@@ -8,12 +8,6 @@ class Ccheckin_Welcome_AdminController extends Ccheckin_Master_Controller
             'admin/welcome' => array('callback' => 'adminWelcome'),
         );
     }
-
-	public function beforeCallback ($callback)
-	{
-		parent::beforeCallback($callback);
-		$this->requirePermission('admin');
-	}
     
     public function adminWelcome ()
     {

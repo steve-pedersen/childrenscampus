@@ -1,6 +1,6 @@
 <?php
 
-class Ccheckin_Semesters_AdminController extends Ccheckin_Master_Controller
+class Ccheckin_Semesters_AdminController extends At_Admin_Controller
 {
 
     public static function getRouteMap ()
@@ -8,12 +8,6 @@ class Ccheckin_Semesters_AdminController extends Ccheckin_Master_Controller
         return array(
             'admin/semester/configure' => array('callback' => 'configure'),
         );
-    }
-
-    public function beforeCallback ($callback)
-    {
-        parent::beforeCallback($callback);
-        $this->requirePermission('admin');
     }
 
     public function configure ()
@@ -26,7 +20,7 @@ class Ccheckin_Semesters_AdminController extends Ccheckin_Master_Controller
         if ($command = $this->request->getPostParameter('command'))
         {
             $action  = array_shift(array_keys($command));
-            
+
             switch ($action)
             {
                 case 'remove':
@@ -50,17 +44,17 @@ class Ccheckin_Semesters_AdminController extends Ccheckin_Master_Controller
                     $startDate = $this->request->getPostParameter('startDate');
                     if ($startDate)
                     {
-                        $semester->startDate = new Date(strtotime($startDate));
+                        $semester->startDate = new DateTime($startDate);
                     }
                     
                     $endDate = $this->request->getPostParameter('endDate');
                     if ($endDate)
                     {
-                        $semester->endDate = new Date(strtotime($endDate));
+                        $semester->endDate = new DateTime($endDate);
                     }
                     
-                    $semester->display = $this->request->getPostParameter('semester') . ' ' . $this->request->getPostParameter('year');
-                    
+                    $semester->display = $this->request->getPostParameter('term') . ' ' . $semester->startDate->format('Y');
+
                     $errors = $semester->validate();
                     
                     if (empty($errors))
@@ -76,8 +70,8 @@ class Ccheckin_Semesters_AdminController extends Ccheckin_Master_Controller
         $semesters = $semesters->getAll(array('orderBy' => 'startDate'));
         
         $this->template->semesters = $semesters;
-        $this->template->terms = Semester::GetSemesters();
-        $this->template->years = Semester::GetYears();
+        $this->template->terms = Ccheckin_Semesters_Semester::GetTerms();
+        // $this->template->years = Ccheckin_Semesters_Semester::GetYears();
         $this->template->message = $message;
         $this->template->errors = $errors;
     }
@@ -93,7 +87,6 @@ class Ccheckin_Semesters_AdminController extends Ccheckin_Master_Controller
         {
             $this->template->courses = $courses;
         }
-        //echo '<pre>'; var_dump($term['displayName']); die;
     }
 
     public function guessActiveSemester ($returnTermCode = true)
@@ -116,10 +109,7 @@ class Ccheckin_Semesters_AdminController extends Ccheckin_Master_Controller
         }
 
         $y = '$y';
-        // echo '<pre>'; var_dump($y); die;
         $y = $y[0] . substr($y, 2);
-
-        //echo '<pre>'; var_dump($y); die;
 
         return ($returnTermCode ? '$y$s' : array($y, $s));
     }
@@ -166,7 +156,7 @@ class Ccheckin_Semesters_AdminController extends Ccheckin_Master_Controller
             $semesters['current']['displayName'] = 'Fall ' . $year[0] . '0' . substr($year, 1, 2);
             $semesters['next']['displayName'] = 'Spring ' . $year[0] . '0' . substr($nextYear, 1, 2);
         }
-        //die($semesters['current']['displayName']);
+
         return $semesters;
     }
 

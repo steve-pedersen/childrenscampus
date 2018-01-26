@@ -1,17 +1,18 @@
-<h1>Manage Courses: {$coursesIndexTabs.$tab}</h1>
+<h1>Manage Courses: <small>{$coursesIndexTabs.$tab}</small></h1>
 <div class="tabs">
-    <ul class="tab-list">
+	<ul class="nav nav-tabs nav-justified">
         {foreach item='tabDisplay' key='tabIndex' from=$coursesIndexTabs}
         {if $tab == $tabIndex}
-            <li class="active"><span>{$tabDisplay}</span></li>
+            <li role="presentation" class="active"><a href="admin/courses?tab={$tabIndex}"><strong>{$tabDisplay}</strong></a></li>
         {else}
-            <li><a href="admin/courses?tab={$tabIndex}">{$tabDisplay}</a></li>
+            <li role="presentation"><a class="text-muted" href="admin/courses?tab={$tabIndex}">{$tabDisplay}</a></li>
         {/if}
         {/foreach}
-    </ul>
+	</ul>
 </div>
+<br><br>
 <form method="post" action="{$smarty.server.REQUEST_URI}">
-	<table class="table">
+	<table class="table table-responsive table-striped table-bordered">
 		<thead>
 			<tr>
 				<th> </th>
@@ -25,7 +26,7 @@
 		<tbody>
 		{foreach item='course' from=$courses}
 			<tr>
-				<td class="checkbox"><input type="checkbox" name="courses[{$course->id}]" id="courses-{$course->id}" value="{$course->id}" /></td>
+				<td><input type="checkbox" name="courses[{$course->id}]" id="courses-{$course->id}" value="{$course->id}" /></td>
 				<td>{$course->shortName|escape}</td>
 				<td>{foreach item='teacher' from=$course->instructors}{$teacher->account->displayName|escape}{/foreach}</td>
 				<td>{foreach item='facet' from=$course->facets}{$facet->type->name|escape}{/foreach}</td>
@@ -35,22 +36,32 @@
                     <a href="admin/courses/dropstudents/{$course->id}">drop students</a>
                 </td>
 			</tr>
+		{foreachelse}
+			<tr>
+				<td colspan="6">---</td>
+			</tr>
 		{/foreach}
 		</tbody>
 	</table>
-	<div class="link-controls">
-        <p><a class="new" href="admin/courses/edit/new">Create a Course</a></p>
-    </div>
-	<div class="commands">
-		<p>
-            {if $tab == 'active'}
-            <input type="submit" name="command[inactive]" value="Deactivate Selected" />
-            {else}
-            <input type="submit" name="command[active]" value="Activate Selected" />
-            {/if}
-			{if $diva->user->userAccount->id == 2}
-            <input type="submit" name="command[remove]" value="Remove Selected" />
-			{/if}
-        </p>
+	<br><br>
+	{if $courses}
+	<div class="commands form-group">
+        {if $tab == 'active'}
+        <input class="btn btn-info" type="submit" name="command[inactive]" value="Deactivate Selected" />
+        {else}
+        <input class="btn btn-primary" type="submit" name="command[active]" value="Activate Selected" />
+        {/if}
+		{if $pAdmin}
+        <input class="btn btn-danger" type="submit" name="command[remove]" value="Remove Selected" />
+		{/if}
+		<hr>
 	</div>
+	{else}
+	<p>No courses found.</p>
+	{/if}
+	<br>
+	<div class="link-controls form-group">
+		<a class="new btn btn-success" href="admin/courses/edit/new">Create a Course</a>
+    </div>
+
 </form>

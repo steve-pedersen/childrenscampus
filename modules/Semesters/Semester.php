@@ -13,13 +13,13 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
             'id' => 'int',
             'display' => 'string',
             'internal' => 'string',
-            'startDate' => array('int', 'nativeName' => 'start_date'),
-            'endDate' => array('string', 'nativeName' => 'end_date'),
+            'startDate' => array('datetime', 'nativeName' => 'start_date'),
+            'endDate' => array('datetime', 'nativeName' => 'end_date'),
 
         );
     }
     
-    public static function GetSemesters ()
+    public static function GetTerms ()
     {
         return array(
             'Fall',
@@ -31,8 +31,8 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
     
     public static function GetYears ($limit = 5)
     {
-        $date = new Date();
-        $year = $date->getYear();
+        $date = new DateTime();
+        $year = $date->format('Y');
 		$year -= 2;
         $years = array();
         
@@ -43,23 +43,44 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
         
         return $years;
     }
-    
+ 
+    // public function getStartDate ()
+    // {
+    //     $startDate = $this->_fetch('startDate');
+        
+    //     return $startDate ? $startDate : new DateTime;
+    // }
+
+    // public function getEndDate ()
+    // {
+    //     $endDate = $this->_fetch('endDate');
+        
+    //     return $endDate ? $endDate : new DateTime;
+    // }
+
+    // public function getDisplay ()
+    // {
+    //     return $this->_fetch('display');
+    // }
+
+    // public function getInternal()
+
     public function setDisplay ($display)
     {
-        $this->setProperty('display', $display);
-        $this->setProperty('internal', strtolower(str_replace(' ', '_', $display)));
+        $this->_assign('display', $display);
+        $this->_assign('internal', strtolower(str_replace(' ', '_', $display)));
     }
     
     public function validate ()
     {
         $errors = array();
         
-        if (!$this->startDate || !($this->startDate instanceof Date))
+        if (!$this->startDate || !($this->startDate instanceof DateTime))
         {
             $errors['startDate'] = 'You must specify a start date';
         }
         
-        if (!$this->endDate || !($this->endDate instanceof Date))
+        if (!$this->endDate || !($this->endDate instanceof DateTime))
         {
             $errors['endDate'] = 'You must specify an end date';
         }

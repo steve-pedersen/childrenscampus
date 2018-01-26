@@ -2,7 +2,7 @@
 
 <form action="{$smarty.server.REQUEST_URI}" method="post">
     <h2>Course Types</h2>
-    <table class="table">
+    <table class="table table-responsive table-bordered">
         <thead>
             <tr>
                 <th> </th>
@@ -11,7 +11,7 @@
         </thead>
         {foreach from=$courseTypes item='type'}
             <tr>
-                <td class="checkbox"><input type="checkbox" name="courseTypes[{$type->id}]" id="courseTypes-{$type->id}" value="{$type->id}" />
+                <td><input type="checkbox" name="courseTypes[{$type->id}]" id="courseTypes-{$type->id}" value="{$type->id}" />
                 <td><label for="courseTypes-{$type->id}">{$type->name|escape}</label></td>
             </tr>
         {foreachelse}
@@ -20,18 +20,22 @@
             </tr>
         {/foreach}
     </table>
-    <div class-"commands">
-        <p><input type="submit" name="command[remove]" id="command-remove" value="Remove Selected Semesters" /></p>
+    {if $courseTypes}
+    <div class="commands">
+        <input class="btn btn-danger" type="submit" name="command[remove]" id="command-remove" value="Remove Selected Semesters" />
     </div>
+    {/if}
+    
+    <br><hr>
 
     <h2>Add a Course Type</h2>
-    <dl>
-        <dt><label for="name">Name:</label></dt>
-        <dd><input type="text" class="textfield" name="name" id="name" /></dd>
-        {if $errors.name}<dd class="error">{$errors.name}</dd>{/if}
-    </dl>
+    <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" class="form-control textfield" name="name" id="name" />
+        {if $errors.name}<p class="error">{$errors.name}</p>{/if}
+    </div>
 
-    <div class-"commands">
-        <p><input type="submit" name="command[add]" id="command-add" value="Create Course Type" /></p>
+    <div class="commands">
+        <input class="btn btn-primary" type="submit" name="command[add]" id="command-add" value="Create Course Type" />
     </div>
 </form>

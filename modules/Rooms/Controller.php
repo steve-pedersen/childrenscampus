@@ -35,7 +35,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         $azids = $authZ->getObjectsForWhich($viewer, 'purpose have', 'Purpose');
         $purposes = $this->schema('Ccheckin_Purposes_Purpose')->getByAzids($azids);
         
-        if (empty($purposes))
+        if (!empty($purposes))
         {
             $this->template->nopurpose = true;
         }

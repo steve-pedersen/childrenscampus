@@ -21,12 +21,6 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
         );
     }
 
-    public function beforeCallback ($callback)
-    {
-        parent::beforeCallback($callback);
-        $this->requirePermission('admin');
-    }
-
     public function rooms () 
     {
         $this->setPageTitle('Manage Rooms');

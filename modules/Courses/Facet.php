@@ -23,34 +23,38 @@ class Ccheckin_Courses_Facet extends Ccheckin_Purposes_AbstractPurpose // NOT? e
         );
     }
 
-	public static function GetAllTasks ()
+	public function GetAllTasks ()
 	{
-		if (self::$Tasks == null)
-		{
-			self::$Tasks = array(
-				'clawc' => 'Create and lead an activity with children',
-				'pocfoo' => 'Pick one child to focus on for observations',
-				'ic' => 'Interview a child',
-	//			'ip' => 'Interview a parent',
-				'iht' => 'Interview the Head Teacher',
-				'tpc' => 'Take photos of a child/children',
-				'tvc' => 'Take video of a child/children',
-				'cdrdprc' => 'Complete a DRDP-r of a child',
-				'cpc' => 'Complete a portfolio of a child',
-				'cdba' => 'Create a documentation board of an activity',
-				'ceic' => 'Complete the ECERS or ITERS on the classroom',
-			);
-		}
-		
-		return self::$Tasks;
+        $siteSettings = $this->getApplication()->siteSettings;
+        $tasks = json_decode($siteSettings->getProperty('course-tasks', true));
+
+        return $tasks ? $tasks : $this->getDefaultTasks();
 	}
+
+    public function getDefaultTasks ()
+    {
+        return array(
+            'Create and lead an activity with children',
+            'Pick one child to focus on for observations',
+            'Interview a child',
+            'Interview a parent',
+            'Interview the Head Teacher',
+            'Take photos of a child/children',
+            'Take video of a child/children',
+            'Complete a DRDP-r of a child',
+            'Complete a portfolio of a child',
+            'Create a documentation board of an activity',
+            'Complete the ECERS or ITERS on the classroom',
+        );
+    }
 	
     // NOTE: Figure this out...
 	public function getTasks ()
 	{
         return array(); // added this to get the page working temporarily
-		$tasks = $this->getProperty('tasks'); // TODO: Unserialize
-		
+		$tasks = $this->_fetch('tasks'); // TODO: Unserialize
+		$tasks = json_decode($tasks, true);
+
 		return ($tasks ? $tasks : array());
 	}
     

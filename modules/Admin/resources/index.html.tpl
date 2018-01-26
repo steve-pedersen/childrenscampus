@@ -1,4 +1,4 @@
-<h1>Administrate  <i class="glyphicon glyphicon-dashboard" aria-hidden="true"></i></h1>
+<h1>Admin Settings</h1>
 
 <div class="row">
 <div class="list-group col-xs-6">   
@@ -22,6 +22,7 @@
     <a class="list-group-item" href="admin/courses">Manage courses</a>
     <a class="list-group-item" href="admin/courses/queue">Manage course requests</a>
     <a class="list-group-item" href="admin/courses/types">Manage course types</a>
+    <a class="list-group-item" href="admin/courses/tasks">Manage tasks</a>
     <a class="list-group-item" href="admin/courses/edit/new">Create a course</a>
 </div>
 <div class="list-group col-xs-6">

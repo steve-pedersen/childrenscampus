@@ -49,7 +49,7 @@
 			    <p>
 		The Children’s Campus is located on the campus of San Francisco State University at 
 		the corner of North State Drive and Lake Merced Blvd.  We are beside the Library Annex.  
-		If you need help locating our center, please check the <a href="http://www.sfsu.edu/~sfsumap/" title="Opens in a new window." target="_blank" class="popup">campus map</a>
+		If you need help locating our center, please check the <u><a href="http://www.sfsu.edu/~sfsumap/" title="Opens in a new window." target="_blank" class="popup">campus map</a></u>
 		</p>
 			{/if}    	
 		    </p>

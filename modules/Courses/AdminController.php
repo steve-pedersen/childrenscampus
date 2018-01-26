@@ -11,12 +11,88 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
     public static function getRouteMap ()
     {
         return array(
-            '/admin/courses'            => array('callback' => 'manage'),
-            '/admin/courses/queue'      => array('callback' => 'queue'),
-            '/admin/courses/types'      => array('callback' => 'types'),
-            '/admin/courses/edit/:id'   => array('callback' => 'edit', ':id' => '[0-9]+|new'),
-            '/admin/courses/dropstudents/:id' => array('callback' => 'dropStudents', ':id' => '[0-9]+'),
+            'admin/courses'            => array('callback' => 'manage'),
+            'admin/courses/queue'      => array('callback' => 'queue'),
+            'admin/courses/types'      => array('callback' => 'types'),
+            'admin/courses/tasks'      => array('callback' => 'tasks'),
+            'admin/courses/edit/:id'   => array('callback' => 'edit', ':id' => '[0-9]+|new'),
+            'admin/courses/dropstudents/:id' => array('callback' => 'dropStudents', ':id' => '[0-9]+'),
         );
+    }
+
+    public function manage ()
+    {
+        $courses = $this->schema('Ccheckin_Courses_Course');
+        $message = '';
+        
+        $coursesIndexTabs = array(
+            'active' => 'Active Courses',
+            'inactive' => 'Inactive Courses',
+        );
+        
+        $tab = $this->request->getQueryParameter('tab', 'active');
+        
+        if ($command = $this->request->getPostParameter('command'))
+        {
+            switch (array_shift(array_keys($command)))
+            {
+                case 'inactive':
+                    $courseIds = $this->request->getPostParameter('courses', array());
+                    
+                    foreach ($courseIds as $courseId)
+                    {
+                        if ($course = $courses->get($courseId))
+                        {
+                            $course->active = false;
+                            $course->save();
+                        }
+                        
+                        $message = 'The selected courses have been deactivated';
+                    }
+                    break;
+                case 'active':
+                    $courseIds = $this->request->getPostParameter('courses', array());
+                    
+                    foreach ($courseIds as $courseId)
+                    {                   
+                        if ($course = $courses->get($courseId))
+                        {
+                            $course->active = true;
+                            $course->save();
+                        }
+                        
+                        $message = 'The selected courses have been deactivated';
+                    }
+                    break;
+                case 'remove':
+                    $courseIds = $this->request->getPostParameter('courses');
+                    
+                    foreach ($courseIds as $courseId)
+                    {                                               
+                        if ($course = $courses->get($courseId))
+                        {
+                            $course->delete();
+                        }
+                        
+                        $message = 'The selected courses have been deleted';
+                    }
+                    break;
+            }
+        }
+           
+        if ($tab == 'active')
+        {
+            $coursesFiltered = $courses->find($courses->active->isTrue(), array('orderBy' => 'shortName'));
+        }
+        else
+        {
+            $coursesFiltered = $courses->find($courses->active->isFalse(), array('orderBy' => 'shortName'));
+        }
+
+        $this->template->coursesIndexTabs = $coursesIndexTabs;
+        $this->template->tab = $tab;
+        $this->template->message = $message;
+        $this->template->courses = $coursesFiltered;
     }
 
     public function queue ()
@@ -144,94 +220,18 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
     }
     
 
-    public function manage ()
-    {
-        $courses = $this->schema('Ccheckin_Courses_Course');
-		$message = '';
-        
-        $coursesIndexTabs = array(
-            'active' => 'Active Courses',
-            'inactive' => 'Inactive Courses',
-        );
-        
-        $tab = $this->request->getQueryParameter('tab', 'active');        // TODO: replace
-		
-		if ($command = $this->request->getPostParameter('command'))
-		{
-			switch (array_shift(array_keys($command)))
-			{
-                case 'inactive':
-					$courseIds = $this->request->getPostParameter('courses', array());
-					
-					foreach ($courseIds as $courseId)
-					{
-						if ($course = $courses->get($courseId))
-						{
-							$course->active = false;
-                            $course->save();
-						}
-						
-						$message = 'The selected courses have been deactivated';
-					}
-					break;
-                case 'active':
-					$courseIds = $this->request->getPostParameter('courses', array());
-					
-					foreach ($courseIds as $courseId)
-					{					
-						if ($course = $courses->get($courseId))
-						{
-							$course->active = true;
-                            $course->save();
-						}
-						
-						$message = 'The selected courses have been deactivated';
-					}
-					break;
-				case 'remove':
-					$courseIds = $this->request->getPostParameter('courses');
-					
-					foreach ($courseIds as $courseId)
-					{												
-						if ($course = $courses->get($courseId))
-						{
-							$course->delete();
-						}
-						
-						$message = 'The selected courses have been deleted';
-					}
-					break;
-			}
-		}
-           
-        if ($tab == 'active')
-        {
-            $coursesFiltered = $courses->find($courses->active->isTrue(), array('orderBy' => 'shortName'));
-        }
-        else
-        {
-            $coursesFiltered = $courses->find($courses->active->isFalse(), array('orderBy' => 'shortName'));
-        }
-
-        $this->template->coursesIndexTabs = $coursesIndexTabs;
-        $this->template->tab = $tab;
-        $this->template->message = $message;
-        $this->template->courses = $coursesFiltered;
-    }
-    
-
     public function edit ()
     {
-        $id = $this->requireExists($this->getRouteVariable('id'));  // TODO: verify requireExists is ok for routeVar 'id'
+        $id = $this->requireExists($this->getRouteVariable('id'));
         $courses = $this->schema('Ccheckin_Courses_Course');
-        // $facets = $this->schema('Ccheckin_Courses_Facets');
-        $courseFacetTypes = $this->schema('Ccheckin_Courses_FacetTypes');
-        $courseInstructors = $this->schema('Ccheckin_Course_Instructors');
-        $accounts = $this->schema('Bss_AuthN_Accounts');
+        $courseFacets = $this->schema('Ccheckin_Courses_Facet');
+        $courseFacetTypes = $this->schema('Ccheckin_Courses_FacetType');
+        $courseInstructors = $this->schema('Ccheckin_Courses_Instructor');
+        $accounts = $this->schema('Bss_AuthN_Account');
         
         // $instructors = $diva->user->userAccount->findByRoleName('Faculty', array('lastName' => true));
         $roles = $this->schema('Ccheckin_AuthN_Role');
-        $facultyRole = $roles->findOne($roles->name->equals('Faculty'));
+        $facultyRole = $roles->findOne($roles->name->equals('Teacher'));
         $instructors = $facultyRole->accounts;
 
         $students = '';
@@ -259,6 +259,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
 			$new = true;
 			$this->setPageTitle('Create a Course');
             $course = $courses->createInstance();
+            $facet = $courseFacets->createInstance();
 		}
 		
         $facetTypes = $courseFacetTypes->getAll(array('orderBy' => 'sortName'));
@@ -344,15 +345,15 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
             }
         }
         
-		$this->template->$facetTypes = $facetTypes;
-        $this->template->$course = $course;
-        $this->template->$facet = $facet;
-        $this->template->$instructors = $instructors;
-        $this->template->$semesters = $semesters;
-        $this->template->$studentsObserve = $studentsObserve;
-        $this->template->$studentsParticipate = $studentsParticipate;
-        $this->template->$new = $new;
-        $this->template->$errors = $errors;
+		$this->template->facetTypes = $facetTypes;
+        $this->template->course = $course;
+        $this->template->facet = $facet;
+        $this->template->instructors = $instructors;
+        $this->template->semesters = $semesters;
+        $this->template->studentsObserve = $studentsObserve;
+        $this->template->studentsParticipate = $studentsParticipate;
+        $this->template->new = $new;
+        $this->template->errors = $errors;
     }
     
 
@@ -389,13 +390,13 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
     public function types ()
     {
         $this->setPageTitle('Manage Course Types');
-        $courseFacetTypes = $this->schema('Ccheckin_Courses_FacetTypes');
+        $courseFacetTypes = $this->schema('Ccheckin_Courses_FacetType');
         $errors = array();
         $message = '';
         
         if ($command = $this->request->getPostParameter('command'))
         {
-            $action  = array_shift(array_keys($command));
+            $action = array_shift(array_keys($command));
             
             switch ($action)
             {
@@ -419,11 +420,12 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                     $courseType->name = $this->request->getPostParameter('name');
                     
                     $errors = $courseType->validate();
-                    
+
                     if (empty($errors))
                     {
                         $courseType->save();
                         $message = 'Course type created';
+                        $this->response->flash($message);
                     }
                     break;
             }
@@ -432,9 +434,55 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         // Get the remaining queued records
         $courseTypes = $courseFacetTypes->getAll(array('sortBy' => 'sortName'));
         
-        $this->template->$courseTypes = $courseTypes;
-        $this->template->$message = $message;
-        $this->template->$errors = $errors;
+        $this->template->courseTypes = $courseTypes;
+        $this->template->message = $message;
+        $this->template->errors = $errors;
+    }
+
+    public function tasks ()
+    {
+        $this->setPageTitle('Manage Course Tasks');
+        $siteSettings = $this->getApplication()->siteSettings;
+        $courseTasks = json_decode($siteSettings->getProperty('course-tasks'), true);
+        $courseFacets = $this->schema('Ccheckin_Courses_Facet');
+        $errors = array();
+        $message = '';
+        
+        // echo "<pre>"; var_dump($courseTasks); die;
+        // $test = $courseFacets->createInstance()->getDefaultTasks();
+        // echo "<pre>"; var_dump(json_encode($test)); die;
+
+        if ($command = $this->request->getPostParameter('command'))
+        {
+            $action = array_shift(array_keys($command));
+            
+            switch ($action)
+            {
+                case 'remove':
+                    if ($tasks = $this->request->getPostParameter('courseTasks'))
+                    {
+                        foreach ($tasks as $taskkey => $task)
+                        {   
+                            unset($courseTasks[$taskkey]);
+                            $updatedCourseTasks = array_values($courseTasks);
+                        }
+
+                        $siteSettings->setProperty('course-tasks', json_encode($updatedCourseTasks));
+                        $this->flash('The course tasks have been deleted');
+                    }
+                    break;
+
+                case 'add':                                       
+                    $courseTasks[] = $this->request->getPostParameter('name');
+                    $siteSettings->setProperty('course-tasks', json_encode($courseTasks));
+                    $this->flash('Course task created');
+
+                    break;
+            }
+        }
+        
+        $this->template->courseTasks = $courseTasks;
+        $this->template->errors = $errors;
     }
 	
     // TODO: Convert functions below -- they use DivaMailer, which inherits from PHPMailer

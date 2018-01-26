@@ -136,7 +136,55 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
         $this->template->oppositeDir = ($sortDir == 'asc' ? 'desc' : 'asc');
         $this->template->limit = $limit;
     }
-    
+
+    public function editAccount ()
+    {
+        $id = $this->getRouteVariable('id');
+        $accounts = $this->schema('Bss_AuthN_Account');
+        $returnTo = $this->request->getQueryParameter('returnTo', 'admin/accounts');
+        
+        if ($id == 'new')
+        {
+            $this->setPageTitle('New account');
+            $account = $accounts->createInstance();
+        }
+        else
+        {
+            if (!($account = $accounts->get($id)))
+            {
+                $this->notFound();
+            }
+            
+            $this->setPageTitle('Edit ' . $account->displayName);
+        }
+
+        $roles = $this->schema('Ccheckin_AuthN_Role');
+        $roleList = $roles->find($roles->isSystemRole->equals(true), array('orderBy' => '+name'));
+        
+        if ($this->request->wasPostedByUser())
+        {
+            if ($account->handleSettings($this->request, true, $roleList))
+            {
+                if ($id == 'new')
+                {
+                    $account->source = 'admin';
+                    $account->createdDate = new DateTime;
+                }
+                
+                $account->save();
+                $this->response->redirect($returnTo);
+            }
+            else
+            {
+                $this->template->errorMap = $account->getValidationMessages();
+            }
+        }
+        
+        $this->template->account = $account;
+        $this->template->roleList = $roleList;
+        $this->template->returnTo = $returnTo;
+    }
+
     private function getQueryString ($merge = null)
     {
 		$qsa = array(
@@ -252,56 +300,6 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
         }
 		
 		return $pageList;
-    }
-    
-    /**
-     */
-    public function editAccount ()
-    {
-        $id = $this->getRouteVariable('id');
-        $accounts = $this->schema('Bss_AuthN_Account');
-		$returnTo = $this->request->getQueryParameter('returnTo', 'admin/accounts');
-        
-        if ($id == 'new')
-        {
-            $this->setPageTitle('New account');
-            $account = $accounts->createInstance();
-        }
-        else
-        {
-            if (!($account = $accounts->get($id)))
-            {
-                $this->notFound();
-            }
-            
-            $this->setPageTitle('Edit ' . $account->displayName);
-        }
-
-		$roles = $this->schema('Ccheckin_AuthN_Role');
-		$roleList = $roles->find($roles->isSystemRole->equals(true), array('orderBy' => '+name'));
-        
-        if ($this->request->wasPostedByUser())
-        {
-            if ($account->handleSettings($this->request, true, $roleList))
-            {
-                if ($id == 'new')
-                {
-                    $account->source = 'admin';
-                    $account->createdDate = new DateTime;
-                }
-                
-                $account->save();
-                $this->response->redirect($returnTo);
-            }
-            else
-            {
-                $this->template->errorMap = $account->getValidationMessages();
-            }
-        }
-        
-        $this->template->account = $account;
-		$this->template->roleList = $roleList;
-		$this->template->returnTo = $returnTo;
     }
     
     /**

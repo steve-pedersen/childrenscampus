@@ -16,8 +16,8 @@ class Ccheckin_Courses_FacetType extends Bss_ActiveRecord_BaseWithAuthorization 
 
     public function setName ($name)
     {
-        $this->setProperty('name', $name);
-        $this->setProperty('sortName', strtolower($name));
+        $this->_assign('name', $name);
+        $this->_assign('sortName', strtolower($name));
     }
     
     public function validate ()
