@@ -15,6 +15,7 @@ class Ccheckin_Courses_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleU
         {
             case 0:
                 $siteSettings->defineProperty('course-tasks', 'List of tasks that can be assigned to a particular course. JSON encoded data.', 'string');
+                $siteSettings->defineProperty('course-request-text', 'Instruction text for requesting a course.', 'string');
                 
                 /**
                 *   Create tables
@@ -23,9 +24,10 @@ class Ccheckin_Courses_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleU
                 $def->addProperty('id', 'int', array('sequence' => true, 'primaryKey' => true));
                 $def->addProperty('full_name', 'string');               
                 $def->addProperty('short_name', 'string');
+                $def->addProperty('department', 'string');
                 $def->addProperty('start_date', 'datetime');
                 $def->addProperty('end_date', 'datetime');
-                $def->addProperty('active', 'datetime');                
+                $def->addProperty('active', 'bool');                
                 $def->save();
 
                 $def = $this->createEntityType('ccheckin_course_enrollment_map', $this->getDataSource('Ccheckin_Courses_Course'));

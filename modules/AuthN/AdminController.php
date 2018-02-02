@@ -12,7 +12,7 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
     {
         return array(
             'admin/accounts' => array('callback' => 'listAccounts'),
-            'admin/accounts/:id' => array('callback' => 'editAccount'),
+            'admin/accounts/:id' => array('callback' => 'editAccount', ':id' => '([0-9]+|new)'),
             'admin/roles' => array('callback' => 'listRoles'),
 			'admin/roles/all' => array('callback' => 'listRoles', 'showAll' => true),
             'admin/roles/:id' => array('callback' => 'editRole', ':id' => '([0-9]+|new)'),
@@ -26,6 +26,7 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
 	{
 		parent::beforeCallback($callback);
 		$this->requirePermission('admin');
+        $this->addBreadCrumb('admin', 'Admin');
 	}
     
     /**

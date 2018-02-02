@@ -12,7 +12,7 @@
     </thead>
     {foreach item='reservation' from=$reservations}
         <tr>
-            <td>{$reservation->startTime->getDate()|date_format:"%B %e, %Y %I:%M %p"}</td>
+            <td>{$reservation->startTime|date_format:"%B %e, %Y %I:%M %p"}</td>
             <td>{$reservation->room->name}</td>
             <td>{$reservation->observation->purpose->shortDescription|escape}</td>
         </tr>

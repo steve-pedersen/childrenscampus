@@ -1,19 +1,18 @@
-<a href="admin">Administrate</a>
 <div class="row">
     <div class="col-xs-12">
         <h1>Accounts</h1>
     </div>
     <div class="col-xs-12">
-        <p class="minor detail">Found {$totalAccounts}{if $searchQuery} matching your search{/if}</p>
+        <p class="minor detail pull-right badge">Found {$totalAccounts}{if $searchQuery} matching your search{/if}</p>
     </div>
 </div>
 
-<form method="get" action="{$smarty.server.REQUEST_URI|escape}" class="form-horizontal">
+<form method="get" action="{$smarty.server.REQUEST_URI|escape}" class="form-horizontal form-inline">
     <div class="form-group">
         <div class="col-xs-12">
-            <ul>
+            <ul class="list-unstyled">
                 <li><label for="account-search"><i class="glyphicon glyphicon-search" aria-hidden="true"></i> Search accounts:</label>
-                <input class="account-autocomplete" type="text" id="account-search" name="sq" value="{$searchQuery|escape}">
+                <input class="account-autocomplete form-control" type="text" id="account-search" name="sq" value="{$searchQuery|escape}">
                 <label class="sr-only" for="account-search-button">Search</label>
                 <input class="btn btn-info btn-sm" type="submit" id="account-search-button" name="btn" value="Search"></li>
                 <div class="search-container"></div>
@@ -23,9 +22,9 @@
     </div>
     <div class="form-group">
         <div class="col-xs-12">
-            <ul>
+            <ul class="list-unstyled">
                 <li><label for="account-limit">Accounts per page:</label>
-                <select class="fancy-select-box" id="account-limit" name="limit">
+                <select class="fancy-select-box form-control" id="account-limit" name="limit">
                     <option value="20"{if $limit==20} selected="selected"{/if}>20</option>
                     <option value="50"{if $limit==50} selected="selected"{/if}>50</option>
                     <option value="100"{if $limit==100} selected="selected"{/if}>100</option>
@@ -66,19 +65,19 @@
         <div class="col-xs-12">
             <table class="table table-bordered account-table">
                 <thead>
-                    <tr class="active">
-                        <td><a href="admin/accounts?sort=name&amp;dir={if $sortBy=="name"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">Name</a></td>
-                        <td><a href="admin/accounts?sort=email&amp;dir={if $sortBy=="email"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">E-mail address</td>
-                        <td><a href="admin/accounts?sort=uni&amp;dir={if $sortBy=="uni"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">Username</td>
-                        <td><a href="admin/accounts?sort=login&amp;dir={if $sortBy=="login"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">Last login</td>
-                        <td>Options</td>
+                    <tr>
+                        <td ><a href="admin/accounts?sort=name&amp;dir={if $sortBy=="name"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">Name</a></td>
+                        <td ><a href="admin/accounts?sort=email&amp;dir={if $sortBy=="email"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">E-mail address</td>
+                        <td ><a href="admin/accounts?sort=uni&amp;dir={if $sortBy=="uni"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">Username</td>
+                        <td ><a href="admin/accounts?sort=login&amp;dir={if $sortBy=="login"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">Last login</td>
+                        <td >Options</td>
                     </tr>
                 </thead>
                 
                 <tbody>
             {foreach item="account" from=$accountList}
                     <tr class="{cycle values='even,odd'}">
-                        <td><a class="text-capitalize" href="modules/log?query={$account->username}">{$account->lastName|escape}, {$account->firstName|escape} {$account->middleName|escape}</a></td>
+                        <td><a class="text-capitalize" href="admin/accounts/{$account->id}?returnTo={$smarty.server.REQUEST_URI|escape|escape}">{$account->lastName|escape}, {$account->firstName|escape} {$account->middleName|escape}</a></td>
                         <td>{$account->emailAddress|escape}</td>
                         <td>{$account->username|escape|default:'<span class="detail">n/a</a>'}</td>
                         <td>{if $account->lastLoginDate}{$account->lastLoginDate->format('M j, Y h:ia')}{else}<span class="detail">never</span>{/if}</td>
@@ -126,3 +125,9 @@
     </nav>
 
 {/if}
+
+<br><hr>
+<div class="new-account">
+    <a href="admin/accounts/new" class="btn btn-success"><span class="glyphicon glyphicon-plus"> </span> Add new account</a>
+</div>
+

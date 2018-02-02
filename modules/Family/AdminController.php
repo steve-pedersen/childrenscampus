@@ -6,7 +6,7 @@ class Ccheckin_Family_AdminController extends Ccheckin_Master_Controller
 	{
 		return array(
 				'admin/family' => array('callback' => 'index'),
-				'admin/family/edit/:id' => array('callback' => 'edit', 'id' => '[0-9]+'),
+				'admin/family/edit/:id' => array('callback' => 'edit', 'id' => '([0-9]+|new)'),
 				// 'admin/family/:id/edit' => array('callback' => 'edit', ':id' => '[0-9]+|new')
 		);
 	}
@@ -23,13 +23,11 @@ class Ccheckin_Family_AdminController extends Ccheckin_Master_Controller
     	$familyPurposes = $this->schema('Ccheckin_Family_Purpose');
         $message = '';
         
-        if ($this->request->getRequestMethod() == 'post')
+        if ($this->request->wasPostedByUser())
         {
-            if ($command = $this->request->getPostParameter('command'))
-            {
-                $action = array_shift(array_keys($command));
-                
-                switch ($action)
+            if ($command = $this->getPostCommand())
+            {   
+                switch ($command)
                 {
                     case 'remove':
                         $purposes = $this->request->getPostParameter('purposes');
@@ -85,13 +83,11 @@ class Ccheckin_Family_AdminController extends Ccheckin_Master_Controller
 			$this->setPageTitle('Create Family Purpose');
 		}
         
-        if ($this->request->getRequestMethod() == 'post')
+        if ($this->request->wasPostedByUser())
         {
-            if ($command = $this->request->getPostParameter('command'))
-            {
-                $action = array_shift(array_keys($command));
-                
-                switch ($action)
+            if ($command = $this->getPostCommand())
+            {   
+                switch ($command)
                 {
                     case 'save':
                     	$purpose->absorbData($this->request->getPostParameter('purpose'));

@@ -27,13 +27,11 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
         $roomSchema = $this->schema('Ccheckin_Rooms_Room');
         $message = ''; 
         
-        if ($this->request->getRequestMethod() == 'post')
+        if ($this->request->wasPostedByUser())
         {
-            if ($command = $this->request->getPostParameter('command'))
-            {
-                $action = array_shift(array_keys($command));
-                
-                switch ($action)
+            if ($command = $this->getPostCommand())
+            {   
+                switch ($command)
                 {
                     case 'remove':
                         $rooms = $this->request->getPostParameter('rooms');
@@ -89,11 +87,9 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
 
         if ($this->request->wasPostedByUser())
         {
-            if ($command = $this->request->getPostParameter('command'))
-            {
-                $action = array_shift(array_keys($command));
-                
-                switch ($action)
+            if ($command = $this->getPostCommand())
+            {   
+                switch ($command)
                 {
                     case 'save':
                         $roomData = $this->request->getPostParameter('room');
@@ -128,7 +124,7 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
     public function currentObservations () 
     {
         $reservations = $this->schema('Ccheckin_Rooms_Reservation');
-        $observations = $reservations->find($reservations->checkIn->isTrue());
+        $observations = $reservations->find($reservations->checkedIn->isTrue());
 
         $this->template->reservations = $observations;
     }
@@ -145,8 +141,8 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
     {
         $reservations = $this->schema('Ccheckin_Rooms_Reservation');
         $condition = $reservations->allTrue(
-            $reservations->startTime->before(new Date(strtotime('now - 30 minutes'))),
-            $reservations->checkIn->isFalse()
+            $reservations->startTime->before(new DateTime('now - 30 minutes')),
+            $reservations->checkedIn->isFalse()
         );
         $missed = $reservations->find($condition);
 

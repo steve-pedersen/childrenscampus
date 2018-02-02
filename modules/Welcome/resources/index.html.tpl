@@ -25,9 +25,7 @@
 <div id="welcome-text" class="col-xs-6">
 {else}
 <div id="welcome-text" class="col-xs-12">
-	<div class="card" >
-	  <img class="card-img-top" src="assets/images/childrensCampus.jpg" alt="Photo of the front door to the Children's Campus">
-	</div>
+
 {/if}
 {if $welcomeText}
 {$welcomeText|allow_basic_html}

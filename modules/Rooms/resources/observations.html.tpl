@@ -19,7 +19,7 @@
 {foreach item='observation' from=$purposeInfo.observations}
         <tr>
             <td>{$observation->room->name|escape}</td>
-            <td>{$observation->startTime->getDate()|date_format:"%b %e, %Y at %l %p"}</td>
+            <td>{$observation->startTime|date_format:"%b %e, %Y at %l %p"}</td>
             <td>{$observation->duration}</td>
         </tr>
 {/foreach}

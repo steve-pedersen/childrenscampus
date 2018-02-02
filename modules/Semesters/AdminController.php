@@ -17,52 +17,60 @@ class Ccheckin_Semesters_AdminController extends At_Admin_Controller
         $errors = array();
         $message = '';
         
-        if ($command = $this->request->getPostParameter('command'))
+        if ($this->request->wasPostedByUser())
         {
-            $action  = array_shift(array_keys($command));
-
-            switch ($action)
+            if ($command = $this->getPostCommand())
             {
-                case 'remove':
-                    if ($sems = $this->request->getPostParameter('semesters'))
-                    {
-                        foreach ($sems as $sem)
-                        {                            
-                            if ($semester = $semesters->get($sem))
-                            {
-                                $semester->delete();
+                switch ($command)
+                {
+                    case 'remove':
+                        if ($sems = $this->request->getPostParameter('semesters'))
+                        {
+                            foreach ($sems as $sem)
+                            {                            
+                                if ($semester = $semesters->get($sem))
+                                {
+                                    $semester->delete();
+                                }
                             }
+
+                            $message = 'The semesters have been deleted';
                         }
+                        break;
 
-                        $message = 'The semesters have been deleted';
-                    }
-                    break;
+                    case 'add':
+                        $semester = $semesters->createInstance();
+                        
+                        $startDate = $this->request->getPostParameter('startDate');
+                        if ($startDate)
+                        {
+                            $semester->startDate = new DateTime($startDate);
+                        }
+                        
+                        $endDate = $this->request->getPostParameter('endDate');
+                        if ($endDate)
+                        {
+                            $semester->endDate = new DateTime($endDate);
+                        }
+                        
+                        $term = $this->request->getPostParameter('term');
+                        $semester->display = $term . ' ' . $semester->startDate->format('Y');
+                        $codes = array('Spring'=>3, 'Summer'=>5, 'Fall'=>7, 'Winter'=>1);
+                        $m = $semester->startDate->format('m');
+                        $y = $semester->startDate->format('Y');
+                        $y = $y[0] . substr($y, 2);
+                        if ($term === 'Winter' && $m = '12') { $y++; }
+                        $semester->internal = $y . $codes[$term];
 
-                case 'add':
-                    $semester = $semesters->createInstance();
-                    
-                    $startDate = $this->request->getPostParameter('startDate');
-                    if ($startDate)
-                    {
-                        $semester->startDate = new DateTime($startDate);
-                    }
-                    
-                    $endDate = $this->request->getPostParameter('endDate');
-                    if ($endDate)
-                    {
-                        $semester->endDate = new DateTime($endDate);
-                    }
-                    
-                    $semester->display = $this->request->getPostParameter('term') . ' ' . $semester->startDate->format('Y');
-
-                    $errors = $semester->validate();
-                    
-                    if (empty($errors))
-                    {
-                        $semester->save();
-                        $message = 'Semester created';
-                    }
-                    break;
+                        $errors = $semester->validate();
+                        
+                        if (empty($errors))
+                        {
+                            $semester->save();
+                            $message = 'Semester created';
+                        }
+                        break;
+                }
             }
         }
         

@@ -29,7 +29,7 @@
     
     <tbody>
 {foreach key="className" item="classPath" from=$module->getClasses()}
-        <tr class="{cycle values=even,odd}">
+        <tr class="{cycle values='even,odd'}">
             <td>{$className|escape}</td>
             <td>{$classPath|escape}</td>
         </tr>

@@ -1,7 +1,7 @@
 <h1>Manage Course Types</h1>
 
 <form action="{$smarty.server.REQUEST_URI}" method="post">
-    <h2>Course Types</h2>
+<!--     <h2>Course Types</h2> -->
     <table class="table table-responsive table-bordered">
         <thead>
             <tr>
@@ -22,7 +22,7 @@
     </table>
     {if $courseTypes}
     <div class="commands">
-        <input class="btn btn-danger" type="submit" name="command[remove]" id="command-remove" value="Remove Selected Semesters" />
+        <input class="btn btn-danger" type="submit" name="command[remove]" id="command-remove" value="Remove Selected Types" />
     </div>
     {/if}
     

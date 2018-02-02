@@ -36,12 +36,12 @@
     </tbody>
 </table>
 {else}
-<h1>Select the room to see the schedule</h1>
-<dl>
+<h1>Select a room to see the schedule</h1>
+<div class="form-group">
 {foreach item='room' from=$rooms}
-    <dt><a href="reservations/schedule/{$room->id}">{$room->name|escape}</a></dt>
-    <dd>{$room->description|escape}</dd>
+    <p><a href="reservations/schedule/{$room->id}">{$room->name|escape}</a></p>
+    <p>{$room->description|escape}</p>
 {/foreach}
-</dl>
+</div>
 
 {/if}

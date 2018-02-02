@@ -147,89 +147,161 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         $this->template->course = $course;
         $this->template->facets = $facets;
     }
+
+    // TODO: Remove this hardcoded Faculty SF State ID
+    protected function setCourses ($user, $term)
+    {
+        $service = new Ccheckin_ClassData_Service($this->getApplication());
+        list($status, $courses) = $service->getUserEnrollments($user->username, $term);
+        $TEST_ID = '908016751';
+        // list($status, $courses) = $service->getUserEnrollments($TEST_ID, $term);
+
+        if ($status < 400)
+        {
+            $this->template->courses = $courses;
+        }
+    }
+
+    protected function getCourse ($id)
+    {
+        $service = new Ccheckin_ClassData_Service($this->getApplication());
+        list($status, $course) = $service->getCourse($id);
+        if ($status < 400)
+        {
+            return $course;
+        }
+        return false;
+    }
     
+    // TODO: Fix tasks submission and remove unused fields/fetch from ClassData
     public function request ()
     {       
-        $requester = $this->requireLogin();
+        $viewer = $this->requireLogin();
+        $siteSettings = $this->getApplication()->siteSettings;
         $this->requirePermission('course request');
        
         $course = $this->schema('Ccheckin_Courses_Course')->createInstance();
         $facet = $this->schema('Ccheckin_Courses_Facet')->createInstance();
         $request = $this->schema('Ccheckin_Courses_Request')->createInstance();
-        $sems = $this->schema('Ccheckin_Semesters_Semester')->getAll(array('orderBy' => 'startDate'));
+        $sems = $this->schema('Ccheckin_Semesters_Semester');
         $facetTypes = $this->schema('Ccheckin_Courses_FacetType')->getAll(array('orderBy' => 'sortName'));
         $errors = array();
         $success = false;
         $studentsObserve = '';
         $studentsParticipate = '';
         $semesters = array();        
-        foreach ($sems as $sem)
+        foreach ($sems->getAll(array('orderBy' => 'startDate')) as $sem)
         {
             $semesters[$sem->id] = $sem;
         }
-        
-        if ($command = $this->request->getPostParameter('command'))
-        {
-            
-            switch (array_shift(array_keys($command)))
-            {
-                case 'request':
-                    $facet->absorbData($this->request->getPostParameter('facet'));
-                    $course->absorbData($this->request->getPostParameter('course'));
-                    $studentsObserve = $this->request->getPostParameter('students-observe');
-                    $studentsParticipate = $this->request->getPostParameter('students-participate');
-                    
-                    if ($semesterId = $this->request->getPostParameter('semester'))
-                    {
-                        $semester = $semesters[$semesterId];
-                        $course->startDate = $semester->startDate;
-                        $course->endDate = $semester->endDate;
-                    }
-                    
-                    $errors += $course->validate();
-                    $errors += $facet->validate();
+        $activeSemester = $this->guessActiveSemester(true); // used for querying
+        $selectedSemester = $sems->findOne($sems->internal->equals($activeSemester));  // used for post data
 
-                    if (empty($errors))
-                    {
-                        $course->active = false;
-                        $course->save();
-                        $facet->courseId = $course->id;
-                        $facet->save();
-                        $instructor = $this->schema('Ccheckin_Courses_Instructor')->createInstance();
-                        $instructor->accountId = $requester->id;
-                        $instructor->courseId = $course->id;
-                        $instructor->save();
-                        
-                        $request->courseId = $course->id;
-                        $request->requestedById = $requester->id;
-                        $request->requestDate = date('c');
-                        $users = array();
-                        
-                        if ($studentsObserve)
-                        {
-                            $users['observe'] = array_filter(explode("\n", $studentsObserve));
-                        }
-                        
-                        if ($studentsParticipate)
-                        {
-                            $users['participate'] = array_filter(explode("\n", $studentsParticipate));
-                        }
-                        
-                        if (!empty($users))
-                        {
-                            $request->courseUsers = $users;
-                        }
-                        
-                        $request->save();
-                        $this->sendCourseRequestedNotification($course, $requester);
-                        $this->flash('You course request is now pending.  You will be notified when a decision has been made.');
-                        $this->response->redirect('courses');
-                    }
-                    
-                    break;
-            }
+        // Sets the default course display to current semester's courses
+        $this->setCourses($viewer, $activeSemester);
+
+        if ($semid = $this->request->getQueryParameter('semester'))
+        {
+            $activeSemester = $semesters[$semid]->internal;
+            $selectedSemester = $semesters[$semid];
+            $this->template->activeDisplay = $semesters[$semid]->display;
+            $this->setCourses($viewer, $activeSemester);
         }
-        
+ 
+        if ($this->request->wasPostedByUser())
+        {      
+            if ($this->getPostCommand() == 'request')
+            {
+                $courseId = $this->request->getPostParameter('course');
+                $courseData = $this->getCourse($courseId);
+                $course->fullName = $courseData['title'];
+                $course->shortName = $courseData['shortName'];
+                $course->department = implode(', ', $courseData['department']);
+
+                $facetData = $this->request->getPostParameter('facet');                    
+                $facet->typeId = $facetData['typeId'];
+                $facet->description = $courseData['description'];
+                $facet->tasks = array_intersect_key($facet->GetAllTasks(), $facetData['tasks']);
+
+                if ($semesterId = $this->request->getPostParameter('selected-semester'))
+                {
+                    $semester = $semesters[$semesterId];
+                    $course->startDate = $semester->startDate;
+                    $course->endDate = $semester->endDate;
+                }
+                
+                $errors += $course->validate();
+                $errors += $facet->validate();
+
+                if (empty($errors))
+                {
+                    $course->active = false;
+                    $course->save();
+                    
+                    $facet->courseId = $course->id;
+                    $facet->save();
+
+                    $request->courseId = $course->id;
+                    $request->requestedById = $viewer->id;
+                    $request->requestDate = new DateTime;
+                    $request->save();
+
+                    $roles = $this->schema('Ccheckin_AuthN_Role');
+                    $teacherRole = $roles->findOne($roles->name->equals('Teacher'));
+                    $studentRole = $roles->findOne($roles->name->equals('Student'));
+                    $accounts = $this->schema('Bss_AuthN_Account');
+                    
+                    foreach ($courseData['students'] as $student)
+                    {
+                        $account = $accounts->findOne($accounts->username->equals($student['id']));
+                        if (!$account)
+                        {
+                            $account = $accounts->createInstance();
+                            $account->username = $student['id'];
+                            $account->firstName = $student['first'];
+                            $account->lastName = $student['last'];
+                            $account->emailAddress = $student['mail'];
+                            $account->roles->add($studentRole);
+                            $account->save();
+                        }
+
+                        $course->enrollments->add($account);
+                        $course->enrollments->setProperty($account, 'term', $semester->internal);
+                        $course->enrollments->setProperty($account, 'role', 'Student');
+                        $course->enrollments->setProperty($account, 'enrollment_method', 'Class Data');
+                    }
+                    foreach ($courseData['instructors'] as $teacher)
+                    {
+                        $account = $accounts->findOne($accounts->username->equals($teacher['id']));
+                        if (!$account)
+                        {
+                            $account = $accounts->createInstance();
+                            $account->username = $teacher['id'];
+                            $account->firstName = $teacher['first'];
+                            $account->lastName = $teacher['last'];
+                            $account->emailAddress = $teacher['mail'];
+                            $account->roles->add($teacherRole);
+                            $account->save();
+                        }
+
+                        $course->enrollments->add($account);
+                        $course->enrollments->setProperty($account, 'term', $semester->internal);
+                        $course->enrollments->setProperty($account, 'role', 'Teacher');
+                        $course->enrollments->setProperty($account, 'enrollment_method', 'Class Data');
+                    }                        
+
+                    // Save all Course => Accounts mapped data
+                    $course->enrollments->save();
+                    
+                    // TODO: Fix email functions
+                    // $this->sendCourseRequestedNotification($course, $viewer);                                       // TODO: FIX EMAIL FUNCTION *********************
+                    $this->flash('You course request is now pending.  You will be notified when a decision has been made.');
+                    $this->response->redirect('courses');
+                }
+            } 
+        }
+
+        $this->template->instructionText = $siteSettings->getProperty('course-request-text');
         $this->template->facetTypes = $facetTypes;
         $this->template->course = $course;
         $this->template->facet = $facet;
@@ -238,8 +310,36 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         $this->template->studentsObserve = $studentsObserve;
         $this->template->studentsParticipate = $studentsParticipate;
         $this->template->semesters = $semesters;
+        $this->template->activeSemester = $activeSemester;
+        $this->template->selectedSemester = $selectedSemester;
+    }
+
+    public function guessActiveSemester ($returnTermCode = true)
+    {
+        $y = date('Y');
+        $m = date('n');
+        $d = date('d');
+
+        if ($m < 5)
+        {
+            $s = 3; // Spring
+        }
+        elseif ($m < 8)
+        {
+            $s = 5; // Summer
+        }
+        else
+        {
+            $s = 7; // Fall
+        }
+
+        $y = "$y";
+        $y = $y[0] . substr($y, 2);
+
+        return ($returnTermCode ? "$y$s" : array($y, $s));
     }
     
+    // NOTE: This function will probably be obsolete unless manual student accounts/enrollments are needed.
     public function students ()
     {
         $viewer = $this->requireLogin();
@@ -254,11 +354,9 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         
         if ($this->request->getRequestMethod() == 'post')
         {
-            if ($command = $this->request->getPostParameter('command'))
-            {
-                $action = array_shift(array_keys($command));
-                
-                switch ($action)
+            if ($command = $this->getPostCommand())
+            {               
+                switch ($command)
                 {
                     case 'request':
                         $userRequest = $this->schema('Ccheckin_Courses_UserRequest')->createInstance();
@@ -304,9 +402,9 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         
         if ($this->request->getRequestMethod() == 'post')
         {
-            if ($command = $this->request->getPostParameter('command'))
+            if ($command = $this->getPostCommand())
             {
-                switch (array_shift(array_keys($command)))
+                switch ($command)
                 {
                     case 'drop':
                         foreach ($course->facets as $facet)

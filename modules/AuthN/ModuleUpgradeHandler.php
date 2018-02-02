@@ -13,6 +13,7 @@ class Ccheckin_AuthN_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUpg
         switch ($fromVersion)
         {
             case 0:
+                $this->requireModule('bss:core:authZ', 1);
                 /**
                 *   Add a few new columns to the accounts table.
                 */

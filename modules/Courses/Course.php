@@ -13,12 +13,21 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization // 
             'id' => 'int',
             'fullName' => array('string', 'nativeName' => 'full_name'),
             'shortName' => array('string', 'nativeName' => 'short_name'),
+            'department' => array('string'),
             'startDate' => array('datetime', 'nativeName' => 'start_date'),
             'endDate' => array('datetime', 'nativeName' => 'end_date'),
             'active' => 'bool',
 
             'facets' => array('1:N', 'to' => 'Ccheckin_Courses_Facet', 'reverseOf' => 'course', 'orderBy' => array('created_date')), 
             'instructors' => array('1:N', 'to' => 'Ccheckin_Courses_Instructor', 'reverseOf' => 'course'),
+
+            'enrollments' => array('N:M',
+                'to' => 'Bss_AuthN_Account',
+                'via' => 'ccheckin_course_enrollment_map',
+                'fromPrefix' => 'course',
+                'toPrefix' => 'account',
+                'properties' => array('term' => 'string', 'role' => 'string', 'enrollment_method' => 'string')
+            ),
         );
     }
 
@@ -103,23 +112,23 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization // 
         {
             $errors['fullName'] = 'Please provide a full name for the course.';
         }
-        else
-        {
-            // $this->fullName = iconv("Windows-1252", "UTF-8", $this->convertSmartQuotes($this->fullName));
-            $this->fullName = $sanitizer->sanitize($this->fullName);
-        }
+        // else
+        // {
+        //     // $this->fullName = iconv("Windows-1252", "UTF-8", $this->convertSmartQuotes($this->fullName));
+        //     $this->fullName = $sanitizer->sanitize($this->fullName);
+        // }
         
         if (!$this->shortName)
         {
             $errors['shortName'] = 'Please provide a short name for the course.';
         }
-        else
-        {
-            // $this->shortName = iconv("Windows-1252", "UTF-8", $this->convertSmartQuotes($this->shortName));
-            $this->shortName = $sanitizer->sanitize($this->shortName);
-        }
+        // else
+        // {
+        //     // $this->shortName = iconv("Windows-1252", "UTF-8", $this->convertSmartQuotes($this->shortName));
+        //     $this->shortName = $sanitizer->sanitize($this->shortName);
+        // }
         
-        if (!$this->startDate || !($this->startDate instanceof Date))
+        if (!$this->startDate || !($this->startDate instanceof DateTime))
         {
             $errors['startDate'] = 'You must specify a semester';
         }

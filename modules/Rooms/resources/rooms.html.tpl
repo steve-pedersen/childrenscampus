@@ -20,6 +20,10 @@
 				<td>{$room->shortDays}</td>
 				<td><a href="admin/rooms/{$room->id}" title="edit {$room->name|escape}">edit</a></td>
 			</tr>
+		{foreachelse}
+			<tr>
+				<td colspan=5>No rooms found.</td>
+			</tr>
 		{/foreach}
 		</tbody>
 	</table>

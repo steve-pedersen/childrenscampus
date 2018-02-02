@@ -2,7 +2,7 @@
 <p> 
     These are the current reservations for Children's Campus.  
 </p>
-<table class="table">
+<table class="table table-bordered">
     <thead>
         <tr>
             <th>Start Time</th>
@@ -14,9 +14,9 @@
     </thead>
     {foreach item='reservation' from=$reservations}
         <tr>
-        {*    <td>{$reservation->startTime->getDate()|date_format:"%Y-%m-%d %I:%M %p"}</td> *}
-            <td>{$reservation->startTime->getDate()|date_format:"%B %e, %Y %I:%M %p"}</td>
-            <td>{$reservation->account->displayName|escape} ({if $reservation->account->ldap_user}{$reservation->account->ldap_user}{else}{$reservation->account->email}{/if})</td>
+        {*    <td>{$reservation->startTime|date_format:"%Y-%m-%d %I:%M %p"}</td> *}
+            <td>{$reservation->startTime|date_format:"%B %e, %Y %I:%M %p"}</td>
+            <td>{$reservation->account->displayName|escape} ({if $reservation->account->ldap_user}{$reservation->account->ldap_user}{else}{$reservation->account->emailAddress}{/if})</td>
             <td>{$reservation->room->name}</td>
             <td>{$reservation->observation->purpose->shortDescription|escape}</td>
 			<td class="actions">
@@ -25,6 +25,6 @@
 			</td>
         </tr>
     {foreachelse}
-        <tr><td colspan="4" class="single-cell">There are no current observations</td></tr>
+        <tr><td colspan="5" class="single-cell">There are no current observations</td></tr>
     {/foreach}
 </table>

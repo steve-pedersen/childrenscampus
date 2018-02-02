@@ -16,6 +16,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
             'admin/courses/types'      => array('callback' => 'types'),
             'admin/courses/tasks'      => array('callback' => 'tasks'),
             'admin/courses/edit/:id'   => array('callback' => 'edit', ':id' => '[0-9]+|new'),
+            'admin/courses/instructions'     => array('callback' => 'editInstructions'),
             'admin/courses/dropstudents/:id' => array('callback' => 'dropStudents', ':id' => '[0-9]+'),
         );
     }
@@ -32,51 +33,54 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         
         $tab = $this->request->getQueryParameter('tab', 'active');
         
-        if ($command = $this->request->getPostParameter('command'))
+        if ($this->request->wasPostedByUser())
         {
-            switch (array_shift(array_keys($command)))
+            if ($command = $this->getPostCommand())
             {
-                case 'inactive':
-                    $courseIds = $this->request->getPostParameter('courses', array());
-                    
-                    foreach ($courseIds as $courseId)
-                    {
-                        if ($course = $courses->get($courseId))
-                        {
-                            $course->active = false;
-                            $course->save();
-                        }
+                switch ($command)
+                {
+                    case 'inactive':
+                        $courseIds = $this->request->getPostParameter('courses', array());
                         
-                        $message = 'The selected courses have been deactivated';
-                    }
-                    break;
-                case 'active':
-                    $courseIds = $this->request->getPostParameter('courses', array());
-                    
-                    foreach ($courseIds as $courseId)
-                    {                   
-                        if ($course = $courses->get($courseId))
+                        foreach ($courseIds as $courseId)
                         {
-                            $course->active = true;
-                            $course->save();
+                            if ($course = $courses->get($courseId))
+                            {
+                                $course->active = false;
+                                $course->save();
+                            }
+                            
+                            $message = 'The selected courses have been deactivated';
                         }
+                        break;
+                    case 'active':
+                        $courseIds = $this->request->getPostParameter('courses', array());
                         
-                        $message = 'The selected courses have been deactivated';
-                    }
-                    break;
-                case 'remove':
-                    $courseIds = $this->request->getPostParameter('courses');
-                    
-                    foreach ($courseIds as $courseId)
-                    {                                               
-                        if ($course = $courses->get($courseId))
-                        {
-                            $course->delete();
+                        foreach ($courseIds as $courseId)
+                        {                   
+                            if ($course = $courses->get($courseId))
+                            {
+                                $course->active = true;
+                                $course->save();
+                            }
+                            
+                            $message = 'The selected courses have been deactivated';
                         }
+                        break;
+                    case 'remove':
+                        $courseIds = $this->request->getPostParameter('courses');
                         
-                        $message = 'The selected courses have been deleted';
-                    }
-                    break;
+                        foreach ($courseIds as $courseId)
+                        {                                               
+                            if ($course = $courses->get($courseId))
+                            {
+                                $course->delete();
+                            }
+                            
+                            $message = 'The selected courses have been deleted';
+                        }
+                        break;
+                }
             }
         }
            
@@ -104,108 +108,111 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         $allowed = array();
         $denied = array();
         
-        if ($command = $this->request->getPostParameter('command'))
+        if ($this->request->wasPostedByUser())
         {
-            $action = array_shift(array_keys($command));
-            $allow = $this->request->getPostParameter('allow');
-            $deny = $this->request->getPostParameter('deny');
-            switch ($action)
+            if ($command = $this->getPostCommand())
             {
-                case 'update-creation':
-                    if (!empty($allow))
-                    {
-                        foreach ($allow as $id => $nothing)
-                        {                           
-                            if ($cr = $courseRequests->get($id))
-                            {
-                                $cr->course->active = true;
-                                $cr->course->save();
-                                $this->sendCourseAllowedNotification($cr->course, $cr->requestedBy);
-                                $cr->requestedBy->grantPermission('course view', $cr->course);
-                                $users = $cr->courseUsers;
-                                
-                                foreach ($cr->course->facets as $facet)
-                                {   
-                                    if (isset($users['observe']))
-                                    {
-                                        $facet->addUsers($users['observe'], true);
-                                    }
-                                    
-                                    if (isset($users['participate']))
-                                    {
-                                        $facet->addUsers($users['participate'], false);
-                                    }
-                                    
-                                    break;
-                                }
-                                
-                                $allowed[] = $cr->course->fullName;
-                                $cr->delete();
-                            }
-                        }
-                    }
-                    
-                    
-                    if (!empty($deny))
-                    {
-                        foreach ($deny as $id => $nothing)
-                        {                           
-                            if ($cr = $courseRequests->get($id))
-                            {
-                                $this->sendCourseDeniedNotification($cr->course, $cr->requestedBy);
-                                $denied[] = $cr->course->fullName;
-                                $cr->course->delete();
-                                $cr->delete();
-                            }
-                        }
-                    }
-                    break;
-
-                case 'update-users':
-                    if (!empty($allow))
-                    {
-                        foreach ($allow as $id => $nothing)
-                        {                            
-                            if ($cur = $courseUserRequests->get($id))
-                            {
-                                $this->sendUsersAllowedNotification($cur->course, $cur->requestedBy);
-                                $users = $cur->users;
-                                
-                                foreach ($cur->course->facets as $facet)
-                                {   
-                                    if (isset($users['observe']))
-                                    {
-                                        $facet->addUsers($users['observe'], true);
-                                    }
-                                    
-                                    if (isset($users['participate']))
-                                    {
-                                        $facet->addUsers($users['participate'], false);
-                                    }
-                                    
-                                    break;
-                                }
-                                
-                                $allowed[] = $cur->course->fullName;
-                                $cur->delete();
-                            }
-                        }
-                    }
-                    
-                    
-                    if (!empty($deny))
-                    {
-                        foreach ($deny as $id => $nothing)
+                $allow = $this->request->getPostParameter('allow');
+                $deny = $this->request->getPostParameter('deny');
+                
+                switch ($command)
+                {
+                    case 'update-creation':
+                        if (!empty($allow))
                         {
-                            if ($cur = $courseUserRequests->get($id))
-                            {
-                                $this->sendUsersDeniedNotification($cur->course, $cur->requestedBy);
-                                $denied[] = $cur->course->fullName;
-                                $cur->delete();
+                            foreach ($allow as $id => $nothing)
+                            {                           
+                                if ($cr = $courseRequests->get($id))
+                                {
+                                    $cr->course->active = true;
+                                    $cr->course->save();
+                                    $this->sendCourseAllowedNotification($cr->course, $cr->requestedBy);
+                                    $cr->requestedBy->grantPermission('course view', $cr->course);
+                                    $users = $cr->courseUsers;
+                                    
+                                    foreach ($cr->course->facets as $facet)
+                                    {   
+                                        if (isset($users['observe']))
+                                        {
+                                            $facet->addUsers($users['observe'], true);
+                                        }
+                                        
+                                        if (isset($users['participate']))
+                                        {
+                                            $facet->addUsers($users['participate'], false);
+                                        }
+                                        
+                                        break;
+                                    }
+                                    
+                                    $allowed[] = $cr->course->fullName;
+                                    $cr->delete();
+                                }
                             }
                         }
-                    }
-                    break;
+                        
+                        
+                        if (!empty($deny))
+                        {
+                            foreach ($deny as $id => $nothing)
+                            {                           
+                                if ($cr = $courseRequests->get($id))
+                                {
+                                    $this->sendCourseDeniedNotification($cr->course, $cr->requestedBy);
+                                    $denied[] = $cr->course->fullName;
+                                    $cr->course->delete();
+                                    $cr->delete();
+                                }
+                            }
+                        }
+                        break;
+
+                    case 'update-users':
+                        if (!empty($allow))
+                        {
+                            foreach ($allow as $id => $nothing)
+                            {                            
+                                if ($cur = $courseUserRequests->get($id))
+                                {
+                                    $this->sendUsersAllowedNotification($cur->course, $cur->requestedBy);
+                                    $users = $cur->users;
+                                    
+                                    foreach ($cur->course->facets as $facet)
+                                    {   
+                                        if (isset($users['observe']))
+                                        {
+                                            $facet->addUsers($users['observe'], true);
+                                        }
+                                        
+                                        if (isset($users['participate']))
+                                        {
+                                            $facet->addUsers($users['participate'], false);
+                                        }
+                                        
+                                        break;
+                                    }
+                                    
+                                    $allowed[] = $cur->course->fullName;
+                                    $cur->delete();
+                                }
+                            }
+                        }
+                        
+                        
+                        if (!empty($deny))
+                        {
+                            foreach ($deny as $id => $nothing)
+                            {
+                                if ($cur = $courseUserRequests->get($id))
+                                {
+                                    $this->sendUsersDeniedNotification($cur->course, $cur->requestedBy);
+                                    $denied[] = $cur->course->fullName;
+                                    $cur->delete();
+                                }
+                            }
+                        }
+                        break;
+                }
             }
         }
         
@@ -264,13 +271,11 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
 		
         $facetTypes = $courseFacetTypes->getAll(array('orderBy' => 'sortName'));
 
-        if ($this->request->getRequestMethod() == 'post')
+        if ($this->request->wasPostedByUser())
         {
-            if ($command = $this->request->getPostParameter('command'))
-            {
-                $action = array_shift(array_keys($command));
-                
-                switch ($action)
+            if ($command = $this->getPostCommand())
+            {               
+                switch ($command)
                 {
                     case 'save':
                         $studentsObserve = $this->request->getPostParameter('students-observe');
@@ -362,11 +367,11 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         $id = $this->getRouteVariable('id');
         $course = $this->requireExists($this->schema('Ccheckin_Courses_Course')->get($id));
         
-        if ($this->request->getRequestMethod() == 'post')
+        if ($this->request->wasPostedByUser())
         {
-            if ($command = $this->request->getPostParameter('command'))
+            if ($command = $this->getPostCommand())
             {
-                switch (array_shift(array_keys($command)))
+                switch ($command)
                 {
                     case 'drop':
                         foreach ($course->students as $user)
@@ -394,40 +399,41 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         $errors = array();
         $message = '';
         
-        if ($command = $this->request->getPostParameter('command'))
+        if ($this->request->wasPostedByUser())
         {
-            $action = array_shift(array_keys($command));
-            
-            switch ($action)
-            {
-                case 'remove':
-                    if ($courseTypes = $this->request->getPostParameter('courseTypes'))
-                    {
-                        foreach ($courseTypes as $type)
-                        {                           
-                            if ($courseType = $courseFacetTypes->get($type))
-                            {
-                                $courseType->delete();
+            if ($command = $this->getPostCommand())
+            {       
+                switch ($command)
+                {
+                    case 'remove':
+                        if ($courseTypes = $this->request->getPostParameter('courseTypes'))
+                        {
+                            foreach ($courseTypes as $type)
+                            {                           
+                                if ($courseType = $courseFacetTypes->get($type))
+                                {
+                                    $courseType->delete();
+                                }
                             }
+
+                            $message = 'The course types have been deleted';
                         }
+                        break;
 
-                        $message = 'The course types have been deleted';
-                    }
-                    break;
+                    case 'add':
+                        $courseType = $courseFacetTypes->createInstance();
+                        $courseType->name = $this->request->getPostParameter('name');
+                        
+                        $errors = $courseType->validate();
 
-                case 'add':
-                    $courseType = $courseFacetTypes->createInstance();
-                    $courseType->name = $this->request->getPostParameter('name');
-                    
-                    $errors = $courseType->validate();
-
-                    if (empty($errors))
-                    {
-                        $courseType->save();
-                        $message = 'Course type created';
-                        $this->response->flash($message);
-                    }
-                    break;
+                        if (empty($errors))
+                        {
+                            $courseType->save();
+                            $message = 'Course type created';
+                            $this->flash($message);
+                        }
+                        break;
+                }
             }
         }
         
@@ -447,44 +453,65 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         $courseFacets = $this->schema('Ccheckin_Courses_Facet');
         $errors = array();
         $message = '';
-        
-        // echo "<pre>"; var_dump($courseTasks); die;
-        // $test = $courseFacets->createInstance()->getDefaultTasks();
-        // echo "<pre>"; var_dump(json_encode($test)); die;
 
-        if ($command = $this->request->getPostParameter('command'))
+        if ($this->request->wasPostedByUser())
         {
-            $action = array_shift(array_keys($command));
-            
-            switch ($action)
-            {
-                case 'remove':
-                    if ($tasks = $this->request->getPostParameter('courseTasks'))
-                    {
-                        foreach ($tasks as $taskkey => $task)
-                        {   
-                            unset($courseTasks[$taskkey]);
-                            $updatedCourseTasks = array_values($courseTasks);
+            if ($command = $this->getPostCommand())
+            {            
+                switch ($command)
+                {
+                    case 'remove':
+                        if ($tasks = $this->request->getPostParameter('courseTasks'))
+                        {
+                            foreach ($tasks as $taskkey => $task)
+                            {   
+                                unset($courseTasks[$taskkey]);
+                                $updatedCourseTasks = array_values($courseTasks);
+                            }
+
+                            $siteSettings->setProperty('course-tasks', json_encode($updatedCourseTasks));
+                            $this->flash('The course tasks have been deleted');
                         }
+                        break;
 
-                        $siteSettings->setProperty('course-tasks', json_encode($updatedCourseTasks));
-                        $this->flash('The course tasks have been deleted');
-                    }
-                    break;
+                    case 'add':                                       
+                        $courseTasks[] = $this->request->getPostParameter('name');
+                        $siteSettings->setProperty('course-tasks', json_encode($courseTasks));
+                        $this->flash('Course task created');
 
-                case 'add':                                       
-                    $courseTasks[] = $this->request->getPostParameter('name');
-                    $siteSettings->setProperty('course-tasks', json_encode($courseTasks));
-                    $this->flash('Course task created');
-
-                    break;
+                        break;
+                }
             }
         }
         
         $this->template->courseTasks = $courseTasks;
         $this->template->errors = $errors;
     }
-	
+
+    public function editInstructions ()
+    {
+        $this->setPageTitle('Edit Instructions');
+        $siteSettings = $this->getApplication()->siteSettings;
+        $instructions = $siteSettings->getProperty('course-request-text');
+
+        if ($this->request->wasPostedByUser())
+        {
+            if ($command = $this->getPostCommand())
+            {            
+                switch ($command)
+                {
+                    case 'save':                                       
+                        $newInstructions = $this->request->getPostParameter('instructions');
+                        $siteSettings->setProperty('course-request-text', $newInstructions);
+                        $this->flash('Course request instructions have been updated.');
+                        break;
+                }
+            }
+        }
+        
+        $this->template->instructions = $instructions;
+    }
+
     // TODO: Convert functions below -- they use DivaMailer, which inherits from PHPMailer
 
 	protected function sendCourseAllowedNotification ($course, $account)

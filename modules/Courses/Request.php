@@ -10,7 +10,7 @@ class Ccheckin_Courses_Request extends Bss_ActiveRecord_BaseWithAuthorization //
             
             'id' => 'int',
             'courseId' => array('int', 'nativeName' => 'course_id'),
-            'courseUsers' => array('string', 'nativeName' => 'course_users'),    // Serialized
+            // 'courseUsers' => array('string', 'nativeName' => 'course_users'),    // Serialized
             'requestDate' => array('datetime', 'nativeName' => 'request_date'),
             'requestedById' => array('int', 'nativeName' => 'request_by_id'),
 
@@ -19,9 +19,16 @@ class Ccheckin_Courses_Request extends Bss_ActiveRecord_BaseWithAuthorization //
         );
     }
 
+    public function setCourseUsers ($courseUsers)
+    {
+        echo "<pre>"; var_dump('in Request CourseUsers setter func.', $courseUsers); die;
+        $this->_assign('courseUsers', json_encode($courseUsers));
+    }
+
     public function getCourseUsers ()
     {
-        $users = $this->getProperty('courseUsers');
+        $users = $this->_fetch('courseUsers');
+        $users = json_decode($users, true);
         
         return ($users ? $users : array());
     }

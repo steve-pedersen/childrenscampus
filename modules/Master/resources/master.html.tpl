@@ -20,7 +20,7 @@
 	<body>
 		<a href="{$smarty.server.REQUEST_URI}#content" class="sr-only sr-only-focusable">Skip Navigation</a>
 		<header class="at">
-	        <nav class="navbar navbar-default" role="navigation">
+	        <nav class="navbar navbar-default navbar-static-top" role="navigation">
 	          <div class="container-fluid">
 
 	            <!-- Brand and toggle get grouped for better mobile display -->
@@ -62,6 +62,7 @@
 	            <!-- Collect the nav links, forms, and other content for toggling -->
 	          </div><!-- /.container-fluid -->
 	        </nav>
+	        <div id="filmstrip"><img class="img-responsive" src="assets/images/imagebox.jpg" alt="Children's Campus Banner"></div>
 	        <div class="bc">
 				{if $breadcrumbList}
 				<div class="container">
@@ -112,6 +113,7 @@
             <div class="sidebar-nav">
                 <div class="well">
                 	<!-- <h3 class="menu-header">Hello, {$userContext->account->firstName|escape}</h3> -->
+                	<h3 class="menu-header">Menu</h3>
                     <ul class="nav left-nav">
                         <!-- <li class="nav-header"><strong>Hello, {$userContext->account->firstName|escape}</strong></li> -->
                         <li><a href="reservations">Sign Up For a Visit</a></li>
@@ -122,7 +124,7 @@
                         <li><a href="courses">View Courses</a></li>
                         <li><a href="courses/request">Request a Course</a></li>
                         <li role="separator" class="divider"></li>
-                        <li><a href="admin">Administrate</a></li>
+                        <!-- <li><a href="admin">Administrate</a></li> -->
                         <li><a href="reservations/missed">Missed Reservations</a></li>
                         <li><a href="reservations/observations">Past Observations</a></li>
                     </ul>
@@ -135,7 +137,7 @@
 
 		<!-- MIDDLE - MAIN CONTENT -->
 		{if $viewer}
-		<div class="col-md-6 main-content">
+		<div class="col-md-7 main-content">
 		{else}
 		<div class="col-md-12 main-content">
 		{/if}
@@ -144,7 +146,7 @@
 		
 		{if $viewer}
 		<!-- RIGHT SIDEBAR - Contact -->
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="right-sidebar pull-right">
                 <div class="well">
 					<div id="resources">	

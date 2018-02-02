@@ -27,8 +27,8 @@ class Ccheckin_Courses_Facet extends Ccheckin_Purposes_AbstractPurpose // NOT? e
 	{
         $siteSettings = $this->getApplication()->siteSettings;
         $tasks = json_decode($siteSettings->getProperty('course-tasks', true));
-
-        return $tasks ? $tasks : $this->getDefaultTasks();
+        
+        return ($tasks !== null && $tasks !== 1) ? $tasks : $this->getDefaultTasks();
 	}
 
     public function getDefaultTasks ()
@@ -51,13 +51,18 @@ class Ccheckin_Courses_Facet extends Ccheckin_Purposes_AbstractPurpose // NOT? e
     // NOTE: Figure this out...
 	public function getTasks ()
 	{
-        return array(); // added this to get the page working temporarily
-		$tasks = $this->_fetch('tasks'); // TODO: Unserialize
+        // return array(); // added this to get the page working temporarily
+		$tasks = $this->_fetch('tasks');
 		$tasks = json_decode($tasks, true);
 
 		return ($tasks ? $tasks : array());
 	}
-    
+
+    public function setTasks($tasks)
+    {
+        $this->_assign('tasks', json_encode($tasks));
+    }  
+
     public function getShortDescription ()
     {
         return "{$this->type->name} for {$this->course->shortName}";
@@ -75,12 +80,12 @@ class Ccheckin_Courses_Facet extends Ccheckin_Purposes_AbstractPurpose // NOT? e
             $errors['facet_type'] = 'You need to select a type of course';
         }
 
-        if ($this->description)
-        {
-            // $this->description = iconv("Windows-1252", "UTF-8", $this->convertSmartQuotes($this->description));
-            $sanitizer = new Bss_RichText_HtmlSanitizer;
-            $this->description = $sanitizer->sanitize($this->description);
-        }
+        // if ($this->description)
+        // {
+        //     // $this->description = iconv("Windows-1252", "UTF-8", $this->convertSmartQuotes($this->description));
+        //     $sanitizer = new Bss_RichText_HtmlSanitizer;
+        //     $this->description = $sanitizer->sanitize($this->description);
+        // }
         
         return $errors;
     }

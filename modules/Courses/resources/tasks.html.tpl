@@ -1,7 +1,7 @@
 <h1>Manage Course Tasks</h1>
 
 <form action="{$smarty.server.REQUEST_URI}" method="post">
-    <h2>Course Tasks</h2>
+    <!-- <h2>Course Tasks</h2> -->
     <table class="table table-responsive table-bordered">
         <thead>
             <tr>

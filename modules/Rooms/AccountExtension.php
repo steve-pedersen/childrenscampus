@@ -6,7 +6,7 @@
  * @author      Steve Pedersen (pedersen@sfsu.edu)
  * @copyright   Copyright &copy; San Francisco State University.
  */
-class Ccheckin_Rooms_AccountExtension extends Bss_AuthN_AccountExtension implements Bss_AuthN_IAccountSettingsExtension
+class Ccheckin_Rooms_AccountExtension extends Bss_AuthN_AccountExtension //implements Bss_AuthN_IAccountSettingsExtension
 {
     
     /**
@@ -23,9 +23,10 @@ class Ccheckin_Rooms_AccountExtension extends Bss_AuthN_AccountExtension impleme
 
     public function getSubjectProxies ($account)
     {
-        $res = $this->schema('Ccheckin_Rooms_Reservation');
-        $reservation = $res->find($res->account->id->equals($account->id));
-        return $reservation->asArray();
+        // $res = $this->schema('Ccheckin_Rooms_Reservation');
+        // $reservation = $res->find($res->account->id->equals($account->id));
+        // return $reservation->asArray();
+        return array();
     }
 
     /**
@@ -67,10 +68,11 @@ class Ccheckin_Rooms_AccountExtension extends Bss_AuthN_AccountExtension impleme
     
     public function getAccountSettingsTemplateVariables (Bss_Routing_Handler $handler)
     {
-        $accounts = $handler->schema('Bss_AuthN_Account');
-        $missedReservations = $accounts->find($accounts->missedReservation->equals(true), array('orderBy' => '+username'));
+        return array();
+        // $accounts = $handler->getSchema('Bss_AuthN_Account');
+        // $missedReservations = $accounts->find($accounts->missedReservation->equals(true), array('orderBy' => '+username'));
         
-        return array('missedReservations' => $missedReservations);
+        // return array('missedReservations' => $missedReservations);
     }
     
     /**

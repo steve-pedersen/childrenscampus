@@ -3,7 +3,7 @@
     These are the current observation which are going on at Children's Campus.  
     You may use this feature to verify that people have successfully logged into the system.
 </p>
-<table class="table">
+<table class="table table-bordered">
     <thead>
         <tr>
             <th>Start Time</th>
@@ -14,8 +14,8 @@
     </thead>
     {foreach item='reservation' from=$reservations}
         <tr>
-            <td>{$reservation->observation->startTime->getDate()|date_format:"%B %e, %Y %I:%M %p"}</td>
-            <td>{$reservation->account->displayName|escape} ({if $reservation->account->ldap_user}{$reservation->account->ldap_user}{else}{$reservation->account->email}{/if})</td>
+            <td>{$reservation->observation->startTime|date_format:"%B %e, %Y %I:%M %p"}</td>
+            <td>{$reservation->account->displayName|escape} ({if $reservation->account->ldap_user}{$reservation->account->ldap_user}{else}{$reservation->account->emailAddress}{/if})</td>
             <td>{$reservation->room->name}</td>
             <td>{$reservation->observation->purpose->shortDescription|escape}</td>
         </tr>

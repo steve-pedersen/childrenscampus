@@ -91,7 +91,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     public function schedule ()
     {
         $this->requirePermission('room view schedule');
-
+        
         $roomId = $this->getRouteVariable('id');
         $year = $this->getRouteVariable('year');
         $month = $this->getRouteVariable('month');
@@ -297,9 +297,9 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
 		
 		if ($this->request->wasPostedByUser())
         {
-            if ($command = $this->request->getPostParameter('command'))
+            if ($command = $this->getPostCommand())
             {
-                switch (array_shift(array_keys($command)))
+                switch ($command)
                 {
                     // TODO: Fix this Date stuff ****************************************
                     case 'override':
@@ -338,9 +338,9 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         
         if ($this->request->wasPostedByUser())
         {
-            if ($command = $this->request->getPostParameter('command'))
+            if ($command = $this->getPostCommand())
             {
-                switch (array_shift(array_keys($command)))
+                switch ($command)
                 {
                     case 'delete':
                         $reservation->delete();
@@ -376,72 +376,75 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         // $existing = RoomReservation::GetAccountReservations($viewer);
         // $message = (empty($existing) ? '' : 'You cannot have more than one reservation at a time.');
         		
-		if ($command = $this->request->getPostParameter('command'))
-		{
-			switch (array_shift(array_keys($command)))
-			{
-				case 'reserve':
-                    if (empty($existing))
-                    {
-                        $purposeId = $this->request->getPostParameter('purpose');
-                        $duration = $this->request->getPostParameter('duration');
-                        $continue = false;
-                        $end = null;
-                        
-                        if ($duration)
+        if ($this->request->wasPostedByUser())
+        {
+            if ($command = $this->getPostCommand())
+            {
+                switch ($command)
+                {
+                    case 'reserve':
+                        if (empty($existing))
                         {
-                            $end = clone $date;
-                            $end->setHour($hour + $duration);
+                            $purposeId = $this->request->getPostParameter('purpose');
+                            $duration = $this->request->getPostParameter('duration');
+                            $continue = false;
+                            $end = null;
                             
-                            if ($purpose = $this->schema('Ccheckin_Purposes_Purpose')->get($purposeId))
+                            if ($duration)
                             {
-                                if (!($continue = Ccheckin_Rooms_Reservation::GetRoomAvailable($room, $date, $duration)))
-                                {
-                                    $message = 'We cannot reserve the room at this time for ' . $duration . ' hours';
-                                }
+                                $end = clone $date;
+                                $end->setHour($hour + $duration);
                                 
-                                $cdate = clone $date;
-                                $cnow = clone $now;
-                                if (Date::compare($cdate, $cnow) < 0 && !$this->hasPermission('admin'))
+                                if ($purpose = $this->schema('Ccheckin_Purposes_Purpose')->get($purposeId))
                                 {
-                                    $continue = false;
-                                    $message = 'You cannot reserve a room for a date and time that has already passed.';
+                                    if (!($continue = Ccheckin_Rooms_Reservation::GetRoomAvailable($room, $date, $duration)))
+                                    {
+                                        $message = 'We cannot reserve the room at this time for ' . $duration . ' hours';
+                                    }
+                                    
+                                    $cdate = clone $date;
+                                    $cnow = clone $now;
+                                    if (Date::compare($cdate, $cnow) < 0 && !$this->hasPermission('admin'))
+                                    {
+                                        $continue = false;
+                                        $message = 'You cannot reserve a room for a date and time that has already passed.';
+                                    }
+                                }
+                                else
+                                {
+                                    $purpose = null;
+                                    $message = 'Please state the purpose for the visit';
                                 }
                             }
                             else
                             {
-                                $purpose = null;
-                                $message = 'Please state the purpose for the visit';
+                                $message = 'Please state the amount of time for the visit';
+                            }
+                            
+                            if ($continue)
+                            {
+                                $observation = $this->schema('Ccheckin_Rooms_Observation')->createInstance();
+                                $observation->roomId = $room->id;
+                                $observation->purposeId = $purpose->id;
+                                $observation->accountId = $viewer->id;
+                                $observation->save();
+                                
+                                $reservation = $this->schema('Ccheckin_Rooms_Reservation')->createInstance();
+                                $reservation->roomId = $room->id;
+                                $reservation->observationId = $observation->id;
+                                $reservation->accountId = $viewer->id;
+                                $reservation->startTime = $date;
+                                $reservation->endTime = $end;
+                                $reservation->checkedIn = false;
+                                $reservation->save();
+                                
+                                $this->response->redirect('reservations/view/' . $reservation->id);
                             }
                         }
-                        else
-                        {
-                            $message = 'Please state the amount of time for the visit';
-                        }
-                        
-                        if ($continue)
-                        {
-                            $observation = $this->schema('Ccheckin_Rooms_Observation')->createInstance();
-                            $observation->roomId = $room->id;
-                            $observation->purposeId = $purpose->id;
-                            $observation->accountId = $viewer->id;
-                            $observation->save();
-                            
-                            $reservation = $this->schema('Ccheckin_Rooms_Reservation')->createInstance();
-                            $reservation->roomId = $room->id;
-                            $reservation->observationId = $observation->id;
-                            $reservation->accountId = $viewer->id;
-                            $reservation->startTime = $date;
-                            $reservation->endTime = $end;
-                            $reservation->checkedIn = false;
-                            $reservation->save();
-                            
-                            $this->response->redirect('reservations/view/' . $reservation->id);
-                        }
-                    }
-					break;
-			}
-		}
+                        break;
+                }
+            }
+        }
 
         $azids = $authZ->getObjectsForWhich($viewer, 'purpose have', 'Purpose');
         $purposes = $this->schema('Ccheckin_Purposes_Purpose')->getByAzids($azids);

@@ -43,34 +43,17 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
         
         return $years;
     }
- 
-    // public function getStartDate ()
-    // {
-    //     $startDate = $this->_fetch('startDate');
-        
-    //     return $startDate ? $startDate : new DateTime;
-    // }
-
-    // public function getEndDate ()
-    // {
-    //     $endDate = $this->_fetch('endDate');
-        
-    //     return $endDate ? $endDate : new DateTime;
-    // }
-
-    // public function getDisplay ()
-    // {
-    //     return $this->_fetch('display');
-    // }
-
-    // public function getInternal()
 
     public function setDisplay ($display)
     {
         $this->_assign('display', $display);
-        $this->_assign('internal', strtolower(str_replace(' ', '_', $display)));
     }
-    
+
+    public function setInternal ($internal)
+    {
+        $this->_assign('internal', $internal);
+    }
+   
     public function validate ()
     {
         $errors = array();

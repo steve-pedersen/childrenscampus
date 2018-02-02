@@ -6,7 +6,7 @@
  * @author      Steve Pedersen (pedersen@sfsu.edu)
  * @copyright   Copyright &copy; San Francisco State University.
  */
-class Ccheckin_Courses_AccountExtension extends Bss_AuthN_AccountExtension implements Bss_AuthN_IAccountSettingsExtension
+class Ccheckin_Courses_AccountExtension extends Bss_AuthN_AccountExtension //implements Bss_AuthN_IAccountSettingsExtension
 {
     
     /**
@@ -23,6 +23,13 @@ class Ccheckin_Courses_AccountExtension extends Bss_AuthN_AccountExtension imple
                 'fromPrefix' => 'account',
                 'toPrefix' => 'course',
                 'properties' => array('term' => 'string', 'role' => 'string', 'enrollment_method' => 'string')
+            ),
+            'teachingCourses' => array('N:M',
+                'to' => 'Ccheckin_Courses_Course',
+                'via' => 'ccheckin_teaching_courses_map',
+                'fromPrefix' => 'account',
+                'toPrefix' => 'course',
+                'properties' => array('term' => 'string')
             ),
         );
     }
@@ -111,8 +118,11 @@ class Ccheckin_Courses_AccountExtension extends Bss_AuthN_AccountExtension imple
         {
 
         }
-        
-        return true;
+        if (empty($errorMap))
+        {
+            return true;
+        }
+        return false;
     }
 
 }
