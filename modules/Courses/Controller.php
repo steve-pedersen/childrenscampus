@@ -15,6 +15,13 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         );
     }
 
+    // protected function beforeCallback ($callback)
+    // {
+    //     parent::beforeCallback($callback);
+    //     $this->template->clearBreadcrumbs();
+    //     $this->addBreadcrumb('home', 'Home');
+    // }
+
     public function index ()
     {
         $viewer = $this->getAccount();
@@ -55,6 +62,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
     
     public function view ()
     {
+        $this->addBreadcrumb('courses', 'View Courses');
         $account = $this->requireLogin();
         $id = $this->getRouteVariable('id');
         $course = $this->requireExists($this->schema('Ccheckin_Courses_Course')->get($id));
@@ -110,6 +118,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
     
     public function history ()
     {
+        $this->addBreadcrumb('courses', 'View Courses');
         $this->requireLogin();
         $id = $this->getRouteVariable('id');
         $course = $this->requireExists($this->schema('Ccheckin_Courses_Course')->get($id));
@@ -176,6 +185,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
     // TODO: Fix tasks submission and remove unused fields/fetch from ClassData
     public function request ()
     {       
+        $this->addBreadcrumb('courses', 'View Courses');
         $viewer = $this->requireLogin();
         $siteSettings = $this->getApplication()->siteSettings;
         $this->requirePermission('course request');
@@ -342,6 +352,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
     // NOTE: This function will probably be obsolete unless manual student accounts/enrollments are needed.
     public function students ()
     {
+        $this->addBreadcrumb('courses', 'View Courses');
         $viewer = $this->requireLogin();
         $id = $this->getRouteVariable('id');   
         $course = $this->requireExists($this->schema('Ccheckin_Courses_Course')->get($id));
@@ -393,6 +404,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
     
     public function drop ()
     {
+        $this->addBreadcrumb('courses', 'View Courses');
         $this->requireLogin();
         $courseId = $this->getRouteVariable('cid');    // TODO: Verify these are the correct route var names
         $accountId = $this->getRouteVariable('aid'); 

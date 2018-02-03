@@ -120,10 +120,10 @@
                         <li><a href="reports/generator">Create Reports</a></li>
                         <li><a href="reservations/upcoming">My Reservations</a></li>
                         <li><a href="reservations/schedule">Room Schedules</a></li>
-                        <li role="separator" class="divider"></li>
+                        <!-- <li role="separator" class="divider"></li> -->
                         <li><a href="courses">View Courses</a></li>
                         <li><a href="courses/request">Request a Course</a></li>
-                        <li role="separator" class="divider"></li>
+                        <!-- <li role="separator" class="divider"></li> -->
                         <!-- <li><a href="admin">Administrate</a></li> -->
                         <li><a href="reservations/missed">Missed Reservations</a></li>
                         <li><a href="reservations/observations">Past Observations</a></li>
@@ -146,7 +146,7 @@
 		
 		{if $viewer}
 		<!-- RIGHT SIDEBAR - Contact -->
-        <div class="col-md-2">
+        <div class="col-md-2 col-sm-4 col-xs-12">
             <div class="right-sidebar pull-right">
                 <div class="well">
 					<div id="resources">	

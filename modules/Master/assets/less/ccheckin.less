@@ -1,25 +1,16 @@
-#filmstrip img.img-responsive {
-	border-top: none;
-	border-right: 3px solid #fff;
-    border-bottom: 5px solid #fff;
-    border-left: 2px solid #fff;
+
+/* LIGHT GRAY BACKGROUND ON SIDES OF CONTENT AREA */
+html > body {
+	background-color: #F4F4F4;
+
+	div#content {
+		background-color: #fff;
+	}
 }
-.at .bc {
-    /*background-color: #1b2a4b !important;*/
-
-    .breadcrumb {
-    	/*padding-left: 2px;*/
-    	/*background-color: #1b2a4b !important;*/
-		/*min-height: 35px;*/
-    	
-    	a {
-    		/*color: #fff;*/
-    	}
-    }
-}
-
-
+/* WHITE BACKGROUND IN CONTENT AREA */
 div.main-content {
+	padding: 10px 15px 20px 15px;
+
 	h1 {
 		text-align: center;
 		border-bottom: 3px solid #808080;
@@ -27,16 +18,49 @@ div.main-content {
 	}
 }
 
+/* IMAGE BANNER */
+#filmstrip img.img-responsive {
+	border-top: none;
+	border-right: 3px solid #fff;
+    border-bottom: 5px solid #fff;
+    border-left: 2px solid #fff;
+    width: 100%;
+}
+
+/* BREADCRUMBS */
+.at .bc {
+    background-color: #ECEEEF !important;
+
+    .breadcrumb {
+    	padding-left: 2px;
+    	background-color: #ECEEEF;
+		min-height: 35px;
+    	
+    	a {
+    		/*font-weight: bold;*/
+    		font-size: 12pt;
+    		color: #231161;
+    	}
+    }
+}
+
+/* LEFT SIDEBAR (MAIN NAV) */
 .sidebar-nav {
 
+	.menu-header {
+		color: #53565A;
+	}
+
 	.well {
-		/*padding: 19px 19px 19px 5px;*/
 		padding: 5px;
 		background-color: #fff;
 		border: none;
 		border-radius: 0;
 		-webkit-box-shadow: none;
 		box-shadow: none;
+	}
+	ul.left-nav {
+		font-weight: bold;
 	}
 	li {
 		border-bottom: 1px solid #EFEFEF;
@@ -45,35 +69,31 @@ div.main-content {
 		background-color: #EFEFEF;
 		/*outline: 0 !important;*/
 	}
-
 }
 
+/* RIGHT SIDEBAR - CONTACT */
 .right-sidebar {
+	h3 {
+		color: #53565A;
+	}
+
 	font-size: 10pt;
 
 	.well {
-		padding: 0 0 20px 0;
+		padding: 5px 0 20px 0;
 		background-color: #fff;
 		border: none;
 		border-radius: 0;
-		border-bottom: 1px solid #808080;
+		border-bottom: 2px solid #EFEFEF;
 		-webkit-box-shadow: none;
 		box-shadow: none;
 	}
 }
 
-/* Left navigation sidebar */
-/*.sidebar-nav > .well {
-	background-color: #F8F8E8;
-}*/
-
-ul.left-nav {
-	font-weight: bold;
-}
-
+/* TABLE STYLINGS */
 table {
 	thead {
-		background-color: #333333;
+		background-color: #004F71;
 		color: #FFF;
 		a {
 			color: #FFF;
@@ -81,7 +101,7 @@ table {
 		}
 		a:hover {
 			color: #FFF;
-			opacity: 0.8;
+			opacity: 0.85;
 		}
 	}
 }
@@ -100,4 +120,11 @@ table#room-schedule {
 		text-align: center;
 	}
 }
+
+/* BOOTSTRAP OVERRIDES */
+.badge {
+	background-color: #C99700;
+}
+
+
 

@@ -27,7 +27,14 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
 
         );
     }
-    
+
+    // protected function beforeCallback ($callback)
+    // {
+    //     parent::beforeCallback($callback);
+    //     $this->template->clearBreadcrumbs();
+    //     $this->addBreadcrumb('home', 'Home');
+    // }
+  
     public function index ()
     {
         $viewer = $this->getAccount();

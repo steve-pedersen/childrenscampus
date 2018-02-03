@@ -21,6 +21,14 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
         );
     }
 
+    protected function beforeCallback ($callback)
+    {
+        parent::beforeCallback($callback);
+        $this->template->clearBreadcrumbs();
+        $this->addBreadcrumb('home', 'Home');
+        $this->addBreadcrumb('admin', 'Admin');
+    }
+
     public function rooms () 
     {
         $this->setPageTitle('Manage Rooms');
@@ -59,6 +67,7 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
 
     public function editRoom () 
     {
+        $this->addBreadcrumb('admin/rooms', 'Manage rooms');
         $id = $this->getRouteVariable('id');
         if (!preg_match('/^([0-9]+|new)$/', $id))
         {

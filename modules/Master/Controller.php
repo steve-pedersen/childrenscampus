@@ -53,11 +53,16 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         $session->flashContent = $content;
     }
 
-    // protected function beforeCallback ($callback)
-    // {
-    //     // echo "<pre>"; var_dump('beforeCallback'); die;
-    //     parent::beforeCallback($callback);
-    // }
+    protected function beforeCallback ($callback)
+    {
+        parent::beforeCallback($callback);
+        $path = $this->request->getFullRequestedUri();
+        if (($path !== '') && ($path !== '/') && ($path !== '/home') && ($path !== '/ccheckin') &&
+            ($path !== '/ccheckin/') && ($path !== '/ccheckin/home'))
+        {
+            $this->addBreadcrumb('home', 'Home');
+        }
+    }
 
     protected function afterCallback ($callback)
     {
@@ -67,7 +72,8 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         $this->template->includeScripts = $this->includeScriptList;
         $this->template->analyticsCode = $this->getApplication()->configuration->getProperty('analyticsTrackingCode');
         $this->template->setPageTitle(!empty($this->pageTitle) ? implode(' - ', $this->pageTitle) : '');
-        
+    
+
         $siteSettings = $this->getApplication()->siteSettings;
         if ($contactInfo = $siteSettings->getProperty('contact-info'))
         {
