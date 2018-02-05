@@ -34,4 +34,5 @@
         <input class="btn btn-danger" type="submit" name="command[remove]" value="Remove Selected" />
         {/if}
     </div>
+{generate_form_post_key}
 </form>

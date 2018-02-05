@@ -29,4 +29,5 @@
     <div class="commands">
         <p><input type="submit" name="command[reserve]" value="Reserve Room" /></p>
     </div>
+{generate_form_post_key}
 </form>

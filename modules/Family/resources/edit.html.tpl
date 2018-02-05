@@ -6,6 +6,7 @@
 		{if $errors.name}<dd class="error">{$errors.name}</dd>{/if}
     </dl>
     <div class="commands">
+    	{generate_form_post_key}
         <p><input type="submit" name="command[save]" value="Save" /></p>
     </div>
 </form>

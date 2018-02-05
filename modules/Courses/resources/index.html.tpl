@@ -12,7 +12,7 @@
 </dl>
 </div>
 {foreachelse}
-<p class="alert alert-warning">You have no courses yet.</p>
+<p class="alert alert-info">You have no courses yet.</p>
 {/foreach}
 <div class="course-actions">
     <ul class="list-unstyled">

@@ -46,6 +46,7 @@
 	<br><br>
 	{if $courses}
 	<div class="commands form-group">
+		{generate_form_post_key}
         {if $tab == 'active'}
         <input class="btn btn-info" type="submit" name="command[inactive]" value="Deactivate Selected" />
         {else}
@@ -59,9 +60,8 @@
 	{else}
 	<p>No courses found.</p>
 	{/if}
-	<br>
-	<div class="link-controls form-group">
-		<a class="new btn btn-success" href="admin/courses/edit/new">Create a Course</a>
-    </div>
-
 </form>
+<br>
+<div class="link-controls form-group">
+	<a class="new btn btn-success" href="admin/courses/edit/new">Create a Course</a>
+</div>

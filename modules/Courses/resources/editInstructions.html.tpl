@@ -7,6 +7,7 @@
     </div>
 
     <div class="commands">
+    	{generate_form_post_key}
         <input class="btn btn-primary" type="submit" name="command[save]" id="command-save" value="Save Instructions" />
     </div>
 </form>

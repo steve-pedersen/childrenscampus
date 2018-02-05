@@ -47,11 +47,11 @@
     <div class="form-group">
         <div class="col-xs-12">
             <div class="controls">
-                {generate_form_post_key}
                 {if $module->inDatasource}<input type="hidden" name="module[id]" value="{$module->id}" />{/if}
                 <input class="btn btn-primary" type="submit" name="command[save]" value="{if $module->inDatasource}Save{else}Create{/if}" />
                 <a class="cancel btn btn-link" href="">Cancel</a>
         </div>
         </div>
     </div>
+{generate_form_post_key}
 </form>

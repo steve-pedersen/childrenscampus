@@ -36,6 +36,7 @@
     </div>
 
     <div class="commands">
+        {generate_form_post_key}
         <input class="btn btn-primary" type="submit" name="command[add]" id="command-add" value="Create Course Type" />
     </div>
 </form>

@@ -19,6 +19,7 @@
 	</div>
 
 	<div class="field commands">
+		{generate_form_post_key}
 		{if $accessLevel->inDataSource}<a href="admin/levels/{$accessLevel->id}/delete" class="btn btn-danger">Delete</a>{/if}
 		<input type="submit" name="command[save]" class="btn btn-primary" value="{if $accessLevel->inDataSource}Save changes{else}Add{/if}">
 		<a href="admin/roles" class="btn btn-default">Cancel</a>

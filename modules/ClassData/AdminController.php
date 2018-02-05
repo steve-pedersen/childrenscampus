@@ -19,7 +19,10 @@ class Ccheckin_ClassData_AdminController extends At_Admin_Controller
     {
         parent::beforeCallback($callback);
         $this->requirePermission('admin');
-    }
+        $this->template->clearBreadcrumbs();
+        $this->addBreadcrumb('home', 'Home');
+        $this->addBreadcrumb('admin', 'Admin');
+    }    
     
     public function index ()
     {

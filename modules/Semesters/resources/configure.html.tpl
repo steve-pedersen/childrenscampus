@@ -55,4 +55,5 @@
     <div class="form-group commands">
         <input class="btn btn-primary" type="submit" name="command[add]" id="command-add" value="Create Semester" />
     </div>
+{generate_form_post_key}
 </form>

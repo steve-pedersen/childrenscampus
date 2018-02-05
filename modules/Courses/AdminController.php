@@ -21,6 +21,14 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         );
     }
 
+    protected function beforeCallback ($callback)
+    {
+        parent::beforeCallback($callback);
+        $this->template->clearBreadcrumbs();
+        $this->addBreadcrumb('home', 'Home');
+        $this->addBreadcrumb('admin', 'Admin');
+    }
+
     public function manage ()
     {
         $courses = $this->schema('Ccheckin_Courses_Course');

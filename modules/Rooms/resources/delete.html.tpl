@@ -8,4 +8,5 @@
     <div class="commands">
         <p><input type="submit" name="command[delete]" value="Cancel Reservation" /><a href="reservations/upcoming">cancel</a></p>
     </div>
+{generate_form_post_key}
 </form>

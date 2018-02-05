@@ -8,11 +8,18 @@ class Ccheckin_Welcome_AdminController extends At_Admin_Controller
             'admin/welcome' => array('callback' => 'adminWelcome'),
         );
     }
-    
+
+    protected function beforeCallback ($callback)
+    {
+        parent::beforeCallback($callback);
+        $this->template->clearBreadcrumbs();
+        $this->addBreadcrumb('home', 'Home');
+        $this->addBreadcrumb('admin', 'Admin');
+    }
+  
     public function adminWelcome ()
     {
         $siteSettings = $this->getApplication()->siteSettings;
-        $this->addBreadcrumb('admin', 'Administrate');
         
         if ($this->getPostCommand() == 'save' && $this->request->wasPostedByUser())
         {           

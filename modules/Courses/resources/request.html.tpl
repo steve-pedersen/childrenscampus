@@ -20,7 +20,7 @@
 <form method="get" action="{$smarty.server.REQUEST_URI|escape}">
     <div class="form-group">
         <label for="semester" class="field-label field-linked">Semester <span class="badge">{if $activeDisplay} {$activeDisplay}{/if}</span></label>
-        <select name="semester" class="form-control" onchange="this.form.submit()" required>
+        <select name="semester" class="form-control" onchange="this.form.submit()">
         {foreach item='semester' from=$semesters}
             <option value="{$semester->id}" {if $semester->internal == $activeSemester}selected active{/if}">{$semester->display}</option>
         {/foreach}
@@ -33,7 +33,7 @@
     <div class="form-group">
         <label for="course">Course <small> (depends on selected semester)</small></label>
         {if $courses}
-        <select class="form-control" name="course" id="course-courseId" required>
+        <select class="form-control" name="course" id="course-courseId">
             <!-- <option value="" default>Choose a course</option> -->
             {foreach item='course' from=$courses}
                 <option value="{$course.id}">{$course.shortName} {$course.title}</option>
@@ -45,7 +45,7 @@
     </div>
     <div class="form-group">
         <label for="facet-typeId">Course Type</label>
-        <select class="form-control" name="facet[typeId]" id="facet-typeId" required>
+        <select class="form-control" name="facet[typeId]" id="facet-typeId">
             <!-- <option value="">Choose a type of course</option> -->
         {foreach item='type' from=$facetTypes}
             <option value="{$type->id}"{if $facet && ($facet->typeId == $type->id)} selected="selected"{/if}>{$type->name|escape}</option>
@@ -69,6 +69,7 @@
         </table>
     </div>
     <div class="commands">
+        {generate_form_post_key}
         <input class="btn btn-info" type="submit" name="command[request]" value="Request Course" />
     </div>
 </form>

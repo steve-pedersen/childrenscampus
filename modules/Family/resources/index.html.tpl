@@ -14,6 +14,7 @@
     </ul>
     <p><a class="new" href="admin/family/edit/new">Create a new family purpose</a></p>
 	<div class="commands">
+        {generate_form_post_key}
         <p><input type="submit" name="command[remove]" value="Remove Selected" /></p>
     </div>
 </form>

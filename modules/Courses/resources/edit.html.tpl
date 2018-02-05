@@ -77,6 +77,7 @@
         </div>
     </div> -->
     <div class="commands">
+        {generate_form_post_key}
         <input class="btn btn-primary" type="submit" name="command[save]" value="{if $new}Create{else}Save{/if} Course" />
     </div>
 </form>

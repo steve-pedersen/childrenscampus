@@ -49,6 +49,7 @@
         </div>
     </div>
     <div class="commands">
+        {generate_form_post_key}
         <p><input type="submit" name="command[request]" value="Request Students" /></p>
     </div>
 </form>

@@ -14,6 +14,7 @@
     
                         
                     <div class="form-group">
+                        {generate_form_post_key}
                         <button class="command-button btn btn-primary" type="submit" name="command[login]">Login</button>
                     </div>
                 </form>

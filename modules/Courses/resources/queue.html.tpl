@@ -51,6 +51,7 @@
         </tbody>
     </table>
     <div class="commands">
+        {generate_form_post_key}
         <p><input class="btn btn-info" type="submit" name="command[update-creation]" value="Update" /></p>
     </div>
 </form>
@@ -88,6 +89,7 @@
         </tbody>
     </table>
     <div class="commands">
+        {generate_form_post_key}
         <p><input class="btn btn-primary" type="submit" name="command[update-users]" value="Update" /></p>
     </div>
 </form>
