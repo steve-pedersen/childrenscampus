@@ -20,7 +20,7 @@
 <div class="list-group col-xs-6">   
     <h3><img src="assets/images/icon_courses.png" class="transparent control_icon" width="64" height="64">Courses</h3>
     <a class="list-group-item" href="admin/courses">Manage Courses</a>
-    <a class="list-group-item" href="admin/courses/queue">Manage Course Requests</a>
+    <a class="list-group-item" href="admin/courses/queue">Manage Course Requests {if $crs}<span class="badge">{$crs|@count}</span>{/if}</a>
     <a class="list-group-item" href="admin/courses/types">Manage Course Types</a>
 <!--     <a class="list-group-item" href="admin/courses/tasks">Manage tasks</a> -->
     <a class="list-group-item" href="admin/courses/edit/new">Create a Course</a>

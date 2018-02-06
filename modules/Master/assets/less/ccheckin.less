@@ -21,6 +21,22 @@ div.main-content {
 	}
 }
 
+.navbar {
+    .navbar-text {
+		margin-top: 17px;
+    }
+
+	.navbar-right {
+		li {
+			text-align: center;
+		}
+	}
+
+	li button.navbar-btn {
+		margin-top: 10px;
+	}  
+}
+
 /* IMAGE BANNER */
 #filmstrip img.img-responsive {
 	border-top: none;
@@ -112,10 +128,14 @@ table.course-requests {
 	td {
 		font-size: 10pt;
 	}
-	td.text-center {
-		vertical-align: middle !important; 
+	td.checkboxes {
+		vertical-align: middle;
+		
+		label.box-label {
+			display: block;
+			text-align: center;	
+		}
 	}
-
 }
 .account-table tbody td {
     font-size: 10pt;
@@ -135,8 +155,15 @@ table#room-schedule {
 
 /* BOOTSTRAP OVERRIDES */
 .badge {
-	background-color: #C99700;
+	background-color: #B04A5A;
+
 }
-
-
+.badge-alt {
+	background-color: #463077;
+}
+.course-info {
+	.task-list {
+		margin-left: -20px;
+	}	
+}
 

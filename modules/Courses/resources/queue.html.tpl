@@ -24,30 +24,48 @@
 <h2>Course creation requests</h2>
 <p><em>Click course name to view more details about the request</em></p>
 <form method="post" action="{$smarty.server.REQUEST_URI}">
-    <table class="table table-responsive table-bordered course-requests">
+    <table class="table table-responsive table-bordered table-hover course-requests">
         <thead>
             <tr>
-                <th>Course name</th>
+                <th>Course Name</th>
                 <th>Requester</th>
                 <!-- <th>Date requested</th> -->
-                <th>Semester</th>
-                <th>Students</th>
-                <th>Type</th>
+                <!-- <th>Semester</th> -->
+                <!-- <th>Students</th> -->
+                <th>Course Details</th>
                 <th>Allow</th>
                 <th>Deny</th>
             </tr>
         </thead>
         <tbody>
-        {foreach from=$courserequests  item='cr'}
-            <tr>
-                <td><strong><a href="admin/courses/queue/{$cr->id}">{$cr->course->shortName|escape}</a></strong></td>
-                <td>{$cr->requestedBy->lastName|escape} <em>on {$cr->requestDate->format('M j h:ia')}</em></td>
-                <!-- <td></td> -->
-                <td>{$cr->course->semester->display|escape}</td>
-                <td>{$cr->courseEnrollments.students|@count}</td>
-                <td>{$cr->course->facetType->name}</td>
-                <td class="text-center"><input type="checkbox" name="allow[{$cr->id}]" title="allow {$cr->course->shortName|escape}" /></td>
-                <td class="text-center"><input type="checkbox" name="deny[{$cr->id}]" title="deny {$cr->course->shortName|escape}" /></td>
+        {foreach from=$courserequests item='cr'}
+            {if $duplicates}
+            {foreach from=$duplicates item=d}
+                {if $cr->id == $d}
+                    {assign var='dup' value=true}
+                {/if}
+            {/foreach}
+            {/if}
+            <tr {if $dup}class="bg-warning"{/if}>
+                <td><a href="admin/courses/queue/{$cr->id}">{$cr->course->shortName|escape}</a> {if $dup}<span class="label label-default">duplicate request</span>{/if}</td>
+                <td><strong>{$cr->requestedBy->lastName|escape}</strong> on {$cr->requestDate->format('M j h:ia')}</td>
+                <!-- <td>{$cr->requestDate->format('M j h:ia')}</td> -->
+                <!-- <td>{$cr->course->semester->display|escape}</td> -->
+                <!-- <td>{$cr->courseEnrollments.students|@count}</td> -->
+                <td>{$cr->course->facetType->name} 
+                    <span class="badge">{$cr->courseEnrollments.students|@count} student{if $cr->courseEnrollments.students|@count > 1}s{/if}</span>
+                    <span class="badge badge-alt">{$cr->courseEnrollments.teachers|@count} teacher{if $cr->courseEnrollments.teachers|@count > 1}s{/if}</span>
+                </td>
+                <td class="checkboxes">
+                    <label class="box-label" for="allow-{$cr->id}">
+                        <input type="checkbox" id="allow-{$cr->id}" name="allow[{$cr->id}]" title="allow {$cr->course->shortName|escape}" />
+                    </label>
+                </td>
+                <td class="checkboxes">
+                    <label class="box-label" for="deny-{$cr->id}">
+                        <input type="checkbox" id="deny-{$cr->id}" name="deny[{$cr->id}]" title="deny {$cr->course->shortName|escape}" />
+                    </label>
+                </td>
             </tr>
         {foreachelse}
             <tr><td colspan="7" align="center">There are no courses in the queue.</td></tr>
@@ -61,6 +79,19 @@
 </form>
 {else}
 <h1>Course Request <small> {$courseRequest->course->shortName}</small></h1>
+{if $duplicates}
+{foreach from=$duplicates item=d}
+    {if $courseRequest->id == $d}
+        {assign var='dup' value=true}
+    {/if}
+{/foreach}
+{/if}
+{if $dup}
+<p class="alert alert-danger">
+    <strong>NOTE:</strong> This is a duplicate course request. A course with the same name and type as this one has already been requested at an earlier date. 
+    Back to <a href="admin/courses/queue">manage course requests</a>.
+</p>
+{/if}
 <form method="post" action="{$smarty.server.REQUEST_URI}">
     <h2>Request details</h2>
     <div class="course-info">
@@ -69,14 +100,18 @@
             <dt>Short name:</dt><dd>{$courseRequest->course->shortName}</dd>
             {if $courseRequest->course->department}<dt>Department:</dt><dd>{$courseRequest->course->department}</dd>{/if}
             <dt>Semester:</dt><dd>{$courseRequest->course->semester->display}</dd>
+            <dt>Start date:</dt><dd>{$courseRequest->course->semester->startDate->format('M j, Y')}</dd>
+            <dt>End date:</dt><dd>{$courseRequest->course->semester->endDate->format('M j, Y')}</dd>
             <dt>Course type:</dt><dd>{$courseRequest->course->facetType->name}</dd>
             <dt>Course tasks:</dt>
             <dd>
-            {foreach from=$courseFacet->tasks item=task}
-                {$task}.{if !$task@last}<br>{/if}
-            {foreachelse}
-                No tasks specified in this request.
-            {/foreach}    
+                <ul class="task-list">
+                {foreach from=$courseFacet->tasks item=task}
+                    <li>{$task}.</li>
+                {foreachelse}
+                    No tasks specified in this request.
+                {/foreach}
+                </ul>    
             </dd>
         </dl>
     </div>
@@ -84,13 +119,15 @@
         <dl class="dl-horizontal">
             <dt>Requested by:</dt><dd>{$courseRequest->requestedBy->firstName} {$courseRequest->requestedBy->lastName} &mdash; {$courseRequest->requestedBy->emailAddress}</dd>
             <dt>Request date:</dt><dd>{$courseRequest->requestDate->format('M j, Y — h:ia')}</dd>
-            <dt>Student count:</dt><dd>{$courseEnrollments.students|@count}</dd>
-            <dt>Teacher count:</dt><dd>{$courseEnrollments.teachers|@count}</dd>
         </dl>
     </div>
     <hr>
     <h2>Enrollments</h2>
     <div class="enrollment-info">
+        <dl class="dl-horizontal">
+            <dt>Student count:</dt><dd>{$courseEnrollments.students|@count}</dd>
+            <dt>Teacher count:</dt><dd>{$courseEnrollments.teachers|@count}</dd>
+        </dl>
         <h3>Teachers</h3>
         {foreach from=$courseEnrollments.teachers item=teacher}
             <dl class="dl-horizontal teacher-list">

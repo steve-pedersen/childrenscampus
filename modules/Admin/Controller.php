@@ -27,6 +27,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
     public function index ()
     {
         $this->setPageTitle('Administrate');
+        $this->template->crs = $this->schema('Ccheckin_Courses_Request')->getAll(array('orderBy' => 'requestDate'));
     }
     
     /**

@@ -123,7 +123,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         {
             $courseRequest = $this->requireExists($courseRequests->get($reqid));
             $moreInfo = true;
-            $this->addBreadcrumb('admin/courses/queue', 'Manage Course Requests');
+            $this->addBreadcrumb('admin/courses/queue', 'Manage course requests');
             $facet = $facets->findOne($facets->courseId->equals($courseRequest->course->id));
             $this->template->courseRequest = $courseRequest;
             $this->template->courseFacet = $facet;
@@ -140,6 +140,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                 switch ($command)
                 {
                     case 'update-creation':
+                        echo "<pre>"; var_dump('update-creation', $allow, $deny); die;
                         if (!empty($allow))
                         {
                             foreach ($allow as $id => $nothing)
@@ -148,7 +149,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                                 {
                                     $cr->course->active = true;
                                     $cr->course->save();
-                                    $this->sendCourseAllowedNotification($cr->course, $cr->requestedBy);
+                                    // $this->sendCourseAllowedNotification($cr->course, $cr->requestedBy);    // TODO: Fix email notifications!!!! *****************
                                     $cr->requestedBy->grantPermission('course view', $cr->course);
                                     $users = $cr->courseUsers;
                                     
@@ -173,14 +174,14 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                             }
                         }
                         
-                        
+                        echo "<pre>"; var_dump('update-creation', $allow, $deny); die;
                         if (!empty($deny))
                         {
                             foreach ($deny as $id => $nothing)
                             {                           
                                 if ($cr = $courseRequests->get($id))
                                 {
-                                    $this->sendCourseDeniedNotification($cr->course, $cr->requestedBy);
+                                    // $this->sendCourseDeniedNotification($cr->course, $cr->requestedBy);     // TODO: Fix email notifications!!!! *****************
                                     $denied[] = $cr->course->fullName;
                                     $cr->course->delete();
                                     $cr->delete();
@@ -190,49 +191,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                         break;
 
                     case 'update-users':
-                        if (!empty($allow))
-                        {
-                            foreach ($allow as $id => $nothing)
-                            {                            
-                                if ($cur = $courseUserRequests->get($id))
-                                {
-                                    $this->sendUsersAllowedNotification($cur->course, $cur->requestedBy);
-                                    $users = $cur->users;
-                                    
-                                    foreach ($cur->course->facets as $facet)
-                                    {   
-                                        if (isset($users['observe']))
-                                        {
-                                            $facet->addUsers($users['observe'], true);
-                                        }
-                                        
-                                        if (isset($users['participate']))
-                                        {
-                                            $facet->addUsers($users['participate'], false);
-                                        }
-                                        
-                                        break;
-                                    }
-                                    
-                                    $allowed[] = $cur->course->fullName;
-                                    $cur->delete();
-                                }
-                            }
-                        }
-                        
-                        
-                        if (!empty($deny))
-                        {
-                            foreach ($deny as $id => $nothing)
-                            {
-                                if ($cur = $courseUserRequests->get($id))
-                                {
-                                    $this->sendUsersDeniedNotification($cur->course, $cur->requestedBy);
-                                    $denied[] = $cur->course->fullName;
-                                    $cur->delete();
-                                }
-                            }
-                        }
+                        // removed this functionality
                         break;
                 }
             }
@@ -240,9 +199,21 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         
         // Get the remaining queued records
         $crs = $courseRequests->getAll(array('orderBy' => 'requestDate'));
-        // $curs = $courseUserRequests->getAll(array('orderBy' => 'requestDate'));
-
-        // $this->template->courseUserRequests = $curs;
+        $duplicates = array();
+        foreach ($crs as $cr)
+        {
+            $temp = $cr->course->shortName . $cr->course->facetType->name;
+            if (in_array($temp, $duplicates))
+            {
+                $duplicates['found'][] = $cr->id;
+            }
+            else
+            {
+                $duplicates[] = $temp;
+            }
+        }
+        
+        $this->template->duplicates = isset($duplicates['found']) ? $duplicates['found'] : array();
         $this->template->moreInfo = $moreInfo;
         $this->template->courserequests = $crs;
         $this->template->allowed = $allowed;
