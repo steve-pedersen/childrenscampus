@@ -104,6 +104,9 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
             case 'login':
                 $optionMap['orderBy'] = array($dirPrefix . 'lastLoginDate', $dirPrefix . 'lastName', $dirPrefix . 'firstName', $dirPrefix . 'id');
                 break;
+            // case 'role':
+            //     $optionMap['orderBy'] = array($dirPrefix . 'roles.name', $dirPrefix . 'id');
+            //     break;
         }
         
         $condition = null;

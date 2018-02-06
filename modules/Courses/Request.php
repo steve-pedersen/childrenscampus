@@ -19,6 +19,25 @@ class Ccheckin_Courses_Request extends Bss_ActiveRecord_BaseWithAuthorization //
         );
     }
 
+    public function getCourseEnrollments ()
+    {
+        $enrollments = array();
+        $allEnrolled = $this->course->enrollments;
+        foreach ($allEnrolled as $enrollment)
+        {
+            if ($allEnrolled->getProperty($enrollment, 'role') === 'Student')
+            {
+                $enrollments['students'][] = $enrollment;
+            }
+            elseif ($allEnrolled->getProperty($enrollment, 'role') === 'Teacher')
+            {
+                $enrollments['teachers'][] = $enrollment;
+            }
+            // $enrollments[] = $enrollment;
+        }
+        return $enrollments;
+    }
+
     public function setCourseUsers ($courseUsers)
     {
         echo "<pre>"; var_dump('in Request CourseUsers setter func.', $courseUsers); die;
@@ -27,6 +46,7 @@ class Ccheckin_Courses_Request extends Bss_ActiveRecord_BaseWithAuthorization //
 
     public function getCourseUsers ()
     {
+        echo "<pre>"; var_dump('in Request CourseUsers getter func.'); die;
         $users = $this->_fetch('courseUsers');
         $users = json_decode($users, true);
         

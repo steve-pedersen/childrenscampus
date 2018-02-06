@@ -68,8 +68,10 @@
                     <tr>
                         <td ><a href="admin/accounts?sort=name&amp;dir={if $sortBy=="name"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">Name</a></td>
                         <td ><a href="admin/accounts?sort=email&amp;dir={if $sortBy=="email"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">E-mail address</td>
-                        <td ><a href="admin/accounts?sort=uni&amp;dir={if $sortBy=="uni"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">Username</td>
+                        <!-- <td ><a href="admin/accounts?sort=uni&amp;dir={if $sortBy=="uni"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">Username</td> -->
                         <td ><a href="admin/accounts?sort=login&amp;dir={if $sortBy=="login"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">Last login</td>
+                        <!-- <td><a href="admin/accounts?sort=role&amp;dir={if $sortBy=="role"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">Role</td> -->
+                        <td>Role</td>
                         <td >Options</td>
                     </tr>
                 </thead>
@@ -79,8 +81,17 @@
                     <tr class="{cycle values='even,odd'}">
                         <td><a class="text-capitalize" href="admin/accounts/{$account->id}?returnTo={$smarty.server.REQUEST_URI|escape|escape}">{$account->lastName|escape}, {$account->firstName|escape} {$account->middleName|escape}</a></td>
                         <td>{$account->emailAddress|escape}</td>
-                        <td>{$account->username|escape|default:'<span class="detail">n/a</a>'}</td>
-                        <td>{if $account->lastLoginDate}{$account->lastLoginDate->format('M j, Y h:ia')}{else}<span class="detail">never</span>{/if}</td>
+                        <!-- <td>{$account->username|escape|default:'<span class="detail">n/a</a>'}</td> -->
+                        <td>{if $account->lastLoginDate}{$account->lastLoginDate->format('M j, Y')}{else}<span class="detail">never</span>{/if}</td>
+                        <td>
+                        {foreach item="role" from=$account->roles}
+                            {if $role->name == 'Student'}&mdash;
+                            {else}
+                            {$role->name}
+                            {/if}
+                            {if !$role@last}/{/if}
+                        {/foreach}
+                        </td>
                         <td>
                             <a class="btn btn-info btn-xs" href="admin/accounts/{$account->id}?returnTo={$smarty.server.REQUEST_URI|escape|escape}">Edit</a>
                             <input class="btn btn-primary btn-xs" type="submit" name="command[become][{$account->id}]" value="Become" title="Switch to account {$account->displayName}">
@@ -88,7 +99,7 @@
                     </tr>
             {foreachelse}
                     <tr>
-                        <td colspan="5" class="notice">
+                        <td colspan="6" class="notice">
                             No accounts match your search criteria.
                         </td>
                     </tr>

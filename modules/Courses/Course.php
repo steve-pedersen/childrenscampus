@@ -38,23 +38,23 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization // 
 
     public function getSemester ()
     {
-        $semesters = $this->schema('Ccheckin_Semesters_Semester');
-        $semester = $semesters->find(
+        $semesters = $this->getSchema('Ccheckin_Semesters_Semester');
+        $semester = $semesters->findOne(
             $semesters->startDate->equals($this->startDate)                
         );
-
-        return $semester;
-
-        // // Old Code
-        // $table = Semester::GetTable();
-        // $semProto = new Semester($this->_dataSource);
-        // $query = $table->getSelectQuery(null);
-        // $query->where($table->startDate->equalsTo($this->startDate));
-        // $result = $semProto->fullCustomQuery($query);
         
-        // return (!empty($result) ? $result[0] : null);
+        return $semester;
     }
-    
+
+    public function getFacetType ()
+    {
+        $facets = $this->getSchema('Ccheckin_Courses_Facet');
+        $types = $this->getSchema('Ccheckin_Courses_FacetType');
+        $facet = $facets->findOne($facets->courseId->equals($this->id));
+        $facetType = $types->findOne($types->id->equals($facet->typeId));
+
+        return $facetType;
+    }  
 
     // Not sure if this fixes things
     public function getStudents ()

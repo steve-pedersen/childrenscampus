@@ -13,6 +13,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         return array(
             'admin/courses'            => array('callback' => 'manage'),
             'admin/courses/queue'      => array('callback' => 'queue'),
+            'admin/courses/queue/:id'  => array('callback' => 'queue', ':id' => '[0-9]+'),
             'admin/courses/types'      => array('callback' => 'types'),
             'admin/courses/tasks'      => array('callback' => 'tasks'),
             'admin/courses/edit/:id'   => array('callback' => 'edit', ':id' => '[0-9]+|new'),
@@ -112,10 +113,23 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         $this->setPageTitle('Courses Queue');
         $courseRequests = $this->schema('Ccheckin_Courses_Request');
         $courseUserRequests = $this->schema('Ccheckin_Courses_UserRequest');
+        $facets = $this->schema('Ccheckin_Courses_Facet');
 
         $allowed = array();
         $denied = array();
-        
+        $moreInfo = false;
+
+        if ($reqid = $this->getRouteVariable('id'))
+        {
+            $courseRequest = $this->requireExists($courseRequests->get($reqid));
+            $moreInfo = true;
+            $this->addBreadcrumb('admin/courses/queue', 'Manage Course Requests');
+            $facet = $facets->findOne($facets->courseId->equals($courseRequest->course->id));
+            $this->template->courseRequest = $courseRequest;
+            $this->template->courseFacet = $facet;
+            $this->template->courseEnrollments = $courseRequest->courseEnrollments;
+        }
+       
         if ($this->request->wasPostedByUser())
         {
             if ($command = $this->getPostCommand())
@@ -226,9 +240,10 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         
         // Get the remaining queued records
         $crs = $courseRequests->getAll(array('orderBy' => 'requestDate'));
-        $curs = $courseUserRequests->getAll(array('orderBy' => 'requestDate'));
+        // $curs = $courseUserRequests->getAll(array('orderBy' => 'requestDate'));
 
-        $this->template->courseUserRequests = $curs;
+        // $this->template->courseUserRequests = $curs;
+        $this->template->moreInfo = $moreInfo;
         $this->template->courserequests = $crs;
         $this->template->allowed = $allowed;
         $this->template->denied = $denied;
