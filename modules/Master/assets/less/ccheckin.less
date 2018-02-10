@@ -19,6 +19,10 @@ div.main-content {
 	h2 {
 		color: #231161;
 	}
+	h3 {
+		color: #463077;
+
+	}
 }
 
 .navbar {
@@ -112,7 +116,7 @@ div.main-content {
 /* TABLE STYLINGS */
 table {
 	thead {
-		background-color: #004F71;
+		background-color: #53565A;
 		color: #FFF;
 		a {
 			color: #FFF;
@@ -123,17 +127,25 @@ table {
 			opacity: 0.85;
 		}
 	}
+	td.checkboxes {
+		vertical-align: middle !important;
+		text-align: center;
+		label {
+			display: block;
+		}
+	}
+
 }
 table.course-requests {
 	td {
 		font-size: 10pt;
 	}
 	td.checkboxes {
-		vertical-align: middle;
+		/*vertical-align: middle;*/
 		
 		label.box-label {
 			display: block;
-			text-align: center;	
+			/*text-align: center;	*/
 		}
 	}
 }
@@ -166,4 +178,19 @@ table#room-schedule {
 		margin-left: -20px;
 	}	
 }
-
+/* Button customizations */
+.btn-info {
+	background-color: #004F71;
+}
+.btn-primary {
+	background-color: #463077;
+}
+.btn-danger {
+	background-color: #9A3324;
+}
+.alert-warning {
+	/*background-color: #E9D597 !important;*/
+}
+.alert-success {
+	/*background-color:;*/
+}

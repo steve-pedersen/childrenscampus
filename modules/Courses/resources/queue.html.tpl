@@ -5,7 +5,7 @@
 <div class="flash">
     <div class="notice message">
         {foreach from=$allowed item='courseName'}
-        <p>{$courseName|escape} has been created.</p>
+        <p class="alert alert-success">{$courseName|escape} has been created.</p>
         {/foreach}
     </div>
 </div>
@@ -15,7 +15,7 @@
 <div class="flash">
     <div class="notice message">
         {foreach from=$denied item='courseName'}
-        <p>{$courseName|escape} has been removed and will not be created.</p>
+        <p class="alert alert-warning">{$courseName|escape} has been removed and will not be created.</p>
         {/foreach}
     </div>
 </div>
@@ -39,20 +39,21 @@
         </thead>
         <tbody>
         {foreach from=$courserequests item='cr'}
+        {if !$cr->course->deleted}
             {if $duplicates}
             {foreach from=$duplicates item=d}
                 {if $cr->id == $d}
-                    {assign var='dup' value=true}
+                    {assign var='dup' value=$d}
                 {/if}
             {/foreach}
             {/if}
-            <tr {if $dup}class="bg-warning"{/if}>
-                <td><a href="admin/courses/queue/{$cr->id}">{$cr->course->shortName|escape}</a> {if $dup}<span class="label label-default">duplicate request</span>{/if}</td>
-                <td><strong>{$cr->requestedBy->lastName|escape}</strong> on {$cr->requestDate->format('M j h:ia')}</td>
+            <tr {if $dup && $dup == $cr->id}class="bg-warning"{/if}>
+                <td><a href="admin/courses/queue/{$cr->id}">{$cr->course->shortName|escape}</a> {if $dup && $dup == $cr->id}<span class="label label-default">duplicate request</span>{/if}</td>
+                <td><strong><a href="admin/accounts/{$cr->requestedBy->id}?returnTo={$smarty.server.REQUEST_URI}">{$cr->requestedBy->firstName} {$cr->requestedBy->lastName}</a></strong> on {$cr->requestDate->format('M j, h:ia')}</td>
                 <!-- <td>{$cr->requestDate->format('M j h:ia')}</td> -->
                 <!-- <td>{$cr->course->semester->display|escape}</td> -->
                 <!-- <td>{$cr->courseEnrollments.students|@count}</td> -->
-                <td>{$cr->course->facetType->name} 
+                <td>{$cr->course->facetType->name}<br> 
                     <span class="badge">{$cr->courseEnrollments.students|@count} student{if $cr->courseEnrollments.students|@count > 1}s{/if}</span>
                     <span class="badge badge-alt">{$cr->courseEnrollments.teachers|@count} teacher{if $cr->courseEnrollments.teachers|@count > 1}s{/if}</span>
                 </td>
@@ -67,6 +68,7 @@
                     </label>
                 </td>
             </tr>
+        {/if}
         {foreachelse}
             <tr><td colspan="7" align="center">There are no courses in the queue.</td></tr>
         {/foreach}
@@ -86,7 +88,7 @@
     {/if}
 {/foreach}
 {/if}
-{if $dup}
+{if $dup && $dup == $courseRequest->id}
 <p class="alert alert-danger">
     <strong>NOTE:</strong> This is a duplicate course request. A course with the same name and type as this one has already been requested at an earlier date. 
     Back to <a href="admin/courses/queue">manage course requests</a>.
@@ -113,15 +115,17 @@
                 {/foreach}
                 </ul>    
             </dd>
+            <dt>Students:</dt><dd>{$courseEnrollments.students|@count}</dd>
+            <dt>Teachers:</dt><dd>{$courseEnrollments.teachers|@count}</dd>
         </dl>
     </div>
     <div class="request-info">
         <dl class="dl-horizontal">
-            <dt>Requested by:</dt><dd>{$courseRequest->requestedBy->firstName} {$courseRequest->requestedBy->lastName} &mdash; {$courseRequest->requestedBy->emailAddress}</dd>
+            <dt>Requested by:</dt><dd><a href="admin/accounts/{$courseRequest->requestedBy->id}?returnTo={$smarty.server.REQUEST_URI}">{$courseRequest->requestedBy->firstName} {$courseRequest->requestedBy->lastName}</a> &mdash; {$courseRequest->requestedBy->emailAddress}</dd>
             <dt>Request date:</dt><dd>{$courseRequest->requestDate->format('M j, Y — h:ia')}</dd>
         </dl>
     </div>
-    <hr>
+<!--     <hr>
     <h2>Enrollments</h2>
     <div class="enrollment-info">
         <dl class="dl-horizontal">
@@ -131,7 +135,7 @@
         <h3>Teachers</h3>
         {foreach from=$courseEnrollments.teachers item=teacher}
             <dl class="dl-horizontal teacher-list">
-                <dt>Name:</dt><dd>{$teacher->firstName} {$teacher->lastName}</dd>
+                <dt>Name:</dt><dd><a href="admin/accounts/{$teacher->id}?returnTo={$smarty.server.REQUEST_URI}">{$teacher->firstName} {$teacher->lastName}</a></dd>
                 <dt>Email:</dt><dd>{$teacher->emailAddress}</dd>
                 <dt>SF State ID:</dt><dd>{$teacher->username}</dd>
             </dl>            
@@ -139,12 +143,12 @@
         <h3>Students</h3>
         {foreach from=$courseEnrollments.students item=student}
             <dl class="dl-horizontal student-list">
-                <dt>Name:</dt><dd>{$student->firstName} {$student->lastName}</dd>
+                <dt>Name:</dt><dd><a href="admin/accounts/{$student->id}?returnTo={$smarty.server.REQUEST_URI}">{$student->firstName} {$student->lastName}</a></dd>
                 <dt>Email:</dt><dd>{$student->emailAddress}</dd>
                 <dt>SF State ID:</dt><dd>{$student->username}</dd>
             </dl>            
         {/foreach}
-    </div>
+    </div> -->
     <hr>
     <div class="commands">
         <input type="submit" name="allow[{$courseRequest->id}]" value="Allow" class="btn btn-primary" />

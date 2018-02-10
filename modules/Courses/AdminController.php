@@ -28,6 +28,14 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         $this->template->clearBreadcrumbs();
         $this->addBreadcrumb('home', 'Home');
         $this->addBreadcrumb('admin', 'Admin');
+        // if admin and on admin page, don't display 'Contact' sidebar
+        $adminPage = false;
+        $path = $this->request->getFullRequestedUri();
+        if ($this->hasPermission('admin') && (strpos($path, 'admin') !== false))
+        {
+            $adminPage = true;
+        }
+        $this->template->adminPage = $adminPage; 
     }
 
     public function manage ()
@@ -73,7 +81,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                                 $course->save();
                             }
                             
-                            $message = 'The selected courses have been deactivated';
+                            $message = 'The selected courses have been activated';
                         }
                         break;
                     case 'remove':
@@ -92,7 +100,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                 }
             }
         }
-           
+        
         if ($tab == 'active')
         {
             $coursesFiltered = $courses->find($courses->active->isTrue(), array('orderBy' => 'shortName'));
@@ -129,43 +137,57 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
             $this->template->courseFacet = $facet;
             $this->template->courseEnrollments = $courseRequest->courseEnrollments;
         }
-       
+        
         if ($this->request->wasPostedByUser())
         {
-            if ($command = $this->getPostCommand())
+            if (($command = $this->getPostCommand()) || $reqid)
             {
                 $allow = $this->request->getPostParameter('allow');
                 $deny = $this->request->getPostParameter('deny');
-                
+                if ($reqid)
+                {
+                    // this is bad, but I wanted to allow for update-users functionality to still be used at some point
+                    $command = 'update-creation';
+                }
+
                 switch ($command)
                 {
                     case 'update-creation':
-                        echo "<pre>"; var_dump('update-creation', $allow, $deny); die;
+                        
                         if (!empty($allow))
                         {
                             foreach ($allow as $id => $nothing)
                             {                           
                                 if ($cr = $courseRequests->get($id))
                                 {
-                                    $cr->course->active = true;
-                                    $cr->course->save();
-                                    // $this->sendCourseAllowedNotification($cr->course, $cr->requestedBy);    // TODO: Fix email notifications!!!! *****************
-                                    $cr->requestedBy->grantPermission('course view', $cr->course);
-                                    $users = $cr->courseUsers;
+                                    $cr->course->active = true;  // TEMPORARY DISABLE SAVE ****************************************************************************************************
+                                    $cr->course->save(); // TEMPORARY DISABLE SAVE ****************************************************************************************************
                                     
-                                    foreach ($cr->course->facets as $facet)
-                                    {   
-                                        if (isset($users['observe']))
-                                        {
-                                            $facet->addUsers($users['observe'], true);
-                                        }
-                                        
-                                        if (isset($users['participate']))
-                                        {
-                                            $facet->addUsers($users['participate'], false);
-                                        }
-                                        
-                                        break;
+                                    // $this->sendCourseAllowedNotification($cr->course, $cr->requestedBy);    // TODO: Fix email notifications!!!! *****************
+                                    // TODO: Send an email to the users as well..
+                                    
+                                    $authZ = $this->getAuthorizationManager();
+                                    $authZ->grantPermission($cr->requestedBy, 'course view', $cr->course);
+
+                                    $users = array();
+                                    $type = strtolower($cr->course->facetType->name);
+                                    $facet = $facets->findOne($facets->typeId->equals($cr->course->facetType->id));
+
+                                    if (!$facet->purpose)
+                                    {
+                                        $purpose = $this->schema('Ccheckin_Purposes_Purpose')->createInstance();
+                                        $purpose->object = $facet;
+                                        $purpose->save();
+                                    }
+
+                                    // this isn't the best way to differentiate, but is the best thing for now since FacetType is a user editable property
+                                    if ((strpos($type, 'participation') !== false) || (strpos($type, 'participate') !== false))
+                                    {
+                                        $facet->addUsers($cr->course->students, false);
+                                    }
+                                    elseif ((strpos($type, 'observation') !== false) || (strpos($type, 'observe') !== false))
+                                    {
+                                        $facet->addUsers($cr->course->students, true);
                                     }
                                     
                                     $allowed[] = $cr->course->fullName;
@@ -174,7 +196,6 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                             }
                         }
                         
-                        echo "<pre>"; var_dump('update-creation', $allow, $deny); die;
                         if (!empty($deny))
                         {
                             foreach ($deny as $id => $nothing)
@@ -183,10 +204,13 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                                 {
                                     // $this->sendCourseDeniedNotification($cr->course, $cr->requestedBy);     // TODO: Fix email notifications!!!! *****************
                                     $denied[] = $cr->course->fullName;
-                                    $cr->course->delete();
+                                    $cr->course->deleted = true;
+                                    $cr->course->save();
                                     $cr->delete();
                                 }
                             }
+                            $this->flash('Course request denied.');
+                            $this->response->redirect('admin/courses/queue');
                         }
                         break;
 
@@ -220,20 +244,18 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         $this->template->denied = $denied;
     }
     
-
+    // TODO: Finish this method.
     public function edit ()
     {
         $id = $this->requireExists($this->getRouteVariable('id'));
         $courses = $this->schema('Ccheckin_Courses_Course');
         $courseFacets = $this->schema('Ccheckin_Courses_Facet');
         $courseFacetTypes = $this->schema('Ccheckin_Courses_FacetType');
-        $courseInstructors = $this->schema('Ccheckin_Courses_Instructor');
         $accounts = $this->schema('Bss_AuthN_Account');
         
         // $instructors = $diva->user->userAccount->findByRoleName('Faculty', array('lastName' => true));
         $roles = $this->schema('Ccheckin_AuthN_Role');
-        $facultyRole = $roles->findOne($roles->name->equals('Teacher'));
-        $instructors = $facultyRole->accounts;
+        $facultyRole = $roles->findOne($roles->name->equals('Teacher'));     
 
         $students = '';
         $studentsObserve = '';
@@ -254,6 +276,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
             $course = $this->requireExists($courses->get($id));
             $facet = $course->facets->index(0);
             $this->setPageTitle('Edit Course: ' . $course->shortName);
+            $instructors = $course->teachers;
 		}
 		else
 		{
@@ -261,6 +284,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
 			$this->setPageTitle('Create a Course');
             $course = $courses->createInstance();
             $facet = $courseFacets->createInstance();
+            $instructors = $facultyRole->accounts;
 		}
 		
         $facetTypes = $courseFacetTypes->getAll(array('orderBy' => 'sortName'));
@@ -315,11 +339,11 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                                 {
                                     if (!$instructorAccount->hasPermission('course view', $course))
                                     {
-                                        $instructor = $courseInstructors->createInstance();
-                                        $instructor->accountId = $instructorId;
-                                        $instructor->courseId = $course->id;
-                                        $instructor->save();
-                                        $instructor->account->grantPermission('course view', $course);
+                                        // $instructor = $courseInstructors->createInstance();
+                                        // $instructor->accountId = $instructorId;
+                                        // $instructor->courseId = $course->id;
+                                        // $instructor->save();
+                                        $instructorAccount->grantPermission('course view', $course);
                                     }
                                 }
                             }

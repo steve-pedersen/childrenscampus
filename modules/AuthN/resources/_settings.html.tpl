@@ -14,3 +14,14 @@
 		</ul>
 	</fieldset>
 {/if}
+<fieldset class="field">
+	<legend>Activate account</legend>
+	<ul class="list-group">
+		<li>
+			<label for="account-status">
+			<input type="checkbox" name="status" id="account-status" 
+			{if $account->isActive}checked aria-checked="true"{else}aria-checked="false"{/if}>
+			Active</label>
+		</li>
+	</ul>
+</fieldset>

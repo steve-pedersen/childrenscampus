@@ -12,8 +12,9 @@
 </dl>
 </div>
 {foreachelse}
-<p class="alert alert-info">You have no courses yet.</p>
+<p class="">You have no courses yet.</p>
 {/foreach}
+<hr>
 <div class="course-actions">
     <ul class="list-unstyled">
         {if $canRequest}

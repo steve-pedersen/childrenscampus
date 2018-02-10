@@ -137,15 +137,20 @@
 
 		<!-- MIDDLE - MAIN CONTENT -->
 		{if $viewer}
-		<div class="col-md-7 main-content">
+			{if $adminPage}
+			<div class="col-md-9 main-content">
+			{else}
+			<div class="col-md-7 main-content">
+			{/if}
 		{else}
 		<div class="col-md-12 main-content">
 		{/if}
 		{include file=$contentTemplate}
 		</div>
 		
-		{if $viewer}
+		{if $viewer && !$adminPage}
 		<!-- RIGHT SIDEBAR - Contact -->
+		<!-- <h1>HERE</h1> -->
         <div class="col-md-2 col-sm-4 col-xs-12">
             <div class="right-sidebar pull-right">
                 <div class="well">

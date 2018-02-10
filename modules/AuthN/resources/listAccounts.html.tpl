@@ -72,6 +72,7 @@
                         <td ><a href="admin/accounts?sort=login&amp;dir={if $sortBy=="login"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">Last login</td>
                         <!-- <td><a href="admin/accounts?sort=role&amp;dir={if $sortBy=="role"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">Role</td> -->
                         <td>Role</td>
+                        <td>Status</td>
                         <td >Options</td>
                     </tr>
                 </thead>
@@ -92,6 +93,7 @@
                             {if !$role@last}/{/if}
                         {/foreach}
                         </td>
+                        <td>{if $account->isActive}Active{else}Inactive{/if}</td>
                         <td>
                             <a class="btn btn-info btn-xs" href="admin/accounts/{$account->id}?returnTo={$smarty.server.REQUEST_URI|escape|escape}">Edit</a>
                             <input class="btn btn-primary btn-xs" type="submit" name="command[become][{$account->id}]" value="Become" title="Switch to account {$account->displayName}">

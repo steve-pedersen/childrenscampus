@@ -27,6 +27,14 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
         $this->template->clearBreadcrumbs();
         $this->addBreadcrumb('home', 'Home');
         $this->addBreadcrumb('admin', 'Admin');
+        // if admin and on admin page, don't display 'Contact' sidebar
+        $adminPage = false;
+        $path = $this->request->getFullRequestedUri();
+        if ($this->hasPermission('admin') && (strpos($path, 'admin') !== false))
+        {
+            $adminPage = true;
+        }
+        $this->template->adminPage = $adminPage; 
     }
 
     public function rooms () 

@@ -44,6 +44,32 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
         return $years;
     }
 
+    public static function ConvertToDescription ($code)
+    {
+        $term = $code[3];
+        $year = $code[0] . '0' . $code[1] . $code[2];
+
+        switch ($term) {
+            case 1:
+                $term = 'Winter';
+                break;
+            
+            case 3:
+                $term = 'Spring';
+                break;
+
+            case 5:
+                $term = 'Summer';
+                break;
+
+            case 7:
+                $term = 'Fall';
+                break;
+        }
+
+        return $term . ' ' . $year;
+    }
+
     public function setDisplay ($display)
     {
         $this->_assign('display', $display);

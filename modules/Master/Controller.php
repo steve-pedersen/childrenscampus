@@ -56,12 +56,22 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
     protected function beforeCallback ($callback)
     {
         parent::beforeCallback($callback);
+
+        // add 'Home' breadcrumb so long as not on homepage
         $path = $this->request->getFullRequestedUri();
         if (($path !== '') && ($path !== '/') && ($path !== '/home') && ($path !== '/ccheckin') &&
             ($path !== '/ccheckin/') && ($path !== '/ccheckin/home'))
         {
             $this->addBreadcrumb('home', 'Home');
         }
+
+        // if admin and on admin page, don't display 'Contact' sidebar
+        $adminPage = false;
+        if ($this->hasPermission('admin') && (strpos($path, 'admin') !== false))
+        {
+            $adminPage = true;
+        }
+        $this->template->adminPage = $adminPage; 
     }
 
     protected function afterCallback ($callback)

@@ -20,7 +20,7 @@ class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension impleme
             'userAlias' => array('string', 'nativeName' => 'user_alias'),
             'ldap_user' => 'string',    // old data simply used underscores ***
             'isActive' => array('bool', 'nativeName' => 'is_active'),
-            'roles' => array('N:M', 'to' => 'Ccheckin_AuthN_Role', 'via' => 'ccheckin_authn_account_roles', 'fromPrefix' => 'account', 'toPrefix' => 'role'),
+            'roles' => array('N:M', 'to' => 'Ccheckin_AuthN_Role', 'via' => 'ccheckin_authn_account_roles', 'fromPrefix' => 'account', 'toPrefix' => 'role'),          
         );
     }
  
@@ -116,6 +116,10 @@ class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension impleme
 					}
 				}
 			}
+
+            // save active status
+            $account->isActive = $request->getPostParameter('status', false);
+            $account->save();
 		}
         
         return true;
@@ -138,7 +142,7 @@ class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension impleme
     {
         $account->roles->removeAll();
         $account->roles->save();
-        $account->sequences->removeAll();
-        $account->sequences->save();
+        $account->enrollments->removeAll();
+        $account->enrollments->save();
     }
 }

@@ -23,6 +23,11 @@ class Ccheckin_Courses_Facet extends Ccheckin_Purposes_AbstractPurpose // NOT? e
         );
     }
 
+    // protected function initialize ()
+    // {
+    //     $this->addEventHandler('after-insert', array($this, 'afterInsert'));
+    // }
+
 	public function GetAllTasks ()
 	{
         $siteSettings = $this->getApplication()->siteSettings;
@@ -89,5 +94,13 @@ class Ccheckin_Courses_Facet extends Ccheckin_Purposes_AbstractPurpose // NOT? e
         
         return $errors;
     }
+
+    // protected function afterInsert ()
+    // {
+    //     // parent::afterInsert();
+    //     $purpose = $this->getSchema('Ccheckin_Purposes_Purpose')->createInstance();
+    //     $purpose->object = $this;
+    //     $purpose->save();
+    // }
 
 }

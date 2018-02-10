@@ -58,7 +58,7 @@
 	{if $welcomeTextExtended}
 	{$welcomeTextExtended|allow_basic_html}
 	{else}
-		<h3>Children's Campus At-A-Glance:</h3>
+		<h2>Children's Campus At-A-Glance:</h2>
 		<ul>
 			<li>Priority enrollment for children of SF State faculty and staff.  Community families are welcome, space permitting.</li>
 			<li>Serving children from 6 months to 5 years of age.</li>

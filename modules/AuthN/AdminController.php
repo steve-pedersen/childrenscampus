@@ -22,13 +22,23 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
         );
     }
 
-	public function beforeCallback ($callback)
-	{
-		parent::beforeCallback($callback);
-		$this->requirePermission('admin');
-        $this->addBreadCrumb('admin', 'Admin');
-	}
-    
+    public function beforeCallback ($callback)
+    {
+        parent::beforeCallback($callback);
+        $this->requirePermission('admin');
+        $this->template->clearBreadcrumbs();
+        $this->addBreadcrumb('home', 'Home');
+        $this->addBreadcrumb('admin', 'Admin');
+        // if admin and on admin page, don't display 'Contact' sidebar
+        $adminPage = false;
+        $path = $this->request->getFullRequestedUri();
+        if ($this->hasPermission('admin') && (strpos($path, 'admin') !== false))
+        {
+            $adminPage = true;
+        }
+        $this->template->adminPage = $adminPage;  
+    }
+ 
     /**
      * Show a paginated list of accounts.
      */

@@ -15,6 +15,13 @@ class Ccheckin_Family_AdminController extends Ccheckin_Master_Controller
     {
         parent::beforeCallback($callback);
         $this->requirePermission('admin');
+        $adminPage = false;
+        $path = $this->request->getFullRequestedUri();
+        if ($this->hasPermission('admin') && (strpos($path, 'admin') !== false))
+        {
+            $adminPage = true;
+        }
+        $this->template->adminPage = $adminPage; 
     }
 
     public function index ()

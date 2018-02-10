@@ -19,13 +19,13 @@ class Ccheckin_Purposes_Purpose extends Bss_ActiveRecord_BaseWithAuthorization /
     }
 
     // What is an object property of a purpose anyway?
-    // TODO: Figure out what the hell this function is trying to actually do
+    // TODO: Test this..... ************************
     public function getObject ()
     {
         $purposes = $this->schema('Ccheckin_Purposes_Purpose');
         $result = null;
-        $type = $this->getProperty('object_type');
-        $id = $this->getProperty('object_id');
+        $type = $this->_fetch('objectType');
+        $id = $this->_fetch('objectId');
         $object = null;       
 
         if ($type)
@@ -42,7 +42,6 @@ class Ccheckin_Purposes_Purpose extends Bss_ActiveRecord_BaseWithAuthorization /
         return $result;
     }
     
-    // What is $this->object?
     public function getShortDescription ()
     {
         return $this->object->shortDescription;
@@ -50,15 +49,15 @@ class Ccheckin_Purposes_Purpose extends Bss_ActiveRecord_BaseWithAuthorization /
     
     public function setObject ($object)
     {
-        if ($object instanceof Bss_ActiveRecord_BaseWithAuthorization && $object->inDataSource) // TODO: Test ****************
+        if ($object instanceof Bss_ActiveRecord_BaseWithAuthorization && $object->inDataSource) // TODO: Test **************** 2.8.18 - 1st test works for object=Facet
         {
             $id = $object->id;
             $type = get_class($object);
             
             if ($id && $type)
             {
-                $this->setProperty('object_id', $id);
-                $this->setProperty('object_type', $type);
+                $this->_assign('objectId', $id);
+                $this->_assign('objectType', $type);
             }
         }
     }

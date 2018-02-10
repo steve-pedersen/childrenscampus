@@ -33,7 +33,7 @@
     <div class="form-group">
         <label for="course">Course <small> (depends on selected semester)</small></label>
         {if $courses}
-        <select class="form-control" name="course" id="course-courseId">
+        <select class="form-control" name="course" id="course-courseId" required>
             <!-- <option value="" default>Choose a course</option> -->
             {foreach item='course' from=$courses}
                 <option value="{$course.id}">{$course.shortName} {$course.title}</option>

@@ -38,19 +38,4 @@ class Ccheckin_Courses_Request extends Bss_ActiveRecord_BaseWithAuthorization //
         return $enrollments;
     }
 
-    public function setCourseUsers ($courseUsers)
-    {
-        echo "<pre>"; var_dump('in Request CourseUsers setter func.', $courseUsers); die;
-        $this->_assign('courseUsers', json_encode($courseUsers));
-    }
-
-    public function getCourseUsers ()
-    {
-        echo "<pre>"; var_dump('in Request CourseUsers getter func.'); die;
-        $users = $this->_fetch('courseUsers');
-        $users = json_decode($users, true);
-        
-        return ($users ? $users : array());
-    }
-
 }

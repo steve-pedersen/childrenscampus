@@ -2,10 +2,12 @@
 
 class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization // implements Bss_AuthZ_IObjectProxy
 {
+    private $_teachers;
+    private $_students;
+
     public static function SchemaInfo ()
     {
         return array(
-            // '__class' => 'Ccheckin_Courses_Course',
             '__type' => 'ccheckin_courses',
             '__azidPrefix' => 'at:ccheckin:courses/Course/',
             '__pk' => array('id'),
@@ -17,9 +19,9 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization // 
             'startDate' => array('datetime', 'nativeName' => 'start_date'),
             'endDate' => array('datetime', 'nativeName' => 'end_date'),
             'active' => 'bool',
+            'deleted' => 'bool',
 
             'facets' => array('1:N', 'to' => 'Ccheckin_Courses_Facet', 'reverseOf' => 'course', 'orderBy' => array('created_date')), 
-            'instructors' => array('1:N', 'to' => 'Ccheckin_Courses_Instructor', 'reverseOf' => 'course'),
 
             'enrollments' => array('N:M',
                 'to' => 'Bss_AuthN_Account',
@@ -40,7 +42,7 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization // 
     {
         $semesters = $this->getSchema('Ccheckin_Semesters_Semester');
         $semester = $semesters->findOne(
-            $semesters->startDate->equals($this->startDate)                
+            $semesters->startDate->equals($this->startDate)
         );
         
         return $semester;
@@ -56,29 +58,39 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization // 
         return $facetType;
     }  
 
-    // Not sure if this fixes things
-    public function getStudents ()
-    {
-        $authZ = $this->getAuthorizationManager();
-        $accounts = $this->schema('Bss_AuthN_Account');
-        $userAzids = $authZ->getSubjectsWhoCan('purpose have', $course);
-        $this->_students = $accounts->getByAzids($userAzids);
-
-        return $this->_students;
-
-        
-        // Old Code
-        if ($this->_students === null)
+    public function getTeachers ($reload=false)
+    {     
+        if ($this->_teachers === null || $reload)
         {
-            $students = array();
-            
-            foreach ($this->facets as $facet)
+            $enrollments = array();
+
+            foreach ($this->enrollments as $enrollment)
             {
-                // gets all accounts who have the 'purpose have' permission
-                $students = array_merge($students, $facet->purpose->whoCan('purpose have'));
+                if ($this->enrollments->getProperty($enrollment, 'role') === 'Teacher')
+                {
+                    $enrollments['teachers'][] = $enrollment;
+                }
             }
-            
-            $this->_students = new DormRecordSet($students);
+            $this->_teachers = $enrollments['teachers'];
+        }
+        
+        return $this->_teachers;
+    }
+
+    public function getStudents ($reload=false)
+    {
+        if ($this->_students === null || $reload)
+        {
+            $enrollments = array();
+
+            foreach ($this->enrollments as $enrollment)
+            {
+                if ($this->enrollments->getProperty($enrollment, 'role') === 'Student')
+                {
+                    $enrollments['students'][] = $enrollment;
+                }
+            }
+            $this->_students = $enrollments['students'];
         }
         
         return $this->_students;
@@ -100,9 +112,6 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization // 
         return $participate;
     }
     
-    // use RichText/HtmlSanitizer.php:$this->sanitize() instead of convertSmartQuotes() ???
-    // $sanitizer = new Bss_RichText_HtmlSanitizer;
-    // $sanitized_string = $sanitizer->sanitize($some_string);
     public function validate ()
     {
         $errors = array();
@@ -112,21 +121,11 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization // 
         {
             $errors['fullName'] = 'Please provide a full name for the course.';
         }
-        // else
-        // {
-        //     // $this->fullName = iconv("Windows-1252", "UTF-8", $this->convertSmartQuotes($this->fullName));
-        //     $this->fullName = $sanitizer->sanitize($this->fullName);
-        // }
         
         if (!$this->shortName)
         {
             $errors['shortName'] = 'Please provide a short name for the course.';
         }
-        // else
-        // {
-        //     // $this->shortName = iconv("Windows-1252", "UTF-8", $this->convertSmartQuotes($this->shortName));
-        //     $this->shortName = $sanitizer->sanitize($this->shortName);
-        // }
         
         if (!$this->startDate || !($this->startDate instanceof DateTime))
         {
@@ -136,19 +135,17 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization // 
         return $errors;
     }
     
+
+    // TODO: Test Instructor stuff **********************************************
     protected function beforeDelete ()
     {
-        // parent::beforeDelete(); // there is no parent beforeDelete() anymore
-        
         foreach ($this->facets as $facet)
         {
             $facet->delete();
         }
         
-        foreach ($this->instructors as $instructor)
-        {
-            $instructor->delete();
-        }
+        $this->deleted = true;
+        $this->save();
     }
 
 }

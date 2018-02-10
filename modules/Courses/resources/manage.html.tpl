@@ -25,17 +25,26 @@
 		</thead>
 		<tbody>
 		{foreach item='course' from=$courses}
+		{if !$course->deleted}
 			<tr>
-				<td><input type="checkbox" name="courses[{$course->id}]" id="courses-{$course->id}" value="{$course->id}" /></td>
-				<td>{$course->shortName|escape}</td>
-				<td>{foreach item='teacher' from=$course->instructors}{$teacher->account->displayName|escape}{/foreach}</td>
-				<td>{foreach item='facet' from=$course->facets}{$facet->type->name|escape}{/foreach}</td>
-                <td>{$course->students->count}</td>
+				<td class="checkboxes"><label for="courses-{$course->id}"><input type="checkbox" name="courses[{$course->id}]" id="courses-{$course->id}" value="{$course->id}" /></label></td>
+				<td><label for="courses-{$course->id}">{$course->shortName|escape}</label></td>
 				<td>
-                    <a href="admin/courses/edit/{$course->id}">edit</a>
-                    <a href="admin/courses/dropstudents/{$course->id}">drop students</a>
+					{foreach item='teacher' from=$course->teachers}
+						<a href="admin/accounts/{$teacher->id}?returnTo={$smarty.server.REQUEST_URI}">{$teacher->firstName} {$teacher->lastName}</a>
+					{/foreach}
+				</td>
+				<td>{foreach item='facet' from=$course->facets}{$facet->type->name|escape}{/foreach}</td>
+                <td>{$course->students|@count}</td>
+				<td>
+					{if $tab == 'inactive'}
+						<a href="admin/courses/queue/{$course->id}" class="btn btn-xs btn-default">view</a>
+					{/if}
+                    <a href="admin/courses/edit/{$course->id}" class="btn btn-xs btn-default">edit</a>
+                    <a href="admin/courses/dropstudents/{$course->id}" class="btn btn-xs btn-default">drop students</a>
                 </td>
 			</tr>
+		{/if}
 		{foreachelse}
 			<tr>
 				<td colspan="6">---</td>
@@ -63,5 +72,5 @@
 </form>
 <br>
 <div class="link-controls form-group">
-	<a class="new btn btn-success" href="admin/courses/edit/new">Create a Course</a>
+	<a class="new btn btn-success" href="admin/courses/edit/new"><span class="glyphicon glyphicon-plus"></span> Create a Course</a>
 </div>

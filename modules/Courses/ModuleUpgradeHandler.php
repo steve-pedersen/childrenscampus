@@ -27,7 +27,8 @@ class Ccheckin_Courses_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleU
                 $def->addProperty('department', 'string');
                 $def->addProperty('start_date', 'datetime');
                 $def->addProperty('end_date', 'datetime');
-                $def->addProperty('active', 'bool');                
+                $def->addProperty('active', 'bool');
+                $def->addProperty('deleted', 'bool');
                 $def->save();
 
                 $def = $this->createEntityType('ccheckin_course_enrollment_map', $this->getDataSource('Ccheckin_Courses_Course'));
@@ -56,14 +57,6 @@ class Ccheckin_Courses_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleU
                 $def->addProperty('created_date', 'datetime');
                 $def->addForeignKey('ccheckin_courses', array('course_id' => 'id'));
                 $def->addForeignKey('ccheckin_course_facet_types', array('type_id' => 'id'));
-                $def->save();
-
-                $def = $this->createEntityType('ccheckin_course_instructors', $this->getDataSource('Ccheckin_Courses_Instructor'));
-                $def->addProperty('id', 'int', array('sequence' => true, 'primaryKey' => true));
-                $def->addProperty('account_id', 'int');
-                $def->addProperty('course_id', 'int');
-                $def->addForeignKey('bss_authn_accounts', array('account_id' => 'id'));
-                $def->addForeignKey('ccheckin_courses', array('course_id' => 'id')); 
                 $def->save();
 
                 $def = $this->createEntityType('ccheckin_course_requests', $this->getDataSource('Ccheckin_Courses_Request'));

@@ -15,7 +15,7 @@
         <select class="form-control" name="semester" id="semester">
             <option value="">Choose a semester</option>
         {foreach item='sem' from=$semesters key='index' name='days'}
-            <option value="{$sem->id}"{if $course->startDate && $course->startDate->getTime() == $sem->startDate->getTime()} selected="selected"{/if}>{$sem->display|escape}</option>
+            <option value="{$sem->id}"{if $course->startDate && $course->startDate == $sem->startDate} selected="selected"{/if}>{$sem->display|escape}</option>
         {/foreach}
         </select>      
         {if $errors.startDate}<p class="error">{$errors.startDate}{/if}</p>
@@ -25,7 +25,7 @@
         <select class="form-control" name="instructor" id="instructor">
             <option value="">Choose an instructor</option>
         {foreach item='instructor' from=$instructors}
-            <option value="{$instructor->id}">{$instructor->displayName|escape}</option>
+            <option value="{$instructor->id}" {if $course->teachers[0]->id == $instructor->id}selected default{/if}>{$instructor->firstName} {$instructor->lastName}</option>
         {/foreach}
         </select>
     </div>
@@ -54,13 +54,24 @@
         {/foreach}
     </div>
     <div class="form-group">
-    {if $course->inDatasource}
-        <h4>Students in the class</h4>
+    {if $course->inDataSource}
+        <h3>Students in the class <small class="label label-success">{$course->students|@count} total</small></h4>
+        <table class="table table-striped table-condensed table-bordered">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Last login</th>
+                </tr>
+            </thead>
         {foreach item='student' from=$course->students}
-        <p>{if $student->lastLoginDate}{$student->displayName|escape}{/if} ({$student->ldap_user|escape}) {if !$student->lastLoginDate}has not logged in yet{/if}</p>
+            <tr>
+                <td><a class="" href="admin/accounts/{$student->id}?returnTo={$smarty.server.REQUEST_URI}">{$student->firstName} {$student->lastName}</a></td>
+                <td>{if !$student->lastLoginDate}--{else}{$student->lastLoginDate->format('M j, d h:ia')}{/if}</td>
+            </tr>
         {foreachelse}
         There are no students in this course.
         {/foreach}
+        </table>
     {/if}
     </div>
 
@@ -76,8 +87,10 @@
             <textarea class="form-control" rows="5" name="students-participate" id="students-participate">{$studentsObserve|escape}</textarea>
         </div>
     </div> -->
+    <hr>
     <div class="commands">
         {generate_form_post_key}
         <input class="btn btn-primary" type="submit" name="command[save]" value="{if $new}Create{else}Save{/if} Course" />
+        <a class="btn btn-default" href="admin/courses">Cancel</a>
     </div>
 </form>
