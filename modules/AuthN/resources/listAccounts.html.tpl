@@ -70,8 +70,8 @@
                         <td ><a href="admin/accounts?sort=email&amp;dir={if $sortBy=="email"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">E-mail address</td>
                         <!-- <td ><a href="admin/accounts?sort=uni&amp;dir={if $sortBy=="uni"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">Username</td> -->
                         <td ><a href="admin/accounts?sort=login&amp;dir={if $sortBy=="login"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">Last login</td>
-                        <!-- <td><a href="admin/accounts?sort=role&amp;dir={if $sortBy=="role"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">Role</td> -->
-                        <td>Role</td>
+                        <td><a href="admin/accounts?sort=role&amp;dir={if $sortBy=="role"}{$oppositeDir}{else}asc{/if}&amp;limit={$limit|escape}&amp;sq={$searchQuery|escape}">Role</td>
+                        <!-- <td>Role</td> -->
                         <td>Status</td>
                         <td >Options</td>
                     </tr>

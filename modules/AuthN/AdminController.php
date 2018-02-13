@@ -74,7 +74,7 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
             }
             
         }
-        
+
         $page = $this->request->getQueryParameter('page', 1);
         $limit = $this->request->getQueryParameter('limit', 20);
         $searchQuery = $this->request->getQueryParameter('sq');
@@ -104,7 +104,7 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
                 break;
             
             case 'email':
-                $optionMap['orderBy'] = array($dirPrefix . 'email', $dirPrefix . 'id');
+                $optionMap['orderBy'] = array($dirPrefix . 'emailAddress', $dirPrefix . 'id');
                 break;
             
             case 'uni':
@@ -114,11 +114,45 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
             case 'login':
                 $optionMap['orderBy'] = array($dirPrefix . 'lastLoginDate', $dirPrefix . 'lastName', $dirPrefix . 'firstName', $dirPrefix . 'id');
                 break;
-            // case 'role':
-            //     $optionMap['orderBy'] = array($dirPrefix . 'roles.name', $dirPrefix . 'id');
-            //     break;
         }
-        
+   
+        // Always places Student role at end of list, since the number of accounts with that role greatly outnumbers every other
+        // and therefore doesn't make it very useful to intersperse with others
+        // Does not currently work with pagination
+        if ($sortBy === 'role')
+        {
+            $accs = array();
+            $studentRole = $roles->findOne($roles->name->equals('Student'));
+            $allRoles = $roles->getAll(array('orderBy' => ($dirPrefix.'name')));
+            foreach ($allRoles as $role)
+            {
+                if ($role->name !== 'Student')
+                {
+                    foreach ($role->accounts as $acc)
+                    {
+                        $accs[] = $acc;
+                    }
+                }
+            }
+            // add accounts that may not have an assigned role
+            foreach ($accounts->getAll() as $acc)
+            {
+                if (!count($acc->roles))
+                {
+                    $accs[] = $acc;
+                }
+            }
+            // add student roles to end
+            $sRoleAccs = $studentRole->accounts->sorted('+lastName');
+            foreach ($sRoleAccs as $acc)
+            {
+                $accs[] = $acc;
+            }
+
+            $accounts = $accs;
+            $limit = count($accounts);
+        }
+
         $condition = null;
         
         if (!empty($searchQuery))
@@ -133,12 +167,12 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
                 );
         }
         
-        $totalAccounts = $accounts->count($condition);
+        $totalAccounts = (is_array($accounts) ? count($accounts) : $accounts->count($condition));
         $pageCount = ceil($totalAccounts / $limit);
         
         $this->template->pagesAroundCurrent = $this->getPagesAroundCurrent($page, $pageCount);
         
-        $accountList = $accounts->find($condition, $optionMap);
+        $accountList = (is_array($accounts) ? $accounts : $accounts->find($condition, $optionMap));
         
         $this->template->searchQuery = $searchQuery;
         $this->template->totalAccounts = $totalAccounts;

@@ -18,7 +18,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
             'admin/courses/tasks'      => array('callback' => 'tasks'),
             'admin/courses/edit/:id'   => array('callback' => 'edit', ':id' => '[0-9]+|new'),
             'admin/courses/instructions'     => array('callback' => 'editInstructions'),
-            'admin/courses/dropstudents/:id' => array('callback' => 'dropStudents', ':id' => '[0-9]+'),
+            // 'admin/courses/dropstudents/:id' => array('callback' => 'dropStudents', ':id' => '[0-9]+'),
         );
     }
 
@@ -160,8 +160,8 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                             {                           
                                 if ($cr = $courseRequests->get($id))
                                 {
-                                    $cr->course->active = true;  // TEMPORARY DISABLE SAVE ****************************************************************************************************
-                                    $cr->course->save(); // TEMPORARY DISABLE SAVE ****************************************************************************************************
+                                    $cr->course->active = true;
+                                    $cr->course->save();
                                     
                                     // $this->sendCourseAllowedNotification($cr->course, $cr->requestedBy);    // TODO: Fix email notifications!!!! *****************
                                     // TODO: Send an email to the users as well..
@@ -204,6 +204,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                                 {
                                     // $this->sendCourseDeniedNotification($cr->course, $cr->requestedBy);     // TODO: Fix email notifications!!!! *****************
                                     $denied[] = $cr->course->fullName;
+                                    $cr->course->active = false;
                                     $cr->course->deleted = true;
                                     $cr->course->save();
                                     $cr->delete();
@@ -252,6 +253,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         $courseFacets = $this->schema('Ccheckin_Courses_Facet');
         $courseFacetTypes = $this->schema('Ccheckin_Courses_FacetType');
         $accounts = $this->schema('Bss_AuthN_Account');
+        $authZ = $this->getAuthorizationManager();
         
         // $instructors = $diva->user->userAccount->findByRoleName('Faculty', array('lastName' => true));
         $roles = $this->schema('Ccheckin_AuthN_Role');
@@ -296,18 +298,23 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                 switch ($command)
                 {
                     case 'save':
-                        $studentsObserve = $this->request->getPostParameter('students-observe');
-                        $studentsParticipate = $this->request->getPostParameter('students-participate');
                         
-                        // was $course->inDatabase
                         if ($course->inDataSource)
                         {
                             $facet = $course->facets->index(0);
                         }
-                        // NOTE: Test that this does as intended ***************************************
-                        // $facet->absorbArray($this->request->getPostParameter('facet'));
-                        $facet->absorbData($this->request->getPostParameter('facet'));
-                        // $course->absorbArray($this->request->getPostParameter('course'));
+
+                        if (!$facet->purpose)
+                        {
+                            $purpose = $this->schema('Ccheckin_Purposes_Purpose')->createInstance();
+                            $purpose->object = $facet;
+                            $purpose->save();
+                        }
+
+                        $facetData = $this->request->getPostParameter('facet');
+                        $facetData['tasks'] = json_encode($facetData['tasks']);
+                        $facet->absorbData($facetData);
+
                         $course->absorbData($this->request->getPostParameter('course'));
                         
                         if ($semesterId = $this->request->getPostParameter('semester'))
@@ -322,10 +329,9 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                         
                         if (empty($errors))
                         {
-							$course->active = true;
+							// $course->active = true;
                             $course->save();
-                            
-                            // was $facet->inDatabase
+
                             if (!$facet->inDataSource)
                             {
                                 $facet->courseId = $course->id;
@@ -337,29 +343,25 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                             {
                                 if ($instructorAccount = $accounts->get($instructorId))
                                 {
-                                    if (!$instructorAccount->hasPermission('course view', $course))
+                                    if (!$authZ->hasPermission($instructorAccount, 'course view', $course))
                                     {
-                                        // $instructor = $courseInstructors->createInstance();
-                                        // $instructor->accountId = $instructorId;
-                                        // $instructor->courseId = $course->id;
-                                        // $instructor->save();
-                                        $instructorAccount->grantPermission('course view', $course);
+                                        $authZ->grantPermission($instructorAccount, 'course view', $course);
                                     }
                                 }
                             }
                             
-                            if ($studentsObserve)
+                            $type = strtolower($course->facetType->name);
+                            // this isn't the best way to differentiate, but is the best thing for now since FacetType is a user editable property
+                            if ((strpos($type, 'participation') !== false) || (strpos($type, 'participate') !== false))
                             {
-                                $users = explode("\n", $studentsObserve);
-                                $facet->addUsers($users);
+                                $facet->addUsers($course->students, false);
+                            }
+                            elseif ((strpos($type, 'observation') !== false) || (strpos($type, 'observe') !== false))
+                            {
+                                $facet->addUsers($course->students, true);
                             }
                             
-                            if ($studentsParticipate)
-                            {
-                                $users = explode("\n", $studentsParticipate);
-                                $facet->addUsers($users, false);
-                            }
-                            
+                            $this->flash('Course has been updated');
 							$this->response->redirect('admin/courses');
                         }
                         
@@ -380,34 +382,35 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
     }
     
 
-    public function dropStudents ()
-    {
-        $id = $this->getRouteVariable('id');
-        $course = $this->requireExists($this->schema('Ccheckin_Courses_Course')->get($id));
+    // // NOTE: Deprecated functionality
+    // public function dropStudents ()
+    // {
+    //     $id = $this->getRouteVariable('id');
+    //     $course = $this->requireExists($this->schema('Ccheckin_Courses_Course')->get($id));
         
-        if ($this->request->wasPostedByUser())
-        {
-            if ($command = $this->getPostCommand())
-            {
-                switch ($command)
-                {
-                    case 'drop':
-                        foreach ($course->students as $user)
-                        {
-                            foreach ($course->facets as $facet)
-                            {
-                                $facet->removeUser($user);
-                            }
-                        }
-                        $this->flash('The students have been removed from the course');
-                        $this->response->redirect('admin/courses');
-                        break;
-                }
-            }
-        }
+    //     if ($this->request->wasPostedByUser())
+    //     {
+    //         if ($command = $this->getPostCommand())
+    //         {
+    //             switch ($command)
+    //             {
+    //                 case 'drop':
+    //                     foreach ($course->students as $user)
+    //                     {
+    //                         foreach ($course->facets as $facet)
+    //                         {
+    //                             $facet->removeUser($user);
+    //                         }
+    //                     }
+    //                     $this->flash('The students have been removed from the course');
+    //                     $this->response->redirect('admin/courses');
+    //                     break;
+    //             }
+    //         }
+    //     }
         
-        $this->template->course = $course;
-    }
+    //     $this->template->course = $course;
+    // }
     
 
     public function types ()

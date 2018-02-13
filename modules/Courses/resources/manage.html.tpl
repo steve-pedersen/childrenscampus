@@ -41,7 +41,7 @@
 						<a href="admin/courses/queue/{$course->id}" class="btn btn-xs btn-default">view</a>
 					{/if}
                     <a href="admin/courses/edit/{$course->id}" class="btn btn-xs btn-default">edit</a>
-                    <a href="admin/courses/dropstudents/{$course->id}" class="btn btn-xs btn-default">drop students</a>
+                    <!-- <a href="admin/courses/dropstudents/{$course->id}" class="btn btn-xs btn-default">drop students</a> -->
                 </td>
 			</tr>
 		{/if}
