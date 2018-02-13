@@ -233,7 +233,6 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                 $facetData = $this->request->getPostParameter('facet');                    
                 $facet->typeId = $facetData['typeId'];
                 $facet->description = $courseData['description'];
-                
                 if (isset($facetData['tasks']))
                 {
                     $facet->tasks = array_intersect_key($facet->GetAllTasks(), $facetData['tasks']);
