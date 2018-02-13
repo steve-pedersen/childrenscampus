@@ -105,6 +105,7 @@
             <dt>Start date:</dt><dd>{$courseRequest->course->semester->startDate->format('M j, Y')}</dd>
             <dt>End date:</dt><dd>{$courseRequest->course->semester->endDate->format('M j, Y')}</dd>
             <dt>Course type:</dt><dd>{$courseRequest->course->facetType->name}</dd>
+            <dt>Course description:</dt><dd>{$courseRequest->course->facets->index(0)->description}</dd>
             <dt>Course tasks:</dt>
             <dd>
                 <ul class="task-list">
