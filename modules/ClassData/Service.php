@@ -42,7 +42,7 @@ class Ccheckin_ClassData_Service
     // NOTE: This function doesn't seem to be working. The API freezes up
     public function getEnrollments ($semester, $role = null)
     {
-        echo "<pre>"; var_dump('in getEnrollments(). this function needs testing.'); die;
+        // echo "<pre>"; var_dump('in getEnrollments(). this function needs testing.'); die;
         $paramMap = array();
         
         if ($role)
@@ -117,6 +117,26 @@ class Ccheckin_ClassData_Service
         return false;
     }
 
+    public function getOrganizations ()
+    {
+        $paramMap = array('include' => 'college');
+        $url = $this->signResource('organizations', $paramMap);
+        list($code, $data) = $this->request($url);
+        $returnData = $data !== null ? array_shift($data) : $data;
+
+        return array($code, $returnData);
+    }
+
+    public function getDepartments ()
+    {
+        $paramMap = array();
+        $url = $this->signResource('departments', $paramMap);
+        list($code, $data) = $this->request($url);
+        $returnData = $data !== null ? array_shift($data) : $data;
+
+        return array($code, $returnData);
+    }
+
     // TODO: POST needs testing of implementation
     protected function request ($url, $post=false, $postData=array())
     {
@@ -135,9 +155,9 @@ class Ccheckin_ClassData_Service
         $rawData = curl_exec($ch);
         
         if (!curl_error($ch)) {
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
             $data = json_decode($rawData, true);
         }
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
         curl_close($ch);
         

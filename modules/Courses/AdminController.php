@@ -244,7 +244,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         $this->template->allowed = $allowed;
         $this->template->denied = $denied;
     }
-    
+   
     // TODO: Finish this method.
     public function edit ()
     {
@@ -304,13 +304,6 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                             $facet = $course->facets->index(0);
                         }
 
-                        if (!$facet->purpose)
-                        {
-                            $purpose = $this->schema('Ccheckin_Purposes_Purpose')->createInstance();
-                            $purpose->object = $facet;
-                            $purpose->save();
-                        }
-
                         $facetData = $this->request->getPostParameter('facet');
                         $facetData['tasks'] = json_encode($facetData['tasks']);
                         $facet->absorbData($facetData);
@@ -329,15 +322,23 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                         
                         if (empty($errors))
                         {
-							// $course->active = true;
+							$course->active = $course->active ? true : false;    // TODO: update to accept courseData value
+                            $course->department = $course->department ? $course->department : $course->shortName;
                             $course->save();
 
                             if (!$facet->inDataSource)
                             {
                                 $facet->courseId = $course->id;
                             }
-                            
+
                             $facet->save();
+
+                            if (!$facet->purpose)
+                            {
+                                $purpose = $this->schema('Ccheckin_Purposes_Purpose')->createInstance();
+                                $purpose->object = $facet;
+                                $purpose->save();
+                            }
 
                             if ($instructorId = $this->request->getPostParameter('instructor'))
                             {

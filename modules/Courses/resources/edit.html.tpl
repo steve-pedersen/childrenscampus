@@ -40,6 +40,10 @@
         {if $errors.shortName}<p class="error">{$errors.shortName}{/if}</p>
     </div>
     <div class="form-group">
+        <label for="department">Department</label>
+        <input type="text" class="textfield form-control" name="course[department]" id="department" value="{$course->department|escape}" disabled />
+    </div>
+    <div class="form-group">
         <label for="facet-description">Description</label>
         <textarea class="form-control" rows="3" cols="70" name="facet[description]" id="facet-description">{$facet->description|escape}</textarea>
     </div>

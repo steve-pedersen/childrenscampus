@@ -36,6 +36,62 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization // 
     protected function initialize ()
     {
         $this->addEventHandler('before-delete', array($this, 'beforeDelete'));
+        $this->addEventHandler('before-insert', array($this, 'beforeInsert'));
+    }
+
+    // public function setDepartment ($department)
+    // {
+    //     $dept = $department;
+
+    //     if (!$this->department && $department === $this->shortName)
+    //     {
+    //         $dept = $this->convertShortNameToDept($department);
+    //     }
+
+    //     $this->_assign('department', $dept);
+    // }
+
+    // public function getDepartment ($fetchNew=false)
+    // {
+    //     $department = $this->_fetch('department');
+    //     if ($fetchNew)
+    //     {
+    //         $department = $this->convertShortNameToDept($this->shortName);
+    //     }
+
+    //     return $department;
+    // }
+
+    public function getCollege ()
+    {
+        list($dept, $college) = $this->convertShortNameToDept($this->shortName, true);
+
+        return $college;
+    }
+
+    public function convertShortNameToDept ($shortName, $includeCollege=false)
+    {
+        $dept = '';
+        $college = '';
+        $service = new Ccheckin_ClassData_Service($this->getApplication());
+        list($status, $orgs) = $service->getOrganizations();
+
+        if ($status < 400)
+        {
+            $abbr = str_replace('_', ' ', substr($shortName, 0, strpos($shortName, '-')));
+
+            foreach ($orgs as $key => $org)
+            {
+                $deptKey = substr($key, strpos($key, '- ') + 2);
+                if ($deptKey === $abbr)
+                {
+                    $dept = $org['name'];
+                    $college = array_shift($org['college']);
+                }
+            }
+        }
+
+        return $includeCollege ? array($dept, $college) : $dept;
     }
 
     public function getSemester ()
@@ -134,7 +190,14 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization // 
 
         return $errors;
     }
-    
+
+    protected function beforeInsert ()
+    {
+        if (!$this->department)
+        {
+            $this->setDepartment($this->shortName);
+        }       
+    }   
 
     // TODO: Test Instructor stuff **********************************************
     protected function beforeDelete ()

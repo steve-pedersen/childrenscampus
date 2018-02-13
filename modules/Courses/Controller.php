@@ -175,13 +175,14 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
     {
         $service = new Ccheckin_ClassData_Service($this->getApplication());
         list($status, $course) = $service->getCourse($id);
+        
         if ($status < 400)
         {
             return $course;
         }
         return false;
     }
-    
+
     // TODO: Fix tasks submission and remove unused fields/fetch from ClassData
     public function request ()
     {       
@@ -224,15 +225,19 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
             {
                 $courseId = $this->request->getPostParameter('course');
                 $courseData = $this->getCourse($courseId);
+                
                 $course->fullName = $courseData['title'];
                 $course->shortName = $courseData['shortName'];
-                $course->department = implode(', ', $courseData['department']);
+                $course->department = $courseData['department'];
 
                 $facetData = $this->request->getPostParameter('facet');                    
                 $facet->typeId = $facetData['typeId'];
                 $facet->description = $courseData['description'];
-                $facet->tasks = array_intersect_key($facet->GetAllTasks(), $facetData['tasks']);
-
+                if (isset($facetData['tasks']))
+                {
+                    $facet->tasks = array_intersect_key($facet->GetAllTasks(), $facetData['tasks']);
+                }
+                
                 if ($semesterId = $this->request->getPostParameter('selected-semester'))
                 {
                     $semester = $semesters[$semesterId];
