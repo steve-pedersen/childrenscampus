@@ -21,8 +21,8 @@ class Ccheckin_Rooms_Room extends Bss_ActiveRecord_BaseWithAuthorization // impl
             'observationType' => array('string', 'nativeName' => 'observation_type'),
             'maxObservers' => array('string', 'nativeName' => 'max_observers'),
             'schedule' => 'string',
-            'hours' => 'string',
-            'days' => 'string',
+            // 'hours' => 'string',
+            // 'days' => 'string',
             
             // should orderBy be 'startTime'? startTime comes from RoomReservation schema.                       // was 'date' not 'start_time'
             'roomReservations' => array('1:N', 'to' => 'Ccheckin_Rooms_Reservation', 'reverseOf' => 'room', 'orderBy' => array('start_time')), 

@@ -11,7 +11,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
             'courses/history/:id'   => array('callback' => 'history', ':id' => '[0-9]+'),
             'courses/request'       => array('callback' => 'request'),
             'courses/students/:id'  => array('callback' => 'students', ':id' => '[0-9]+'),
-            'courses/drop/:cid/:aid'=> array('callback' => 'drop', ':cid' => '[0-9]+', ':aid' => '[0-9]+'),
+            // 'courses/drop/:cid/:aid'=> array('callback' => 'drop', ':cid' => '[0-9]+', ':aid' => '[0-9]+'),  // Obselete endpoint
         );
     }
 
@@ -26,12 +26,12 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
     {
         $viewer = $this->getAccount();
         $authZ = $this->getAuthorizationManager();
-        $azids = $authZ->getObjectsForWhich($viewer, 'course view', 'Course');
+        $azids = $authZ->getObjectsForWhich($viewer, 'course view');
         $courses = $this->schema('Ccheckin_Courses_Course')->getByAzids($azids);
         
-        if (empty($courses))
+        if (!empty($courses))
         {
-            $azids = $authZ->getObjectsForWhich($viewer, 'purpose have', 'Purpose');
+            $azids = $authZ->getObjectsForWhich($viewer, 'purpose have');
             $purposes = $this->schema('Ccheckin_Purposes_Purpose')->getByAzids($azids);         
             
             foreach ($purposes as $purpose)
@@ -67,9 +67,13 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         $id = $this->getRouteVariable('id');
         $course = $this->requireExists($this->schema('Ccheckin_Courses_Course')->get($id));
         
+        // TODO: Figure out what is actually happening in this block.
+        // If don't have permission to view course or not admin viewing an inactive course
+        // Student viewing one of their inactive courses
         if (!$this->hasPermission('course view', $course) || (!$this->hasPermission('admin') && !$course->active))
         {
-            if ($course->students->inList($account)) // TODO: Check this...... *******************
+            // if ($course->students->inList($account)) // TODO: Check this...... *******************
+            if (in_array($account, $course->students))  // This might be the replacement
             {
                 $facetids = array();
                 foreach ($course->facets as $facet)
@@ -85,7 +89,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                         $obs->allTrue(
                             $obs->accountId->equals($account->id),
                             $obs->purposeId->inList($facetids),
-                            $obs->endTime->afterOrEquals(new Date(0))                          
+                            $obs->endTime->afterOrEquals(new DateTime)                          
                         );
                     $observations = $obs->find($cond);
 
@@ -102,7 +106,6 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
             }
             else
             {
-                // $this->raiseError(403, 'Forbidden');
                 $this->triggerError('Ccheckin_Master_PermissionErrorHandler');
                 exit;
             }
@@ -112,7 +115,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
             $this->template->pView = true;
             $this->template->students = $course->students;
         }
-        
+
         $this->template->course = $course;
     }
     
@@ -122,11 +125,11 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         $this->requireLogin();
         $id = $this->getRouteVariable('id');
         $course = $this->requireExists($this->schema('Ccheckin_Courses_Course')->get($id));
+
         $this->setPageTitle("Course History for: {$course->shortName}");   
         
         if (!$this->hasPermission('course view', $course) || (!$this->hasPermission('admin') && !$course->active))
         {
-            // $this->raiseError(403, 'Forbidden');
             $this->triggerError('Ccheckin_Master_PermissionErrorHandler');
             exit;
         }
@@ -137,7 +140,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
             $facetArray = array('users' => array(), 'facet' => $facet);
             
             foreach ($facet->purpose->observations as $observation)
-            {
+            {        
                 if ($observation->duration > 0)
                 {
                     if (!isset($facetArray['users'][$observation->accountId]))
@@ -157,13 +160,10 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         $this->template->facets = $facets;
     }
 
-    // TODO: Remove this hardcoded Faculty SF State ID
     protected function setCourses ($user, $term)
     {
         $service = new Ccheckin_ClassData_Service($this->getApplication());
         list($status, $courses) = $service->getUserEnrollments($user->username, $term);
-        $TEST_ID = '908016751';
-        // list($status, $courses) = $service->getUserEnrollments($TEST_ID, $term);
 
         if ($status < 400)
         {
@@ -205,6 +205,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         {
             $semesters[$sem->id] = $sem;
         }
+        // sorry for such similar vars. needs refactor
         $activeSemester = $this->guessActiveSemester(true); // used for querying
         $selectedSemester = $sems->findOne($sems->internal->equals($activeSemester));  // used for post data
 
@@ -230,7 +231,11 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                 $course->shortName = $courseData['shortName'];
                 $course->department = $courseData['department'];
 
-                $facetData = $this->request->getPostParameter('facet');                    
+                $facetData = $this->request->getPostParameter('facet');
+
+                // TODO: CHECK IF I NEED TO CREATE A NEW FACET FOR EVERY COURSE!!!
+                $facet = $this->schema('Ccheckin_Courses_Facet')->createInstance();
+
                 $facet->typeId = $facetData['typeId'];
                 $facet->description = $courseData['description'];
                 if (isset($facetData['tasks']))
@@ -375,7 +380,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                 switch ($command)
                 {
                     case 'request':
-                        $userRequest = $this->schema('Ccheckin_Courses_UserRequest')->createInstance();
+                        $userRequest = 'nothing'; // $this->schema('Ccheckin_Courses_UserRequest')->createInstance(); // TODO: Refactor
                         $users = array();
                         
                         if ($studentsObserve = $this->request->getPostParameter('students-observe'))
@@ -407,6 +412,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         $this->template->students = $course->students;
     }
     
+    // NOTE: This will probably be obsolete 
     public function drop ()
     {
         $this->addBreadcrumb('courses', 'View Courses');

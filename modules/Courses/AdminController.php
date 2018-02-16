@@ -41,6 +41,8 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
     public function manage ()
     {
         $courses = $this->schema('Ccheckin_Courses_Course');
+        $facets = $this->schema('Ccheckin_Courses_Facet');
+        $purposes = $this->schema('Ccheckin_Purposes_Purpose');
         $message = '';
         
         $coursesIndexTabs = array(
@@ -91,7 +93,20 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                         {                                               
                             if ($course = $courses->get($courseId))
                             {
-                                $course->delete();
+                                $course->deleted = true;
+                                $course->active = false;
+                                $course->save();
+
+                                $facet = $facets->findOne($facets->typeId->equals($course->facetType->id));
+                                // $facetPurpose = $purposes->findOne($purposes->objectId->equals($facet->id));
+
+                                if ($facet->purpose)
+                                {
+                                    foreach ($course->students as $student)
+                                    {
+                                        $facet->removeUser($student);
+                                    }
+                                }
                             }
                             
                             $message = 'The selected courses have been deleted';
@@ -120,8 +135,8 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
     {
         $this->setPageTitle('Courses Queue');
         $courseRequests = $this->schema('Ccheckin_Courses_Request');
-        $courseUserRequests = $this->schema('Ccheckin_Courses_UserRequest');
         $facets = $this->schema('Ccheckin_Courses_Facet');
+        $purposes = $this->schema('Ccheckin_Purposes_Purpose');
 
         $allowed = array();
         $denied = array();
@@ -168,17 +183,21 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                                     
                                     $authZ = $this->getAuthorizationManager();
                                     $authZ->grantPermission($cr->requestedBy, 'course view', $cr->course);
-
-                                    $users = array();
-                                    $type = strtolower($cr->course->facetType->name);
-                                    $facet = $facets->findOne($facets->typeId->equals($cr->course->facetType->id));
+                                  
+                                    // $facet = $cr->course->facets->index(0); // lazy approach
+                                    $facet = $facets->findOne(
+                                        $facets->typeId->equals($cr->course->facetType->id)->andIf(
+                                            $facets->courseId->equals($cr->course->id)
+                                        )
+                                    );  // fail-safe approach                                   
+                                    $type = strtolower($facet->type->name);
 
                                     if (!$facet->purpose)
                                     {
                                         $purpose = $this->schema('Ccheckin_Purposes_Purpose')->createInstance();
                                         $purpose->object = $facet;
                                         $purpose->save();
-                                    }
+                                    } 
 
                                     // this isn't the best way to differentiate, but is the best thing for now since FacetType is a user editable property
                                     if ((strpos($type, 'participation') !== false) || (strpos($type, 'participate') !== false))
@@ -193,7 +212,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                                     $allowed[] = $cr->course->fullName;
                                     $cr->delete();
                                 }
-                            }
+                            }                           
                         }
                         
                         if (!empty($deny))
@@ -207,11 +226,19 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                                     $cr->course->active = false;
                                     $cr->course->deleted = true;
                                     $cr->course->save();
+                                    
+                                    $facet = $facets->findOne($facets->typeId->equals($cr->course->facetType->id));
+                                    if ($facet->purpose)
+                                    {
+                                        foreach ($cr->course->students as $student)
+                                        {
+                                            $facet->removeUser($student);
+                                        }
+                                    }
+
                                     $cr->delete();
                                 }
                             }
-                            $this->flash('Course request denied.');
-                            $this->response->redirect('admin/courses/queue');
                         }
                         break;
 
@@ -219,6 +246,8 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                         // removed this functionality
                         break;
                 }
+                $this->flash('Course requests have been updated.');
+                $this->response->redirect('admin/courses/queue');
             }
         }
         
@@ -601,12 +630,32 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
 		$mail->Send();
 	}
     
-    private function createEmailTemplate($templateName)
+    // private function createEmailTemplate($templateName)
+    // {
+    //     $template = new DivaTemplate;
+    //     $template->setDefaultResourceDirectory(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'resources');
+    //     $template->setTemplateFile($templateName);
+    //     return $template;
+    // }
+
+    protected function createEmailTemplate ()
     {
-        $template = new DivaTemplate;
-        $template->setDefaultResourceDirectory(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'resources');
-        $template->setTemplateFile($templateName);
+        $template = $this->createTemplateInstance();
+        $template->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'email.html.tpl'));
         return $template;
+    }
+
+    protected function createEmailMessage ($contentTemplate = null)
+    {
+        $message = new Bss_Mailer_Message($this->getApplication());
+        
+        if ($contentTemplate)
+        {
+            $tpl = $this->createEmailTemplate();
+            $message->setTemplate($tpl, $this->getModule()->getResource($contentTemplate));
+        }
+        
+        return $message;
     }
 }
 

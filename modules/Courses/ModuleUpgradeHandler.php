@@ -62,18 +62,7 @@ class Ccheckin_Courses_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleU
                 $def = $this->createEntityType('ccheckin_course_requests', $this->getDataSource('Ccheckin_Courses_Request'));
                 $def->addProperty('id', 'int', array('sequence' => true, 'primaryKey' => true));
                 $def->addProperty('course_id', 'int');
-                $def->addProperty('course_users', 'string');
                 $def->addProperty('request_date', 'datetime');
-                $def->addProperty('request_by_id', 'int');               
-                $def->addForeignKey('ccheckin_courses', array('course_id' => 'id')); 
-                $def->addForeignKey('bss_authn_accounts', array('request_by_id' => 'id'));
-                $def->save();
-
-                $def = $this->createEntityType('ccheckin_course_user_requests', $this->getDataSource('Ccheckin_Courses_UserRequest'));
-                $def->addProperty('id', 'int', array('sequence' => true, 'primaryKey' => true));
-                $def->addProperty('course_id', 'int');
-                $def->addProperty('request_date', 'datetime');
-                $def->addProperty('users', 'string');
                 $def->addProperty('request_by_id', 'int');               
                 $def->addForeignKey('ccheckin_courses', array('course_id' => 'id')); 
                 $def->addForeignKey('bss_authn_accounts', array('request_by_id' => 'id'));

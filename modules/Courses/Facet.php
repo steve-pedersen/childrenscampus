@@ -14,7 +14,7 @@ class Ccheckin_Courses_Facet extends Ccheckin_Purposes_AbstractPurpose // NOT? e
             'courseId' => array('int', 'nativeName' => 'course_id'),
             'typeId' => array('int', 'nativeName' => 'type_id'),
             'description' => 'string',
-            'tasks' => 'string',	// WAS of type SERIALIZED
+            'tasks' => 'string',
             'studentHours' => array('int', 'nativeName' => 'student_hours'),
             'createdDate' => array('datetime', 'nativeName' => 'created_date'),         
 
@@ -93,6 +93,14 @@ class Ccheckin_Courses_Facet extends Ccheckin_Purposes_AbstractPurpose // NOT? e
         // }
         
         return $errors;
+    }
+
+    public function getPurpose ()
+    {
+        $purposes = $this->getSchema('Ccheckin_Purposes_Purpose');
+        $facetPurpose = $purposes->findOne($purposes->objectId->equals($this->id));
+
+        return $facetPurpose;
     }
 
     // protected function afterInsert ()

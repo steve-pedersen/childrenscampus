@@ -37,9 +37,9 @@
 				<td>{foreach item='facet' from=$course->facets}{$facet->type->name|escape}{/foreach}</td>
                 <td>{$course->students|@count}</td>
 				<td>
-					{if $tab == 'inactive'}
+<!-- 					{if $tab == 'inactive'}
 						<a href="admin/courses/queue/{$course->id}" class="btn btn-xs btn-default">view</a>
-					{/if}
+					{/if} -->
                     <a href="admin/courses/edit/{$course->id}" class="btn btn-xs btn-default">edit</a>
                     <!-- <a href="admin/courses/dropstudents/{$course->id}" class="btn btn-xs btn-default">drop students</a> -->
                 </td>
@@ -72,5 +72,5 @@
 </form>
 <br>
 <div class="link-controls form-group">
-	<a class="new btn btn-success" href="admin/courses/edit/new"><span class="glyphicon glyphicon-plus"></span> Create a Course</a>
+	<a class="new btn btn-sm btn-success" href="admin/courses/edit/new"><span class="glyphicon glyphicon-plus"></span> Create a Course</a>
 </div>

@@ -27,8 +27,6 @@ class Ccheckin_Rooms_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUpg
                 $def->addProperty('observation_type', 'string');
                 $def->addProperty('max_observers', 'string');
                 $def->addProperty('schedule', 'string');
-                $def->addProperty('hours', 'string');
-                $def->addProperty('days', 'string');
                 $def->save();
 
                 $def = $this->createEntityType('ccheckin_room_observations', $this->getDataSource('Ccheckin_Rooms_Observation'));

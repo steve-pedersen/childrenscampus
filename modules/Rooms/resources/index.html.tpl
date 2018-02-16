@@ -22,14 +22,23 @@
         the “observation only” category observe just one time. 
     </p>
     {/if}
-<dl>
+
 {foreach item='room' from=$rooms.observe}
-    <dt><a href="reservations/week/{$room->id}">{$room->name|escape}</a></dt>
-    <dd>{$room->description|escape}</dd>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h2 class="panel-title">
+            <a href="reservations/week/{$room->id}">{$room->name|escape}</a>
+        </h2>
+
+      </div>
+      <div class="panel-body">
+        <p class="">{$room->description|escape}</p>
+      </div>
+    </div>
 {/foreach}
-</dl>
 </div>
 {/if}
+<hr>
 {if $rooms.participate}
 <div class="room-section">
     {if $rooms.observe}
@@ -46,12 +55,20 @@
         a time.  <strong>There are NO participants in the infant classrooms</strong>.
     </p>
     {/if}
-<dl>
+
 {foreach item='room' from=$rooms.participate}
-    <dt><a href="reservations/week/{$room->id}">{$room->name|escape}</a></dt>
-    <dd>{$room->description|escape}</dd>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h2 class="panel-title">
+            <a href="reservations/week/{$room->id}">{$room->name|escape}</a>
+        </h2>
+
+      </div>
+      <div class="panel-body">
+        <p class="">{$room->description|escape}</p>
+      </div>
+    </div>
 {/foreach}
-</dl>
 </div>
 {/if}
 

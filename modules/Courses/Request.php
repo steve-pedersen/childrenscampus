@@ -10,7 +10,6 @@ class Ccheckin_Courses_Request extends Bss_ActiveRecord_BaseWithAuthorization //
             
             'id' => 'int',
             'courseId' => array('int', 'nativeName' => 'course_id'),
-            // 'courseUsers' => array('string', 'nativeName' => 'course_users'),    // Serialized
             'requestDate' => array('datetime', 'nativeName' => 'request_date'),
             'requestedById' => array('int', 'nativeName' => 'request_by_id'),
 

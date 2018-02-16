@@ -1,14 +1,14 @@
-<h1>Course History for: {$course->shortName|escape}</h1>
+<h1>Course History - <small>{$course->shortName|escape}</small></h1>
 <div class="tabs">
-    <ul class="tab-list">
-        <li><a href="courses/view/{$course->id}">view</a></li>
-        <li><a href="courses/students/{$course->id}">students</a></li>
-        <li class="active"><span>history</span></li>
+    <ul class="nav nav-tabs nav-justified">
+        <li role="presentation"><a href="courses/view/{$course->id}">View</a></li>
+        <!-- <li role="presentation"><a href="courses/students/{$course->id}">Students</a></li> -->
+        <li role="presentation" class="active"><a href="courses/history/{$course->id}">History</a></li>
     </ul>
 </div>
 {foreach item='facet' from=$facets}
 <h2>{$facet.facet->shortDescription|escape}</h2>
-<table class="table">
+<table class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>Student</th>
@@ -20,10 +20,10 @@
     {foreach item='user' from=$facet.users}
         <tr>
             <td>
-                {$user.user->displayName|escape} ({$user.user->ldap_user|escape})
+                {$user.user->firstName|escape} {$user.user->lastName|escape} ({$user.user->emailAddress|escape})
             </td>
             <td>{$user.num}</td>
-            <td>{$user.time|min2hr}</td>
+            <td>{$user.time}</td>
         </tr>
     {foreachelse}
         <tr>

@@ -1,42 +1,40 @@
-<h1>View Course: {$course->fullName|escape}</h1>
+<h1>View Course - <small>{$course->fullName|escape}</small></h1>
 {if $pView}
+
 <div class="tabs">
-    <ul class="tab-list">
-        <li class="active"><span>view</span></li>
-        <li><a href="courses/students/{$course->id}">students</a></li>
-        <li><a href="courses/history/{$course->id}">history</a></li>
+    <ul class="nav nav-tabs nav-justified">
+        <li role="presentation" class="active"><a href="courses/view/{$course->id}">View</a></li>
+        <!-- <li role="presentation"><a href="courses/students/{$course->id}">Students</a></li> -->
+        <li role="presentation"><a href="courses/history/{$course->id}">History</a></li>
     </ul>
 </div>
+
 {/if}
 <div class="course">
 <h2>Overview</h2>
-<dl>
+<dl class="dl-horizontal">
 	<dt>Instructors:</dt>
-	{foreach item='instructor' from=$course->instructors}
-	<dd>{$instructor->account->displayName}</dd>
+	{foreach item='instructor' from=$course->teachers}
+	<dd>{$instructor->firstName} {$instructor->lastName}</dd>
 	{/foreach}
 {if $pView}
 	<dt>Number of students:</dt>
-	<dd>{$students->count}</dd>
-	{foreach item='facet' from=$course->facets}
-	<dt>{$facet->type->name|escape}:</dt>
-	<dd>{$facet->description|escape}</dd>
-    {/foreach}
+	<dd>{$students|@count}</dd>
 {/if}
 </dl>
+{foreach item='facet' from=$course->facets}
+<p class=""><strong>{$facet->type->name|escape}. </strong>{$facet->description}</p>
+{/foreach}
 </div>
 <div class="users">
 {if $pView}
 <h2>Students</h2>
-<p>To add students to the course, please go to the <a href="courses/students/{$course->id}">add students page</a> for the course.</p>
-<ul>
+<!-- <p>To add students to the course, please go to the <a href="courses/students/{$course->id}">add students page</a> for the course.</p> -->
+<p><em>Student enrollment status synchronizes with official university records. Changes to courses will be updated periodically.</em></p>
+<ul class="">
 {foreach item='student' from=$students}
 <li>
-	{if $student->lastLoginDate}
-	<p>{$student->displayName|escape}</p>
-	{else}
-	<p>{$student->ldap_user|escape}</p>
-	{/if}
+	<p>{$student->firstName} {$student->lastName}</p>
 </li>
 {foreachelse}
 <li>There are no students in this course</li>
@@ -56,16 +54,16 @@
     <tfoot>
         <tr>
             <th colspan="2">Total Duration</th>
-            <td>{$totalTime|duration}</td>
+            <td>{$totalTime}</td>
         </tr>
     </tfoot>
     {/if}
     <tbody>
     {foreach item='observation' from=$observations}
         <tr>
-            <td>{$observation->startTime->getDate()|date_format:"%B %e, %Y %I:%M %p"}</td>
-            <td>{$observation->endTime->getDate()|date_format:"%B %e, %Y %I:%M %p"}</td>
-            <td>{$observation->duration|duration}</td>
+            <td>{$observation->startTime|date_format:"%B %e, %Y %I:%M %p"}</td>
+            <td>{$observation->endTime|date_format:"%B %e, %Y %I:%M %p"}</td>
+            <td>{$observation->duration}</td>
         </tr>
     {foreachelse}
         <tr><td colspan="3">There are no recorded observations for you in this course.</td></tr>

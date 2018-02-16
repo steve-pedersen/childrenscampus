@@ -55,7 +55,7 @@
                 <!-- <td>{$cr->courseEnrollments.students|@count}</td> -->
                 <td>{$cr->course->facetType->name}<br> 
                     <span class="badge">{$cr->courseEnrollments.students|@count} student{if $cr->courseEnrollments.students|@count > 1}s{/if}</span>
-                    <span class="badge badge-alt">{$cr->courseEnrollments.teachers|@count} teacher{if $cr->courseEnrollments.teachers|@count > 1}s{/if}</span>
+                    <!-- <span class="badge badge-alt">{$cr->courseEnrollments.teachers|@count} teacher{if $cr->courseEnrollments.teachers|@count > 1}s{/if}</span> -->
                 </td>
                 <td class="checkboxes">
                     <label class="box-label" for="allow-{$cr->id}">

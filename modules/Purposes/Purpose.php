@@ -5,7 +5,6 @@ class Ccheckin_Purposes_Purpose extends Bss_ActiveRecord_BaseWithAuthorization /
     public static function SchemaInfo ()
     {
         return array(
-            // '__class' => 'Ccheckin_Purposes_Purpose',
             '__type' => 'ccheckin_purposes',
             '__azidPrefix' => 'at:ccheckin:purposes/Purpose/',
             '__pk' => array('id'),
@@ -18,11 +17,9 @@ class Ccheckin_Purposes_Purpose extends Bss_ActiveRecord_BaseWithAuthorization /
         );
     }
 
-    // What is an object property of a purpose anyway?
-    // TODO: Test this..... ************************
     public function getObject ()
     {
-        $purposes = $this->schema('Ccheckin_Purposes_Purpose');
+        $purposes = $this->getSchema('Ccheckin_Purposes_Purpose');
         $result = null;
         $type = $this->_fetch('objectType');
         $id = $this->_fetch('objectId');
@@ -30,8 +27,7 @@ class Ccheckin_Purposes_Purpose extends Bss_ActiveRecord_BaseWithAuthorization /
 
         if ($type)
         {
-            $refClass = new ReflectionClass($type);
-            $object = $refClass->newInstance($this->getDataSource('Ccheckin_Purposes_Purpose'));    // changed arg from $this->_dataSource | TODO: Needs Testing ********
+            $object = $this->getSchema($type);
         }
         
         if ($object && ($object=$object->get($id))) 

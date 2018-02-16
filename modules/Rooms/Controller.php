@@ -39,10 +39,11 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     {
         $viewer = $this->getAccount();
         $authZ = $this->getAuthorizationManager();
-        $azids = $authZ->getObjectsForWhich($viewer, 'purpose have', 'Purpose');
+        $azids = $authZ->getObjectsForWhich($viewer, 'purpose have');
         $purposes = $this->schema('Ccheckin_Purposes_Purpose')->getByAzids($azids);
+        $rooms = $this->schema('Ccheckin_Rooms_Room');
         
-        if (!empty($purposes))
+        if (empty($purposes))
         {
             $this->template->nopurpose = true;
         }
@@ -71,21 +72,19 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             
             if ($observe || $participate)
             {
-                $rooms = array();
-                
+                $availableRooms = array();
+
                 if ($observe)
                 {
-                    $proto = $this->schema('Ccheckin_Rooms_Room');
-                    $rooms['observe'] = $proto->find($proto->observationType->equals('observe'));
+                    $availableRooms['observe'] = $rooms->find($rooms->observationType->equals('observe'));
                 }
                 
                 if ($participate)
                 {
-                    $proto = $this->schema('Ccheckin_Rooms_Room');
-                    $rooms['participate'] = $proto->find($proto->observationType->equals('participate'));
+                    $availableRooms['participate'] = $rooms->find($rooms->observationType->equals('participate'));
                 }
                 
-                $this->template->rooms = $rooms;
+                $this->template->rooms = $availableRooms;
             }
             else
             {
@@ -453,7 +452,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             }
         }
 
-        $azids = $authZ->getObjectsForWhich($viewer, 'purpose have', 'Purpose');
+        $azids = $authZ->getObjectsForWhich($viewer, 'purpose have');
         $purposes = $this->schema('Ccheckin_Purposes_Purpose')->getByAzids($azids);
         $purpose = null;
         

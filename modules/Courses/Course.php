@@ -1,6 +1,6 @@
 <?php
 
-class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization // implements Bss_AuthZ_IObjectProxy
+class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization //implements Bss_AuthZ_IObjectProxy
 {
     private $_teachers;
     private $_students;
@@ -35,9 +35,12 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization // 
 
     protected function initialize ()
     {
+        parent::initialize();
         $this->addEventHandler('before-delete', array($this, 'beforeDelete'));
-        $this->addEventHandler('before-insert', array($this, 'beforeInsert'));
+        // $this->addEventHandler('before-insert', array($this, 'beforeInsert'));
     }
+
+    // public function getObjectProxies () {}
 
     // public function setDepartment ($department)
     // {
@@ -191,13 +194,13 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization // 
         return $errors;
     }
 
-    protected function beforeInsert ()
-    {
-        if (!$this->department)
-        {
-            $this->setDepartment($this->shortName);
-        }       
-    }   
+    // protected function beforeInsert ()
+    // {
+    //     if (!$this->department)
+    //     {
+    //         $this->setDepartment($this->shortName);
+    //     }       
+    // }   
 
     // TODO: Test Instructor stuff **********************************************
     protected function beforeDelete ()
