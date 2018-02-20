@@ -1,10 +1,12 @@
 <h1>Weekly Calendar for {$room->name|escape}</h1>
+<div class="tabs">
+    <ul class="nav nav-tabs nav-justified">
+        <li role="presentation"><a title="previous week" href="{$calendar.previous}"><span class="glyphicon glyphicon-chevron-left"></span> Previous week</a></li>
+        <li role="presentation" class="active"><a href="{$smarty.server.REQUEST_URI}">Current<br>{$calendar.week[0].display} - {$calendar.week[6].display}</a></li>
+        <li role="presentation"><a title="next week" href="{$calendar.next}">Next week <span class="glyphicon glyphicon-chevron-right"></span></a></li>
+    </ul>
+</div>
 <table class="table calendar">
-    <caption>
-        <a class="nav previous" title="previous week" href="{$calendar.previous}">&lt;&lt;</a>
-                {$calendar.week[0].display} - {$calendar.week[6].display}
-        <a class="nav next" title="next week" href="{$calendar.next}">&gt;&gt;</a>
-    </caption>
     <thead>
         <tr>
             <th></th>
@@ -23,7 +25,7 @@
         <tr>
             <th scope="row">{$timeDisplay}</th>
           {foreach from=$calendar.week item='day'}
-            {assign var='result' value=`$day.times[$time]`}
+            {assign var='result' value=$day.times[$time]}
             {if $day.outside}
             <td class="outside-month {$result}">
             {elseif $day.today}

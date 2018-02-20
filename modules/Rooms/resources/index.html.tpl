@@ -15,7 +15,7 @@
 <div class="room-section">
     {if $rooms.participate}
     <h2>Observation Only</h2>
-    <p>
+    <p class="">
         Students will be observing children only from the observation room/s.  
         Students will not have opportunity to interact with the children and/or 
         teachers in the classroom.  Generally students whose professors select 
@@ -27,7 +27,7 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         <h2 class="panel-title">
-            <a href="reservations/week/{$room->id}">{$room->name|escape}</a>
+            <a href="reservations/week/{$room->id}"><span class="glyphicon glyphicon-chevron-right"></span> {$room->name|escape}</a>
         </h2>
 
       </div>
@@ -43,7 +43,7 @@
 <div class="room-section">
     {if $rooms.observe}
     <h2>Participation</h2>
-    <p>
+    <p class="">
         This space is reserved for students who will be interacting with the 
         children throughout their required observation hours.  Generally 
         students whose professors select the “participant observer” category 
@@ -60,7 +60,7 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         <h2 class="panel-title">
-            <a href="reservations/week/{$room->id}">{$room->name|escape}</a>
+            <a href="reservations/week/{$room->id}"><span class="glyphicon glyphicon-chevron-right"></span> {$room->name|escape}</a>
         </h2>
 
       </div>

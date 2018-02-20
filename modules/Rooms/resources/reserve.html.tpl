@@ -1,13 +1,13 @@
-<h1>Create Reservation for {$room->name} on {$date->getDate()|date_format:$dateFormat}</h1>
+<h1>Create Reservation for {$room->name} on {$date|date_format:$dateFormat}</h1>
 {if $message}
 <div class="flash">
     <div class="error message"><p>{$message}</p></div>
 </div>
 {/if}
 <form action="{$smarty.server.REQUEST_URI}" method="post">
-    {if $purpose->inDatabase}<input type="hidden" name="purpose" value="{$purpose->id}" />{/if}
+    {if $purpose}<input type="hidden" name="purpose" value="{$purpose->id}" />{/if}
     <dl>
-        {if !$purpose->inDatabase}
+        {if !$purpose}
         <dt><label for="purpose">Select a Purpose</label></dt>
         <dd><select name="purpose">
             {foreach from=$purposes  item='purpose'}

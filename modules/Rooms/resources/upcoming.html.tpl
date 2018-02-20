@@ -12,8 +12,8 @@
     <tbody>
 {foreach item='reservation' from=$reservations}
         <tr>
-            <td>{$reservation->startTime->getDate()|date_format:"%b %e, %Y at %l %p"}</td>
-            <td>{$reservation->account->displayName|escape}</td>
+            <td>{$reservation->startTime|date_format:"%b %e, %Y at %l %p"}</td>
+            <td>{$reservation->account->firstName} {$reservation->account->lastName}</td>
             <td>{$reservation->room->name|escape}</td>
             <td class="actions">
 				<a href="reservations/delete/{$reservation->id}">cancel</a>

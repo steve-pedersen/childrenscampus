@@ -20,6 +20,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             'reservations/schedule/:id' => array('callback' => 'schedule', ':id' => '[0-9]+'),
             'reservations/schedule/:id/:year/:month/:day'       => array('callback' => 'schedule',
                 ':id' => '[0-9]+', ':year' => '[0-9]+', ':month' => '[0-9]+', ':day' => '[0-9]+'),
+            'reservations/week/:id'     => array('callback' => 'week',':id' => '[0-9]+'),
             'reservations/week/:id/:year/:month/:day'           => array('callback' => 'week',
                 ':id' => '[0-9]+', ':year' => '[0-9]+', ':month' => '[0-9]+', ':day' => '[0-9]+'),
             'reservations/reserve/:id/:year/:month/:day/:hour'  => array('callback' => 'reserve',
@@ -181,41 +182,41 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     {
         $this->requireLogin();
 
-        $roomId = (null !== $this->getRouteVariable('id')) ? $this->getRouteVariable('id') : $roomId;
-        $year = (null !== $this->getRouteVariable('year')) ? $this->getRouteVariable('year') : $year;
-        $month = (null !== $this->getRouteVariable('month')) ? $this->getRouteVariable('month') : $month;
-        $day = (null !== $this->getRouteVariable('day')) ? $this->getRouteVariable('day') : $day;    
+        $roomId = $this->getRouteVariable('id');
+        $year = $this->getRouteVariable('year');
+        $month = $this->getRouteVariable('month');
+        $day = $this->getRouteVariable('day');
         
         $room = $this->requireExists($this->schema('Ccheckin_Rooms_Room')->get($roomId));
         
         if ($year)
         {
-            $date = new Date(mktime(0, 0, 0, $month, $day, $year));
+            $date = new DateTime($year .'-'. $month  .'-'. $day);
         }
         else
         {
-            $date = new Date;
+            $date = new DateTime;
             $year = $date->format('Y');
             $month = $date->format('m');
-            $day = $date->getDay();
+            $day = $date->format('j');
         }
         
-        $prevDate = new Date(strtotime($date->getDate() . ' -1 week'));
-        $nextDate = new Date(strtotime($date->getDate() . ' +1 week'));
+        $prevDate = $date->modify(' -1 week');
+        $nextDate = $date->modify(' +1 week');
         
         $calendar = array();
         
-        $calendar['month'] = $date->getMonthName();
+        $calendar['month'] = $date->format('F');
         $calendar['year'] = $date->format('Y');
 		$calendar['date'] = "$year/$month/$day";
-        $calendar['previous'] = 'reservations/week/' . $room->id . '/' . $prevDate->format('Y') . '/' . $prevDate->format('m') . '/' . $prevDate->getDay();
-        $calendar['next'] = 'reservations/week/' . $room->id . '/'  . $nextDate->format('Y') . '/' . $nextDate->format('m') . '/' . $nextDate->getDay();
+        $calendar['previous'] = 'reservations/week/' . $room->id . '/' . $prevDate->format('Y') . '/' . $prevDate->format('m') . '/' . $prevDate->format('d');
+        $calendar['next'] = 'reservations/week/' . $room->id . '/'  . $nextDate->format('Y') . '/' . $nextDate->format('m') . '/' . $nextDate->format('d');
         
-        $weekDayOfFirst = $date->getDayOfWeek();
+        $weekDayOfFirst = $date->format('N');
               
         while ($weekDayOfFirst--)
         {
-            $date = $date->getPrevDay();
+            $date->modify('-1 day');
         }
         
         $calendar['week'] = $this->buildWeek($room, $date);
@@ -573,24 +574,24 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         $times = array();
         $roomDays = array();
         $dayHours = array();
-        // echo "<pre>"; var_dump($day); die;
+
         foreach ($room->schedule as $scheduleday => $schedulehours)
         {
+            
             $roomDays[] = $scheduleday;
             if (empty($dayHours))
             {
                 $dayHours = array_keys($schedulehours);
             }
         }
-        // $room->schedule[$day->format('N')]
 
         // if (in_array($day->getDayOfWeek(), $room->days))
         // if (in_array($day->format('N'), $room->schedule))
-        if (in_array($day->format('N'), $roomDays))
+        if (isset($room->schedule[$day->format('N')-1]))
         {
             $startTime = clone $day;
             $endTime = clone $day;
-            $hours = $dayHours;
+            $hours = array_keys($room->schedule[$day->format('N')-1]);
             
             // TODO: Sort out this schedule stuff *******************************************
             for ($i = self::START_HOUR; $i <= self::END_HOUR; $i++)

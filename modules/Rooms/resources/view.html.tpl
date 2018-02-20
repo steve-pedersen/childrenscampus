@@ -4,7 +4,7 @@
 <img src="{$diva->Link('images/childrensCampus.jpg')}" alt="Photo of the front door to the Children's Campus" />
 {if $existing}
     {foreach item='reservation' from=$existing}
-    <p>You have a reservation in room {$reservation->room->name} on {$reservation->startTime->getDate()|date_format:"%b %e, %Y at %l %p"}</p>
+    <p>You have a reservation in room {$reservation->room->name} on {$reservation->startTime|date_format:"%b %e, %Y at %l %p"}</p>
     {/foreach}
 {/if}
 <h2>Children's Campus</h2>
@@ -17,11 +17,11 @@ If you need help locating our center, please check the <a href="http://www.sfsu.
 </div>
 <dl class="inline">
     <dt>Who:</dt>
-    <dd>{$reservation->account->displayName}</dd>
+    <dd>{$reservation->account->firstName} {$reservation->account->lastName}</dd>
     <dt>When:</dt>
-    <dd>{$reservation->startTime->getDate()|date_format:$dateFormat}</dd>
+    <dd>{$reservation->startTime|date_format:$dateFormat}</dd>
     <dt>Until:</dt>
-    <dd>{$reservation->endTime->getDate()|date_format:$dateFormat}</dd>
+    <dd>{$reservation->endTime|date_format:$dateFormat}</dd>
 </dl>
 <div class="link-controls">
     <p class="first"><a class="ok" href="home">OK</a></p>

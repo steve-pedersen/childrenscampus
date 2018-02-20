@@ -1,11 +1,13 @@
 {if $room}
-<h1>{$room->name|escape} schedule for the week of {$calendar.weekofdate->format('M j, Y')}</h1>
+<h1>{$room->name|escape}<br> <small>Schedule for the week of {$calendar.weekofdate->format('M j, Y')}</small></h1>
+<div class="tabs">
+    <ul class="nav nav-tabs nav-justified">
+        <li role="presentation"><a title="previous week" href="{$calendar.previous}"><span class="glyphicon glyphicon-chevron-left"></span> Previous week</a></li>
+        <li role="presentation" class="active"><a href="{$smarty.server.REQUEST_URI}">Current<br>{$calendar.week[0].display} - {$calendar.week[6].display}</a></li>
+        <li role="presentation"><a title="next week" href="{$calendar.next}">Next week <span class="glyphicon glyphicon-chevron-right"></span></a></li>
+    </ul>
+</div>
 <table class="table calendar">
-    <caption>
-        <a class="nav previous" title="previous week" href="{$calendar.previous}">&lt;&lt;</a>
-                {$calendar.week[0].display} - {$calendar.week[6].display}
-        <a class="nav next" title="next week" href="{$calendar.next}">&gt;&gt;</a>
-    </caption>
     <thead>
         <tr>
             <th></th>
@@ -27,7 +29,7 @@
             {assign var='result' value=$day.times[$time]}
             <td>
             {foreach item='reservation' from=$result}
-                <p>{$reservation->account->displayName|escape} ({$reservation->observation->purpose->object->course->shortName})</p>
+                <p>{$reservation->account->firstName|escape} {$reservation->account->lastName|escape} ({$reservation->observation->purpose->object->course->shortName})</p>
             {/foreach}
             </td>
           {/foreach}
@@ -39,8 +41,16 @@
 <h1>Select a room to see the schedule</h1>
 <div class="form-group">
 {foreach item='room' from=$rooms}
-    <p><a href="reservations/schedule/{$room->id}">{$room->name|escape}</a></p>
-    <p>{$room->description|escape}</p>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h2 class="panel-title">
+            <a href="reservations/schedule/{$room->id}"><span class="glyphicon glyphicon-chevron-right"></span> {$room->name|escape}</a>
+        </h2>
+      </div>
+      <div class="panel-body">
+        <p class="">{$room->description|escape}</p>
+      </div>
+    </div>
 {/foreach}
 </div>
 

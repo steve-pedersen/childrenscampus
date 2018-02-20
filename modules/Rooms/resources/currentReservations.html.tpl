@@ -16,7 +16,7 @@
         <tr>
         {*    <td>{$reservation->startTime|date_format:"%Y-%m-%d %I:%M %p"}</td> *}
             <td>{$reservation->startTime|date_format:"%B %e, %Y %I:%M %p"}</td>
-            <td>{$reservation->account->displayName|escape} ({if $reservation->account->ldap_user}{$reservation->account->ldap_user}{else}{$reservation->account->emailAddress}{/if})</td>
+            <td>{$reservation->account->firstName} {$reservation->account->lastName} ({if $reservation->account->ldap_user}{$reservation->account->ldap_user}{else}{$reservation->account->emailAddress}{/if})</td>
             <td>{$reservation->room->name}</td>
             <td>{$reservation->observation->purpose->shortDescription|escape}</td>
 			<td class="actions">
