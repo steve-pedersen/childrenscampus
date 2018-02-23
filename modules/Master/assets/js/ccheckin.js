@@ -12,7 +12,13 @@
 	  $( '#endDate' ).datepicker({
 	    formatDate: 'yy-mm-dd'
 	  });
-	  
+	  $( '#openDate' ).datepicker({
+	    formatDate: 'yy-mm-dd'
+	  });
+	  $( '#closeDate' ).datepicker({
+	    formatDate: 'yy-mm-dd'
+	  });
+
 	});
 
 }(jQuery));

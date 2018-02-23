@@ -150,7 +150,6 @@
 		
 		{if $viewer && !$adminPage}
 		<!-- RIGHT SIDEBAR - Contact -->
-		<!-- <h1>HERE</h1> -->
         <div class="col-md-2 col-sm-4 col-xs-12">
             <div class="right-sidebar pull-right">
                 <div class="well">

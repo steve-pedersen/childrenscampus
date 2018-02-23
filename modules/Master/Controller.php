@@ -289,7 +289,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
             'message' => $message,
         ));
     }
-    
+   
     protected function logActivity ($user, $course, $description, $url)
     {
         

@@ -1,28 +1,31 @@
-{if !$userContext->account}
+
 <h1>{if $welcomeTitle}{$welcomeTitle}{else}Welcome to Children's Campus{/if}</h1>
-{/if}
+
 <!-- NOTE: Place divs inside of conditionals, or else within isLoggedIn check -->
 
 {if $userContext->account}
-	<div id="notice-warning" class="alert alert-warning">
+<div class="announcements">
+<h3 class="announcements-header">Announcements</h3>
+	<ul class="">
 	{if $noticeWarning}
-		{$noticeWarning|allow_basic_html}
+		<li>{$noticeWarning|allow_basic_html}</li>			
 	{else}
-	    <p>Observation and participation times are reserved on a "First Come&mdash;First Serve" basis. Please plan your reservations accordingly.</p>
+	    <li><p>Observation and participation times are reserved on a "First Come&mdash;First Serve" basis. Please plan your reservations accordingly.</p></li>
 	{/if}
-	</div>
-	<div id="notice-message" class="alert alert-success">
+
 	{if $noticeMessage}
-		{$noticeMessage|allow_basic_html}
+		<li>{$noticeMessage|allow_basic_html}</li>
 	{else}
-	    <p>To view your past observations, click the <a href="reservations/observations">Past Observations</a> link and choose the course you want to view.</p>
+	    <li><p>To view your past observations, click the <a href="reservations/observations">Past Observations</a> link and choose the course you want to view.</p></li>
 	{/if}
-	</div>
+	</ul>
+</div>
 {/if}
 
 <div class="row">
 {if $userContext->account}
 <div id="welcome-text" class="col-xs-6">
+	<!-- <h2 class="about">About us</h2> -->
 {else}
 <div id="welcome-text" class="col-xs-12">
 

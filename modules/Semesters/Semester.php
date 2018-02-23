@@ -15,7 +15,8 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
             'internal' => 'string',
             'startDate' => array('datetime', 'nativeName' => 'start_date'),
             'endDate' => array('datetime', 'nativeName' => 'end_date'),
-
+            'openDate' => array('datetime', 'nativeName' => 'open_date'),
+            'closeDate' => array('datetime', 'nativeName' => 'close_date'),
         );
     }
     
@@ -70,6 +71,44 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
         return $term . ' ' . $year;
     }
 
+    public static function guessActiveSemester ($returnTermCode = true)
+    {
+        $y = date('Y');
+        $m = date('n');
+        $d = date('d');
+        $earlyWinter = false;
+
+        // Winter session ~ Dec 20 to Jan 18
+        if (($m < 2 && $d < 18) || ($m == 12 && $d > 20))
+        {
+            $s = 1; // Winter
+            if ($m == 12)
+            {
+                $earlyWinter = true;
+            }
+        }
+        elseif ($m < 5)
+        {
+            $s = 3; // Spring
+        }
+        elseif ($m < 8)
+        {
+            $s = 5; // Summer
+        }
+        else
+        {
+            $s = 7; // Fall
+        }
+
+        if ($earlyWinter)
+        {
+            $y = (string) ($y + 1);
+        }
+        $y = $y[0] . substr($y, 2);
+
+        return ($returnTermCode ? "$y$s" : array($y, $s));
+    }
+
     public function setDisplay ($display)
     {
         $this->_assign('display', $display);
@@ -79,7 +118,24 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
     {
         $this->_assign('internal', $internal);
     }
-   
+
+    public function getOpenDate ()
+    {
+        if ($openDate = $this->_fetch('openDate'))
+        {
+            return $openDate;
+        }
+        return $this->_fetch('startDate')->modify('+1 week');
+    }
+    public function getCloseDate ()
+    {
+        if ($closeDate = $this->_fetch('closeDate'))
+        {
+            return $closeDate;
+        }
+        return $this->_fetch('endDate');
+    }
+  
     public function validate ()
     {
         $errors = array();

@@ -1,4 +1,10 @@
 
+@media (min-width: 1200px) {
+	div#content {
+	    /*width: 95% !important;*/
+	}
+}
+
 /* LIGHT GRAY BACKGROUND ON SIDES OF CONTENT AREA */
 html > body {
 	background-color: #F4F4F4;
@@ -25,6 +31,7 @@ div.main-content {
 	}
 }
 
+/* NAVBAR FIXES */
 .navbar {
     .navbar-text {
 		margin-top: 17px;
@@ -40,6 +47,19 @@ div.main-content {
 		margin-top: 10px;
 	}  
 }
+
+/* ANNOUNCEMENTS */
+div.announcements {
+	padding: 5px 20px 10px 20px;
+	margin-top: 15px;
+	margin-bottom: 15px;
+	background-color: #dff0d8;
+	border-radius: 3px;
+	a {
+		font-weight: bold;
+	}
+}
+
 
 /* IMAGE BANNER */
 #filmstrip img.img-responsive {
@@ -134,7 +154,32 @@ table {
 			display: block;
 		}
 	}
-
+	th.time-display {
+		text-align: right;
+	}
+	tr.reservation-table {
+		> td {
+			text-align: center;
+			> a {
+				background-color: #DFF0D8;
+				color: #2d4821;
+				padding: 0 5px 2px 5px;
+				border-radius: 2px;
+			}
+			> p {
+				background-color: #9A3324;
+				color: #fff;
+				padding: 0 5px 3px 5px;
+				border-radius: 2px;				
+			}
+		}
+	}
+	tr.schedule-table {
+		p.unavailable {
+/*			background-color: #E5E5E5;
+			font-size: 9pt;*/
+		}
+	}
 }
 table.course-requests {
 	td {
@@ -164,6 +209,27 @@ table#room-schedule {
 		text-align: center;
 	}
 }
+
+/* MISCELLANEOUS */
+ul.weekly-schedule {
+	li.active {
+		> a {
+			span.week-range {
+				font-weight: bold;
+			}
+		}
+	}
+/*	li.active > a {
+		background-color: #231161BB;
+		color: #FFF;
+		font-weight: bold;
+	}
+	li.active > a:hover {
+		background-color: #231161FF;
+		color: #FFF;
+	}*/
+}
+
 
 /* BOOTSTRAP OVERRIDES */
 .badge {

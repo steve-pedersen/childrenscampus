@@ -18,23 +18,20 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             'reservations/delete/:id'   => array('callback' => 'delete', ':id' => '[0-9]+'),
             'reservations/schedule'     => array('callback' => 'schedule'),
             'reservations/schedule/:id' => array('callback' => 'schedule', ':id' => '[0-9]+'),
-            'reservations/schedule/:id/:year/:month/:day'       => array('callback' => 'schedule',
-                ':id' => '[0-9]+', ':year' => '[0-9]+', ':month' => '[0-9]+', ':day' => '[0-9]+'),
+            'reservations/schedule/:id/:year/:month/:day'       => array('callback' => 'schedule',':id'=>'[0-9]+',':year'=>'[0-9]+',':month'=>'[0-9]+',':day'=>'[0-9]+'),
             'reservations/week/:id'     => array('callback' => 'week',':id' => '[0-9]+'),
-            'reservations/week/:id/:year/:month/:day'           => array('callback' => 'week',
-                ':id' => '[0-9]+', ':year' => '[0-9]+', ':month' => '[0-9]+', ':day' => '[0-9]+'),
-            'reservations/reserve/:id/:year/:month/:day/:hour'  => array('callback' => 'reserve',
-                ':id' => '[0-9]+', ':year' => '[0-9]+', ':month' => '[0-9]+', ':day' => '[0-9]+', ':hour' => '[0-9]+'),
+            'reservations/week/:id/:year/:month/:day'           => array('callback' => 'week',':id'=>'[0-9]+',':year'=>'[0-9]+',':month'=>'[0-9]+',':day'=>'[0-9]+'),
+            'reservations/reserve/:id/:year/:month/:day/:hour'  => array('callback' => 'reserve',':id'=>'[0-9]+',':year'=>'[0-9]+',':month'=>'[0-9]+',':day'=>'[0-9]+',':hour'=>'[0-9]+'),
 
         );
     }
 
-    // protected function beforeCallback ($callback)
-    // {
-    //     parent::beforeCallback($callback);
-    //     $this->template->clearBreadcrumbs();
-    //     $this->addBreadcrumb('home', 'Home');
-    // }
+    protected function beforeCallback ($callback)
+    {
+        parent::beforeCallback($callback);
+        $this->template->clearBreadcrumbs();
+        $this->addBreadcrumb('home', 'Home');
+    }
   
     public function index ()
     {
@@ -94,7 +91,6 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         }
     }
     
-    // old signature ($roomId = null, $year = 0, $month = 0, $day = 0)
     public function schedule ()
     {
         $this->requirePermission('room view schedule');
@@ -110,18 +106,19 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             
             if ($year)
             {
-                $date = new Date(mktime(0, 0, 0, $month, $day, $year));
+                $date = new DateTime($year .'-'. $month  .'-'. $day);
             }
             else
             {
                 $date = new DateTime;
                 $year = $date->format('Y');
                 $month = $date->format('m');
-                $day = $date->format('d');
+                $day = $date->format('j');
             }
             
-            $prevDate = new DateTime(strtotime(time() . ' -1 week'));   // TODO: Check this prev/next stuff ******************
-            $nextDate = new DateTime(strtotime(time() . ' +1 week'));
+            $prevDate = (clone $date)->modify('-1 week');
+            $nextDate = (clone $date)->modify('+1 week');
+            $currDate = (clone $date);
             
             $calendar = array();
             
@@ -130,19 +127,46 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             $calendar['date'] = "$year/$month/$day";
             $calendar['previous'] = 'reservations/schedule/' . $room->id . '/' . $prevDate->format('Y') . '/' . $prevDate->format('m') . '/' . $prevDate->format('d');
             $calendar['next'] = 'reservations/schedule/' . $room->id . '/'  . $nextDate->format('Y') . '/' . $nextDate->format('m') . '/' . $nextDate->format('d');
-            
-            $weekDayOfFirst = $date->format('w'); // $date->getDayOfWeek();
 
-            // TODO: Why are we going down all the way to Sunday? 
+            $weekDayOfFirst = $date->format('N');
+                  
             while ($weekDayOfFirst--)
             {
-                $date = $date->modify('-1 day');
+                $date->modify('-1 day');
             }
+            $calendar['weekofdate'] = (clone $date);
 
-            $calendar['week'] = $this->buildWeek($room, $date, null, true);
-            $calendar['weekofdate'] = $date;
-            
+            // $sems = $this->schema('Ccheckin_Semesters_Semester');
+            // $activeSemesterCode = Ccheckin_Semesters_Semester::guessActiveSemester(true);
+            // $activeSemester = $sems->findOne($sems->internal->equals($activeSemesterCode));
+            // $withinSemesterRange = false;
+
+            // foreach ($courses as $course)
+            // {
+            //     if ($course->semester->id === $activeSemester->id)
+            //     {
+            //         $withinSemesterRange = ($activeSemester->openDate < $currDate && $currDate < $activeSemester->closeDate);
+            //     }
+            //     // elseif ($course->semester->internal[3] == 1)
+            //     // {
+
+            //     // }
+            // }
+
+            // $calendar['week'] = ($withinSemesterRange ? $this->buildWeek($room, $date, null, true) : array());
+            $calendar['week'] =  $this->buildWeek($room, $date, null, true);
+
             $calendar['times'] = array();
+            
+            for ($i = self::START_HOUR; $i <= self::END_HOUR; $i++)
+            {
+                $calendar['times'][$i] = ($i < 13 ? $i . ' AM' : ($i % 12) . ' PM');
+            }
+            
+            $this->template->calendar = $calendar;
+            $this->template->room = $room;
+
+            // $calendar['times'] = array();
 
             // $hours = array();
             // $longest = 0;
@@ -159,17 +183,17 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             // {          
             //     $hours[] = (($hour < 13) ? $hour . ' am' : ($hour - 12) . ' pm');
             // } 
-            $hours = array(7,8,9,10,11,12,13,14,15,16,17,18,19,20);
-            for ($i = self::START_HOUR; $i <= self::END_HOUR; $i++)
-            {
-                if (in_array($i, $hours))
-                {
-                    $calendar['times'][$i] = ($i < 13 ? $i . ' AM' : ($i % 12) . ' PM');
-                }
-            }
+            // $hours = array(7,8,9,10,11,12,13,14,15,16,17,18,19,20);
+            // for ($i = self::START_HOUR; $i <= self::END_HOUR; $i++)
+            // {
+            //     if (in_array($i, $hours))
+            //     {
+            //         $calendar['times'][$i] = ($i < 13 ? $i . ' AM' : ($i % 12) . ' PM');
+            //     }
+            // }
             
-            $this->template->calendar = $calendar;
-            $this->template->room = $room;
+            // $this->template->calendar = $calendar;
+            // $this->template->room = $room;
         }
         else
         {
@@ -180,7 +204,16 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     // $roomId, $year = 0, $month = 0, $day = 0
     public function week ()
     {
-        $this->requireLogin();
+        $viewer = $this->requireLogin();
+        $authZ = $this->getAuthorizationManager();
+        $azids = $authZ->getObjectsForWhich($viewer, 'purpose have');
+        $purposes = $this->schema('Ccheckin_Purposes_Purpose')->getByAzids($azids);
+        $courses = array();
+        
+        foreach ($purposes as $purpose)
+        {
+            $courses[] = $purpose->object->course;
+        }
 
         $roomId = $this->getRouteVariable('id');
         $year = $this->getRouteVariable('year');
@@ -201,8 +234,9 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             $day = $date->format('j');
         }
         
-        $prevDate = $date->modify(' -1 week');
-        $nextDate = $date->modify(' +1 week');
+        $prevDate = (clone $date)->modify('-1 week');
+        $nextDate = (clone $date)->modify('+1 week');
+        $currDate = (clone $date);
         
         $calendar = array();
         
@@ -218,8 +252,25 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         {
             $date->modify('-1 day');
         }
-        
-        $calendar['week'] = $this->buildWeek($room, $date);
+
+        $sems = $this->schema('Ccheckin_Semesters_Semester');
+        $activeSemesterCode = Ccheckin_Semesters_Semester::guessActiveSemester(true);
+        $activeSemester = $sems->findOne($sems->internal->equals($activeSemesterCode));
+        $withinSemesterRange = false;
+
+        foreach ($courses as $course)
+        {
+            if ($course->semester->id === $activeSemester->id)
+            {
+                $withinSemesterRange = ($activeSemester->openDate < $currDate && $currDate < $activeSemester->closeDate);
+            }
+            // elseif ($course->semester->internal[3] == 1)
+            // {
+
+            // }
+        }
+
+        $calendar['week'] = ($withinSemesterRange ? $this->buildWeek($room, $date) : array());
         
         $calendar['times'] = array();
         
@@ -519,28 +570,17 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
 
         $this->template->purposes = $purposes;
     }
-	
- //    // TODO: Figure out if this is needed or if it should be converted to beforeCallback()
-	// protected function beforeAction ($actionName, $args)
-	// {
-	// 	if (($result = parent::beforeAction($actionName, $args)))
-	// 	{
-	// 		$this->requireLogin();
-	// 	}
-		
-	// 	return $result;
-	// }
 
-    private function buildWeek ($room, $date, $month = null, $reservations = false)
+    private function buildWeek ($room, $date, $month = null, $reservations = false, $semester = null)
     {
         $week = array();
-        
+
         for ($i = 0; $i < 7; $i++)
         {
-            $week[] = $this->buildDay($room, $date, $month, $reservations);
-            $date = $date->modify('+1 day'); // $date->getNextDay();
-        }
-        // echo "<pre>"; var_dump($week); die;
+            $week[] = $this->buildDay($room, $date, $month, $reservations, $semester);
+            $date = $date->modify('+1 day');
+        }    
+
         return $week;
     }
     
@@ -562,6 +602,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             $day['outside'] = true;
         }
         
+        $day['dayOfWeek'] = $date->format('w');
         $day['dayOfMonth'] = $date->format('d');
         $day['date'] = $date->format('Y') . '/' . $date->format('m') . '/' . $date->format('d');
         $day['times'] = $this->buildDayTimes($room, $date, $reservations);
@@ -572,28 +613,13 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     private function buildDayTimes ($room, $day, $reservations)
     {
         $times = array();
-        $roomDays = array();
-        $dayHours = array();
 
-        foreach ($room->schedule as $scheduleday => $schedulehours)
-        {
-            
-            $roomDays[] = $scheduleday;
-            if (empty($dayHours))
-            {
-                $dayHours = array_keys($schedulehours);
-            }
-        }
-
-        // if (in_array($day->getDayOfWeek(), $room->days))
-        // if (in_array($day->format('N'), $room->schedule))
         if (isset($room->schedule[$day->format('N')-1]))
         {
             $startTime = clone $day;
             $endTime = clone $day;
             $hours = array_keys($room->schedule[$day->format('N')-1]);
-            
-            // TODO: Sort out this schedule stuff *******************************************
+
             for ($i = self::START_HOUR; $i <= self::END_HOUR; $i++)
             {
                 if (!in_array($i, $hours))
@@ -604,7 +630,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                 {
                     $startTime->setTime($i, 0, 0);
                     $endTime->setTime($i + 1, 0, 0);
-                    
+
                     $tRoomReservation = $this->schema('Ccheckin_Rooms_Reservation');
                     $cond = $tRoomReservation->allTrue(
                         $tRoomReservation->roomId->equals($room->id),

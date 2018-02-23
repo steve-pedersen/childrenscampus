@@ -206,7 +206,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
             $semesters[$sem->id] = $sem;
         }
         // sorry for such similar vars. needs refactor
-        $activeSemester = $this->guessActiveSemester(true); // used for querying
+        $activeSemester = Ccheckin_Semesters_Semester::guessActiveSemester(true); // used for querying
         $selectedSemester = $sems->findOne($sems->internal->equals($activeSemester));  // used for post data
 
         // Sets the default course display to current semester's courses
@@ -332,31 +332,6 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         $this->template->semesters = $semesters;
         $this->template->activeSemester = $activeSemester;
         $this->template->selectedSemester = $selectedSemester;
-    }
-
-    public function guessActiveSemester ($returnTermCode = true)
-    {
-        $y = date('Y');
-        $m = date('n');
-        $d = date('d');
-
-        if ($m < 5)
-        {
-            $s = 3; // Spring
-        }
-        elseif ($m < 8)
-        {
-            $s = 5; // Summer
-        }
-        else
-        {
-            $s = 7; // Fall
-        }
-
-        $y = "$y";
-        $y = $y[0] . substr($y, 2);
-
-        return ($returnTermCode ? "$y$s" : array($y, $s));
     }
     
     // NOTE: This function will probably be obsolete unless manual student accounts/enrollments are needed.

@@ -11,18 +11,22 @@
                     <th>Semester</th>
                     <th>Start</th>
                     <th>End</th>
+                    <th>Open</th>
+                    <th>Close</th>
                 </tr>
             </thead>
             {foreach from=$semesters item='s'}
                 <tr>
                     <td class="text-center"><input type="checkbox" name="semesters[{$s->id}]" id="semesters-{$s->id}" value="{$s->id}" />
                     <td><label style="display: block;" for="semesters-{$s->id}">{$s->display}</label></td>
-                    <td>{$s->startDate->format('M d, Y')|date_format}</td>
-                    <td>{$s->endDate->format('M d, Y')|date_format}</td>
+                    <td>{$s->startDate->format('M d, Y')}</td>
+                    <td>{$s->endDate->format('M d, Y')}</td>
+                    <td>{$s->openDate->format('M d, Y')}</td>
+                    <td>{$s->closeDate->format('M d, Y')}</td>
                 </tr>
             {foreachelse}
                 <tr>
-                    <td colspan="4">There are no semesters configured in this system.</td>
+                    <td colspan="6">There are no semesters configured in this system.</td>
                 </tr>
             {/foreach}
         </table>
@@ -52,6 +56,15 @@
         <input class="form-control" type="text" name="endDate" id="endDate" />
         {if $errors.endDate}<p class="error">{$errors.endDate}</p>{/if}
     </div>
+    <div class="form-group">
+        <label for="openDate">Open Date <small>(when student reservations can begin)</small>:</label>
+        <input class="form-control" type="text" name="openDate" id="openDate" placeholder="" />
+    </div>
+    <div class="form-group">
+        <label for="closeDate">Close Date <small>(when student reservations end)</small>:</label>
+        <input class="form-control" type="text" name="closeDate" id="closeDate" />
+    </div>
+    <hr>
     <div class="form-group commands">
         <input class="btn btn-primary" type="submit" name="command[add]" id="command-add" value="Create Semester" />
     </div>
