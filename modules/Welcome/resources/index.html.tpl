@@ -3,21 +3,13 @@
 
 <!-- NOTE: Place divs inside of conditionals, or else within isLoggedIn check -->
 
-{if $userContext->account}
+{if $userContext->account && $announcements}
 <div class="announcements">
 <h3 class="announcements-header">Announcements</h3>
 	<ul class="">
-	{if $noticeWarning}
-		<li>{$noticeWarning|allow_basic_html}</li>			
-	{else}
-	    <li><p>Observation and participation times are reserved on a "First Come&mdash;First Serve" basis. Please plan your reservations accordingly.</p></li>
-	{/if}
-
-	{if $noticeMessage}
-		<li>{$noticeMessage|allow_basic_html}</li>
-	{else}
-	    <li><p>To view your past observations, click the <a href="reservations/observations">Past Observations</a> link and choose the course you want to view.</p></li>
-	{/if}
+	{foreach from=$announcements item=announcement}
+		<li>{$announcement}</li>
+	{/foreach}
 	</ul>
 </div>
 {/if}

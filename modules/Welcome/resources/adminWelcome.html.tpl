@@ -7,6 +7,44 @@
         </div>
     </div>
 
+    <div class="announcements-section">
+        <h2>Site announcements <small> for homepage</small></h2>
+        <table class="table table-responsive table-bordered">
+            <thead>
+                <tr>
+                    <th> </th>
+                    <th>Announcement</th>
+                </tr>
+            </thead>
+            {foreach from=$announcements key='i' item='announce'}
+                <tr class="announcements-table">
+                    <td class="checkboxes"><input type="checkbox" name="announcements[{$i}]" id="announcements-{$i}" value="{$i}" />
+                    <td><label for="announcements-{$i}">{$announce}</label></td>
+                </tr>
+            {/foreach}
+        </table>
+
+        {if $announcements}
+        <div class="commands">
+            <input class="btn btn-danger" type="submit" name="command[remove]" id="command-remove" value="Remove Announcements" />
+        </div>
+        {/if}
+
+        <hr>
+
+        <div class="form-group">
+            <div class="col-xs-12">
+                <label for="announcement-new">New announcement</label>
+                <textarea class="form-control text-field wysiwyg" name="announcement" id="announcement-new" rows="2"></textarea>
+            </div>
+        </div>
+
+        <div class="commands">
+            <input class="btn btn-primary" type="submit" name="command[add]" id="command-add" value="Create Announcement" />
+        </div>
+    </div>
+    <hr>
+
     <div class="form-group">
         <div class="col-xs-12">
             <label for="welcome-title">Welcome Title</label>
@@ -27,18 +65,6 @@
     </div>
     <div class="form-group">
         <div class="col-xs-12">
-            <label for="notice-warning">Warning Notice (yellow background)</label>
-            <textarea class="form-control text-field wysiwyg" name="notice-warning" id="notice-warning" rows="2">{$noticeWarning}</textarea>
-        </div>
-    </div>
-    <div class="form-group">
-        <div class="col-xs-12">
-            <label for="notice-message">Regular Notice (green background)</label>
-            <textarea class="form-control text-field wysiwyg" name="notice-message" id="notice-message" rows="2">{$noticeMessage}</textarea>
-        </div>
-    </div>
-    <div class="form-group">
-        <div class="col-xs-12">
             <label for="location-message">Location Text to display underneath image of Children's Campus</label>
             <textarea class="form-control text-field wysiwyg" name="location-message" id="location-message" rows="3">{$locationMessage}</textarea>
         </div>
@@ -47,7 +73,7 @@
     <div class="form-group">
         <div class="col-xs-12">
             <div class="controls">
-                {if $module->inDatasource}<input type="hidden" name="module[id]" value="{$module->id}" />{/if}
+                {if $module->inDataSource}<input type="hidden" name="module[id]" value="{$module->id}" />{/if}
                 <input class="btn btn-primary" type="submit" name="command[save]" value="{if $module->inDatasource}Save{else}Create{/if}" />
                 <a class="cancel btn btn-link" href="">Cancel</a>
         </div>

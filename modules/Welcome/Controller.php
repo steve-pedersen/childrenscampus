@@ -38,13 +38,9 @@ class Ccheckin_Welcome_Controller extends Ccheckin_Master_Controller
 		{
 			$this->template->welcomeTextExtended = $welcomeTextExtended;
 		}
-		if ($noticeWarning = $siteSettings->getProperty('notice-warning'))
+		if ($announcements = $siteSettings->getProperty('announcements'))
 		{
-			$this->template->noticeWarning = $noticeWarning;
-		}
-		if ($noticeMessage = $siteSettings->getProperty('notice-message'))
-		{
-			$this->template->noticeMessage = $noticeMessage;
+			$this->template->announcements = json_decode($announcements, true);
 		}
 		if ($locationMessage = $siteSettings->getProperty('location-message'))
 		{

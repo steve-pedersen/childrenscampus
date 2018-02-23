@@ -41,14 +41,14 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
         );
     }
 
-    public static function GetRoomAvailable ($room, $start, $duration)
+    public function GetRoomAvailable ($room, $start, $duration, $schema)
     {
         $available = false;
         $continue = true;
-        $endHour = $start->getHour() + $duration;
-        $hours = $room->hours;
+        $endHour = (int)$start->format('h') + $duration;
+        $hours = $room->getHours($start->format('N')-1);
         
-        for ($i = $start->getHour(); $i < $endHour; $i++)
+        for ($i = (int)$start->format('h'); $i < $endHour; $i++)
         {
             if (!in_array($i, $hours))
             {
@@ -60,10 +60,10 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
         {
             $end = clone $start;
             
-            $end->setHour($endHour);
-            $tRoomReservation = $this->schema('Ccheckin_Rooms_Reservation');
+            $end->setTime($endHour, 0);
+            $tRoomReservation = $schema;
             
-            $cond = $tRoomReservation->anyTrue(
+            $cond = $tRoomReservation->find(
                 $tRoomReservation->andIf(
                     $tRoomReservation->roomId->equals($room->id),
                     $tRoomReservation->startTime->beforeOrEquals($start),
@@ -87,7 +87,7 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
             );
             
             $reservations = $tRoomReservation->find($cond);
-            
+            echo "<pre>"; var_dump($reservations); die;
             if (count($reservations) < $room->maxObservers)
             {
                 $available = true;

@@ -264,7 +264,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             {
                 $withinSemesterRange = ($activeSemester->openDate < $currDate && $currDate < $activeSemester->closeDate);
             }
-            // elseif ($course->semester->internal[3] == 1)
+            // elseif ($course->semester->internal[3] == 1)     // account for possible voerlap with winter and spring....
             // {
 
             // }
@@ -310,10 +310,6 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         {
             $reservations = $proto->find($proto->checkedIn->isFalse());
         }
-
-        // $this->addStyleSheet('css/datatables.css');
-        // $this->addJavaScriptFile('js/jquery.dataTables.min.js');
-        // $this->addJavaScriptFile('js/datables.js');
         
 		$this->template->pAdmin = $this->hasPermission('admin');
         $this->template->reservations = $reservations;
@@ -417,20 +413,24 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     // TODO: Verify this route
     public function reserve ()
     {
-        $roomId = (null !== $this->getRouteVariable('id')) ? $this->getRouteVariable('id') : $roomId;
-        $year = (null !== $this->getRouteVariable('year')) ? $this->getRouteVariable('year') : $year;
-        $month = (null !== $this->getRouteVariable('month')) ? $this->getRouteVariable('month') : $month;
-        $day = (null !== $this->getRouteVariable('day')) ? $this->getRouteVariable('day') : $day;    
-        $hour = (null !== $this->getRouteVariable('hour')) ? $this->getRouteVariable('hour') : $hour;
+        $roomId = $this->getRouteVariable('id');
+        $year = $this->getRouteVariable('year');
+        $month = $this->getRouteVariable('month');
+        $day = $this->getRouteVariable('day');
+        $hour = $this->getRouteVariable('hour');
 
+        $reservations = $this->schema('Ccheckin_Rooms_Reservation');
+        
         $room = $this->requireExists($this->schema('Ccheckin_Rooms_Room')->get($roomId));
         $viewer = $this->getAccount();
         $authZ = $this->getAuthorizationManager();
-        $date = new Date(mktime($hour, 0, 0, $month, $day, $year));
-        $now = new Date;
+        
+        $date = new DateTime($year .'-'. $month  .'-'. $day .' '. $hour .':00');
+        $now = new DateTime;
         $message = '';
         $existing = null;
-       
+        
+        // echo "<pre>"; var_dump('roomid: '. $roomId, ', year: '. $year, ', month: '. $month, ', day: '. $day, ', hour: '. $hour); die;
         // $existing = RoomReservation::GetAccountReservations($viewer);
         // $message = (empty($existing) ? '' : 'You cannot have more than one reservation at a time.');
         		
@@ -451,18 +451,21 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                             if ($duration)
                             {
                                 $end = clone $date;
-                                $end->setHour($hour + $duration);
+                                $end->setTime($hour + $duration, 0);
                                 
                                 if ($purpose = $this->schema('Ccheckin_Purposes_Purpose')->get($purposeId))
                                 {
-                                    if (!($continue = Ccheckin_Rooms_Reservation::GetRoomAvailable($room, $date, $duration)))
+                                    $reservationSchema = $this->schema('Ccheckin_Rooms_Reservation');
+                                    if (!($continue = Ccheckin_Rooms_Reservation::GetRoomAvailable($room, $date, $duration, $reservationSchema)))
                                     {
                                         $message = 'We cannot reserve the room at this time for ' . $duration . ' hours';
+                                    } else {
+                                        echo "<pre>"; var_dump('hmm something happened'); die;
                                     }
-                                    
+                                    echo "<pre>"; var_dump('made it here', $continue); die;
                                     $cdate = clone $date;
                                     $cnow = clone $now;
-                                    if (Date::compare($cdate, $cnow) < 0 && !$this->hasPermission('admin'))
+                                    if (DateTime::compare($cdate, $cnow) < 0 && !$this->hasPermission('admin'))
                                     {
                                         $continue = false;
                                         $message = 'You cannot reserve a room for a date and time that has already passed.';
@@ -519,7 +522,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         }
 
         $purposes = array_values($purposes);
- 
+        
         if (count($purposes) == 1)
         {
             $purpose = $purposes[0];
@@ -603,7 +606,9 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         }
         
         $day['dayOfWeek'] = $date->format('w');
-        $day['dayOfMonth'] = $date->format('d');
+        $day['dayOfMonth'] = $date->format('j');
+        $day['suffix'] = $date->format('S');
+        $day['month'] = $date->format('M');
         $day['date'] = $date->format('Y') . '/' . $date->format('m') . '/' . $date->format('d');
         $day['times'] = $this->buildDayTimes($room, $date, $reservations);
 

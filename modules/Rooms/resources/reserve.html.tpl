@@ -1,33 +1,36 @@
-<h1>Create Reservation for {$room->name} on {$date|date_format:$dateFormat}</h1>
+<h1>Create Reservation<br><small>{$room->name} on {$date|date_format:$dateFormat}</small></h1>
 {if $message}
 <div class="flash">
-    <div class="error message"><p>{$message}</p></div>
+    <div class="error message alert alert-warning alert-dismissible" role="alert">
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <p><strong>{$message}</strong></p>
+    </div>
 </div>
 {/if}
 <form action="{$smarty.server.REQUEST_URI}" method="post">
     {if $purpose}<input type="hidden" name="purpose" value="{$purpose->id}" />{/if}
-    <dl>
-        {if !$purpose}
-        <dt><label for="purpose">Select a Purpose</label></dt>
-        <dd><select name="purpose">
+    {if !$purpose}
+    <div class="form-group">
+        <label for="purpose">Select a Purpose</label>
+        <select name="purpose" class="form-control">
             {foreach from=$purposes  item='purpose'}
             <option value="{$purpose->id}">{$purpose->shortDescription|escape}</option>
             {/foreach}
-            </select>
-        </dd>
-        {/if}
-        <dt><label for="duration">Choose the length of time to reserve</label></dt>
-        <dd><select name="duration" id="duration">
+        </select>
+    </div>
+    {/if}
+    <div class="form-group">
+        <label for="duration">Choose the length of time to reserve</label>
+        <select name="duration" id="duration" class="form-control">
             <option value="">Choose a time...</option>
             <option value="1">1 hour</option>
             <option value="2">2 hours</option>
             <option value="3">3 hours</option>
-            </select>
-        </dd>
-    </dl>
-    
+        </select>
+    </div>
+    <hr>
     <div class="commands">
-        <p><input type="submit" name="command[reserve]" value="Reserve Room" /></p>
+        <p><input type="submit" name="command[reserve]" value="Reserve Room" class="btn btn-primary" /></p>
     </div>
 {generate_form_post_key}
 </form>

@@ -49,7 +49,8 @@ div.main-content {
 }
 
 /* ANNOUNCEMENTS */
-div.announcements {
+div.announcements, 
+div.announcements-section {
 	padding: 5px 20px 10px 20px;
 	margin-top: 15px;
 	margin-bottom: 15px;
@@ -59,7 +60,12 @@ div.announcements {
 		font-weight: bold;
 	}
 }
-
+div.announcements-section {
+	background-color: #F4F4F4;
+	table {
+		background-color: #fff;
+	}
+}
 
 /* IMAGE BANNER */
 #filmstrip img.img-responsive {
@@ -180,6 +186,11 @@ table {
 			font-size: 9pt;*/
 		}
 	}
+	tr.announcements-table {
+		label {
+			font-weight: normal;
+		}
+	}
 }
 table.course-requests {
 	td {
@@ -219,15 +230,6 @@ ul.weekly-schedule {
 			}
 		}
 	}
-/*	li.active > a {
-		background-color: #231161BB;
-		color: #FFF;
-		font-weight: bold;
-	}
-	li.active > a:hover {
-		background-color: #231161FF;
-		color: #FFF;
-	}*/
 }
 
 

@@ -15,13 +15,13 @@ class Ccheckin_Welcome_AdminController extends At_Admin_Controller
         $this->template->clearBreadcrumbs();
         $this->addBreadcrumb('home', 'Home');
         $this->addBreadcrumb('admin', 'Admin');
-        // $adminPage = false;
-        // $path = $this->request->getFullRequestedUri();
-        // if ($this->hasPermission('admin') && (strpos($path, 'admin') !== false))
-        // {
-        //     $adminPage = true;
-        // }
-        // $this->template->adminPage = $adminPage; 
+        $adminPage = false;
+        $path = $this->request->getFullRequestedUri();
+        if ($this->hasPermission('admin') && (strpos($path, 'admin') !== false))
+        {
+            $adminPage = true;
+        }
+        $this->template->adminPage = $adminPage; 
     }
   
     public function adminWelcome ()
@@ -42,20 +42,44 @@ class Ccheckin_Welcome_AdminController extends At_Admin_Controller
             {
                 $siteSettings->setProperty('welcome-text-extended', $welcomeTextExtended);
             }
-            if ($noticeWarning = $this->request->getPostParameter('notice-warning'))
-            {
-                $siteSettings->setProperty('notice-warning', $noticeWarning);
-            }
-            if ($noticeMessage = $this->request->getPostParameter('notice-message'))
-            {
-                $siteSettings->setProperty('notice-message', $noticeMessage);
-            }
             if ($locationMessage = $this->request->getPostParameter('location-message'))
             {
                 $siteSettings->setProperty('location-message', $locationMessage);
             }
         }
-        
+
+        if ($this->request->wasPostedByUser())
+        {
+            if ($command = $this->getPostCommand())
+            {          
+                switch ($command)
+                {
+                    case 'remove':
+                        $siteAnnouncements = json_decode($siteSettings->getProperty('announcements'), true);
+                        if ($announcementsToRemove = $this->request->getPostParameter('announcements'))
+                        {
+                            foreach ($announcementsToRemove as $announcekey => $announce)
+                            {   
+                                unset($siteAnnouncements[$announcekey]);
+                                $updatedAnnouncements = array_values($siteAnnouncements);
+                            }
+
+                            $siteSettings->setProperty('announcements', json_encode($updatedAnnouncements));
+                            $this->flash('The site announcements have been deleted');
+                        }
+                        break;
+
+                    case 'add':           
+                        $updatedAnnouncements = json_decode($siteSettings->getProperty('announcements'), true);                           
+                        $updatedAnnouncements[] = $this->request->getPostParameter('announcement');
+                        $siteSettings->setProperty('announcements', json_encode($updatedAnnouncements));
+                        $this->flash('Site announcement created');
+
+                        break;
+                }
+            }
+        }
+
         if ($welcomeText = $siteSettings->getProperty('welcome-text'))
         {
             $this->template->welcomeText = $welcomeText;
@@ -68,13 +92,9 @@ class Ccheckin_Welcome_AdminController extends At_Admin_Controller
         {
             $this->template->welcomeTextExtended = $welcomeTextExtended;
         }
-        if ($noticeWarning = $siteSettings->getProperty('notice-warning'))
+        if ($announcements = $siteSettings->getProperty('announcements'))
         {
-            $this->template->noticeWarning = $noticeWarning;
-        }
-        if ($noticeMessage = $siteSettings->getProperty('notice-message'))
-        {
-            $this->template->noticeMessage = $noticeMessage;
+            $this->template->announcements = json_decode($announcements, true);
         }
         if ($locationMessage = $siteSettings->getProperty('location-message'))
         {

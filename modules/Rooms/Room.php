@@ -37,18 +37,22 @@ class Ccheckin_Rooms_Room extends Bss_ActiveRecord_BaseWithAuthorization // impl
         );
     }
 
-    public function getDays ()
-    {
-        $days = $this->_fetch('days');
+    // public function getDays ()
+    // {
+    //     $days = $this->_fetch('days');
         
-        return $days ? $days : array();
-    }
+    //     return $days ? $days : array();
+    // }
     
-    public function getHours ()
+    public function getHours ($day)
     {
-        $hours = $this->_fetch('hours');
+        $hours = array();
+        if ($day)
+        {
+            $hours = array_keys($this->schedule[$day]);
+        }
         
-        return $hours ? $hours : array();
+        return $hours;
     }
     
     public function getSchedule ()
