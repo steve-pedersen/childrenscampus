@@ -295,42 +295,42 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     public function upcoming ()
     {
         $viewer = $this->requireLogin();             
-        $proto = $this->schema('Ccheckin_Rooms_Reservation');
+        $reservations = $this->schema('Ccheckin_Rooms_Reservation');
         
         if (!$this->hasPermission('admin'))
         {
-			$cond = $proto->allTrue(
-                $proto->accountId->equals($viewer->id),
-                $proto->checkedIn->isFalse(),
-                $proto->missed->isFalse()
+			$cond = $reservations->allTrue(
+                $reservations->accountId->equals($viewer->id),
+                $reservations->checkedIn->isFalse(),
+                $reservations->missed->isFalse()
             );
-            $reservations = $proto->find($cond);
+            $upcomingReservations = $reservations->find($cond);
         }
         else
         {
-            $reservations = $proto->find($proto->checkedIn->isFalse());
+            $upcomingReservations = $reservations->find($reservations->checkedIn->isFalse());
         }
         
 		$this->template->pAdmin = $this->hasPermission('admin');
-        $this->template->reservations = $reservations;
+        $this->template->reservations = $upcomingReservations;
     }
     
     public function missed ()
     {
         $viewer = $this->requireLogin();               
-        $proto = $this->schema('Ccheckin_Rooms_Reservation');
+        $reservations = $this->schema('Ccheckin_Rooms_Reservation');
         
         if (!$this->hasPermission('admin'))
         {
-            $cond = $proto->allTrue(
-                $proto->accountId->equals($viewer->id),
-                $proto->missed->isTrue()
+            $cond = $reservations->allTrue(
+                $reservations->accountId->equals($viewer->id),
+                $reservations->missed->isTrue()
             );
-            $reservations = $proto->find($cond);
+            $reservations = $reservations->find($cond);
         }
         else
         {
-            $reservations = $proto->find($proto->missed->isTrue());
+            $reservations = $reservations->find($reservations->missed->isTrue());
         }
         
 		$this->template->pAdmin = $this->hasPermission('admin');
@@ -357,8 +357,8 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                 {
                     // TODO: Fix this Date stuff ****************************************
                     case 'override':
-                        $now = new Date;
-						$now->setHour($now->getHour() - 1);
+                        $now = new DateTime;
+						$now->setTime($now->getHour() - 1, 0);
 						
 						$observation = $reservation->observation;
 						$observation->startTime = $now;
@@ -459,13 +459,11 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                                     if (!($continue = Ccheckin_Rooms_Reservation::GetRoomAvailable($room, $date, $duration, $reservationSchema)))
                                     {
                                         $message = 'We cannot reserve the room at this time for ' . $duration . ' hours';
-                                    } else {
-                                        echo "<pre>"; var_dump('hmm something happened'); die;
                                     }
-                                    echo "<pre>"; var_dump('made it here', $continue); die;
+
                                     $cdate = clone $date;
                                     $cnow = clone $now;
-                                    if (DateTime::compare($cdate, $cnow) < 0 && !$this->hasPermission('admin'))
+                                    if (($cdate < $now) && !$this->hasPermission('admin'))
                                     {
                                         $continue = false;
                                         $message = 'You cannot reserve a room for a date and time that has already passed.';
@@ -497,8 +495,10 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                                 $reservation->startTime = $date;
                                 $reservation->endTime = $end;
                                 $reservation->checkedIn = false;
+                                $reservation->missed = false;
                                 $reservation->save();
                                 
+                                $this->flash('Your reservation has been scheduled for '.$date->format('M j, Y g:ia').' for '.$duration.' hour'. ($duration > 1 ? 's.' : '.'));
                                 $this->response->redirect('reservations/view/' . $reservation->id);
                             }
                         }

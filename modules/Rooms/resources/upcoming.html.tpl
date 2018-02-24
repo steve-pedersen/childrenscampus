@@ -1,6 +1,6 @@
 <h1>Upcoming Reservations</h1>
 {if $reservations}
-<table class="table">
+<table class="table table-bordered">
     <thead>
         <tr>
             <th>Time</th>
@@ -16,7 +16,8 @@
             <td>{$reservation->account->firstName} {$reservation->account->lastName}</td>
             <td>{$reservation->room->name|escape}</td>
             <td class="actions">
-				<a href="reservations/delete/{$reservation->id}">cancel</a>
+				<a href="reservations/delete/{$reservation->id}" class="btn btn-xs btn-default">cancel</a>
+                <a href="reservations/view/{$reservation->id}" class="btn btn-xs btn-default">view</a>
 			{if $pAdmin}<a href="reservations/override/{$reservation->id}">check-in</a>{/if}
 			</td>
         </tr>

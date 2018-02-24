@@ -63,31 +63,32 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
             $end->setTime($endHour, 0);
             $tRoomReservation = $schema;
             
-            $cond = $tRoomReservation->find(
-                $tRoomReservation->andIf(
+            // TODO: Verify this query is doing what we want ********************************
+            $cond = $tRoomReservation->find($tRoomReservation->anyTrue(
+                $tRoomReservation->allTrue(
                     $tRoomReservation->roomId->equals($room->id),
                     $tRoomReservation->startTime->beforeOrEquals($start),
                     $tRoomReservation->endTime->after($start)
                 ),
-                $tRoomReservation->andIf(
+                $tRoomReservation->allTrue(
                     $tRoomReservation->roomId->equals($room->id),
                     $tRoomReservation->startTime->before($end),
                     $tRoomReservation->endTime->afterOrEquals($end)
                 ),
-                $tRoomReservation->andIf(
+                $tRoomReservation->allTrue(
                     $tRoomReservation->roomId->equals($room->id),
                     $tRoomReservation->startTime->beforeOrEquals($start),
                     $tRoomReservation->endTime->afterOrEquals($end)
                 ),
-                $tRoomReservation->andIf(
+                $tRoomReservation->allTrue(
                     $tRoomReservation->roomId->equals($room->id),
                     $tRoomReservation->startTime->afterOrEquals($start),
                     $tRoomReservation->endTime->beforeOrEquals($end)
                 )
-            );
-            
+            ));
+         
             $reservations = $tRoomReservation->find($cond);
-            echo "<pre>"; var_dump($reservations); die;
+            
             if (count($reservations) < $room->maxObservers)
             {
                 $available = true;

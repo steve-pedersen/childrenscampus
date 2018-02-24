@@ -1,7 +1,7 @@
-<h1>Reservation for room {$reservation->room->name|escape}</h1>
+<h1>Reservation for room <br><small>{$reservation->room->name|escape}</small></h1>
 <div class="callOut">
 
-<img src="{$diva->Link('images/childrensCampus.jpg')}" alt="Photo of the front door to the Children's Campus" />
+<img class="img-responsive" src="assets/images/childrensCampus.jpg" alt="Photo of the front door to the Children's Campus">
 {if $existing}
     {foreach item='reservation' from=$existing}
     <p>You have a reservation in room {$reservation->room->name} on {$reservation->startTime|date_format:"%b %e, %Y at %l %p"}</p>
@@ -15,15 +15,28 @@ the corner of North State Drive and Lake Merced Blvd.  We are beside the Library
 If you need help locating our center, please check the <a href="http://www.sfsu.edu/~sfsumap/" title="Opens in a new window." target="_blank" class="popup">campus map</a>
 </p>
 </div>
-<dl class="inline">
+<div class="alert alert-default">
+<dl class="inline dl-horizontal">
     <dt>Who:</dt>
     <dd>{$reservation->account->firstName} {$reservation->account->lastName}</dd>
     <dt>When:</dt>
     <dd>{$reservation->startTime|date_format:$dateFormat}</dd>
     <dt>Until:</dt>
     <dd>{$reservation->endTime|date_format:$dateFormat}</dd>
+    <dt>Course Info:</dt>
+    <dd>
+        {$reservation->observation->purpose->object->course->fullName}<br>({$reservation->observation->purpose->object->course->shortName})
+        <ul>
+        {foreach from=$reservation->observation->purpose->object->tasks item=task}
+            <li>{$task}</li>
+        {/foreach}
+        </ul>
+    </dd>
 </dl>
+</div>
 <div class="link-controls">
-    <p class="first"><a class="ok" href="home">OK</a></p>
-    <p class="last"><a class="cancel" href="reservations/delete/{$reservation->id}">cancel reservation</a></p>
+    <p class="first">
+        <a class="ok btn btn-success" href="home">OK</a>
+        <a class="cancel btn btn-danger" href="reservations/delete/{$reservation->id}">Cancel reservation</a>
+    </p>
 </div>

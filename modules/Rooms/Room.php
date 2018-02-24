@@ -44,10 +44,11 @@ class Ccheckin_Rooms_Room extends Bss_ActiveRecord_BaseWithAuthorization // impl
     //     return $days ? $days : array();
     // }
     
-    public function getHours ($day)
+    public function getHours ($day = null)
     {
         $hours = array();
-        if ($day)
+        
+        if ($day !== null)
         {
             $hours = array_keys($this->schedule[$day]);
         }
