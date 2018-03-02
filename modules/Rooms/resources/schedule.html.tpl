@@ -26,18 +26,33 @@
         <tr class="schedule-table">
             <th scope="row" class="time-display">{$timeDisplay}</th>
           {foreach from=$calendar.week item='day'}
-          {if $day.dayOfWeek != 0 && $day.dayOfWeek != 6}
-            {assign var='result' value=$day.times[$time]}
-            <td>
-            {foreach item='reservation' from=$result}
-                {if $reservation->account}
-                <p>{$reservation->account->firstName|escape} {$reservation->account->lastName|escape} ({$reservation->observation->purpose->object->course->shortName})</p>
+            {if $day.dayOfWeek != 0 && $day.dayOfWeek != 6}
+                {assign var='blockedDate' value=false}
+                {foreach from=$blockDates item=$blocked}
+                    {if $blocked->format('Y/m/d') == $day.date}
+                        <!-- <h1>MATCH FOUND: {$blocked->format('Y/m/d')}</h1> -->
+                        {assign var='blockedDate' value=true}
+                    {/if}
+                {/foreach}
+                {if !$blockedDate}
+                    {assign var='result' value=$day.times[$time]}
+                    <td>
+                    {foreach item='reservation' from=$result}
+                        {if $reservation->account}
+                        <p>
+                            <a href="reservations/view/{$reservation->id}">
+                            {$reservation->account->firstName|escape} {$reservation->account->lastName|escape} ({$reservation->observation->purpose->object->course->shortName})
+                            </a>
+                        </p>
+                        {else}
+                        <!-- <p class="unavailable text-center">&mdash;</p> -->
+                        {/if}
+                    {/foreach}
+                    </td>
                 {else}
-                <!-- <p class="unavailable text-center">&mdash;</p> -->
+                    <td class="blocked-date text-center">&mdash;<small>closed</small>&mdash;</td>
                 {/if}
-            {/foreach}
-            </td>
-          {/if}
+            {/if}
           {/foreach}
         </tr>
         {/foreach}

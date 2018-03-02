@@ -12,6 +12,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
 			'/admin/apc' => array('callback' => 'clearMemoryCache'),
             '/admin/cron' => array('callback' => 'cron'),
             '/admin/settings/siteNotice' => array('callback' => 'siteNotice'),
+            '/admin/settings/blockDates' => array('callback' => 'blockDates'),
         );
     }
     
@@ -37,7 +38,48 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
         $moduleManager = $this->getApplication()->moduleManager;
         $this->template->moduleList = $moduleManager->getModules();
     }
-    
+
+    public function blockDates ()
+    {      
+        $siteSettings = $this->getApplication()->siteSettings;
+        $storedDates = json_decode($siteSettings->getProperty('blocked-dates'), true);
+        $blockDates = $this->convertToDateTimes($storedDates);
+
+        if ($this->request->wasPostedByUser())
+        {
+            if ($command = $this->getPostCommand())
+            {
+                switch ($command)
+                {
+                    case 'remove':
+                        if ($datesToRemove = $this->request->getPostParameter('blockDates'))
+                        {
+                            foreach ($datesToRemove as $i => $date)
+                            {   
+                                unset($storedDates[$i]);
+                                $updatedBlockDates = array_values($storedDates);
+                                $blockDates = $this->convertToDateTimes($updatedBlockDates);
+                            }
+
+                            $siteSettings->setProperty('blocked-dates', json_encode($updatedBlockDates));
+                            $this->flash('The specified dates have been removed.');
+                        }
+                        break;
+
+                    case 'add':
+                        $newDate = $this->request->getPostParameter('blockeddatenew');                       
+                        $storedDates[] = $newDate;
+                        $blockDates[] = new DateTime($newDate);
+                        $siteSettings->setProperty('blocked-dates', json_encode($storedDates));
+                        $this->flash('Blocked off date created.');
+                        break;
+                }
+            }
+        }
+
+        $this->template->blockDates = $blockDates;
+    }
+   
     /**
      * Set the site notice.
      */

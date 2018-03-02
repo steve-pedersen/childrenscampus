@@ -2,7 +2,7 @@
 <p> 
     These are the current reservations for Children's Campus.  
 </p>
-<table class="table table-bordered">
+<table class="table table-bordered table-responsive">
     <thead>
         <tr>
             <th>Start Time</th>
@@ -14,14 +14,15 @@
     </thead>
     {foreach item='reservation' from=$reservations}
         <tr>
-        {*    <td>{$reservation->startTime|date_format:"%Y-%m-%d %I:%M %p"}</td> *}
-            <td>{$reservation->startTime|date_format:"%B %e, %Y %I:%M %p"}</td>
-            <td>{$reservation->account->firstName} {$reservation->account->lastName} ({if $reservation->account->ldap_user}{$reservation->account->ldap_user}{else}{$reservation->account->emailAddress}{/if})</td>
-            <td>{$reservation->room->name}</td>
-            <td>{$reservation->observation->purpose->shortDescription|escape}</td>
+            <td>{$reservation->startTime->format("M j, Y h:ia")}</td>
+            <td><a href="admin/accounts/{$reservation->account->id}?returnTo={$smarty.server.REQUEST_URI}">{$reservation->account->firstName} {$reservation->account->lastName}</a> ({if $reservation->account->ldap_user}{$reservation->account->ldap_user}{else}{$reservation->account->emailAddress}{/if})</td>
+            <td><a href="reservations/schedule/{$reservation->room->id}">{$reservation->room->name}</a></td>
+            <td><!-- <a href="admin/courses/edit/{$reservation->observation->purpose->object->course->id}"> -->{$reservation->observation->purpose->shortDescription|escape}. <!-- </a> -->
+                <a href="reservations/view/{$reservation->id}">View reservation details</a>
+            </td>
 			<td class="actions">
-				<a href="reservations/delete/{$reservation->id}">cancel</a>
-			<a href="reservations/override/{$reservation->id}">check-in</a>
+				<a href="reservations/delete/{$reservation->id}" class="btn btn-xs btn-default">cancel</a>
+                <a href="reservations/override/{$reservation->id}" class="btn btn-xs btn-default">check-in</a>
 			</td>
         </tr>
     {foreachelse}

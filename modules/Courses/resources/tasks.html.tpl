@@ -11,7 +11,7 @@
         </thead>
         {foreach from=$courseTasks key=i item=task}
             <tr>
-                <td><input type="checkbox" name="courseTasks[{$i}]" id="courseTasks-{$i}" value="{$i}" />
+                <td class="checkboxes"><input type="checkbox" name="courseTasks[{$i}]" id="courseTasks-{$i}" value="{$i}" />
                 <td><label for="courseTasks-{$i}">{$task|escape}</label></td>
             </tr>
         {foreachelse}

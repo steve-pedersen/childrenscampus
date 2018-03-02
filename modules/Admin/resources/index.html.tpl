@@ -26,8 +26,9 @@
     <a class="list-group-item" href="admin/courses/edit/new">Create a Course</a>
 </div>
 <div class="list-group col-xs-6">
-    <h3><img src="assets/images/icon_semester.png" class="transparent control_icon" width="64" height="64">Semester</h3>
+    <h3><img src="assets/images/icon_semester.png" class="transparent control_icon" width="64" height="64">Dates</h3>
     <a class="list-group-item" href="admin/semester/configure">Manage Semesters</a>
+    <a class="list-group-item" href="admin/settings/blockdates">Block Off Specific Dates</a>
 </div>
 <!-- </div> -->
 

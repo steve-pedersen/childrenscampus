@@ -16,7 +16,7 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
             'startDate' => array('datetime', 'nativeName' => 'start_date'),
             'endDate' => array('datetime', 'nativeName' => 'end_date'),
             'openDate' => array('datetime', 'nativeName' => 'open_date'),
-            'closeDate' => array('datetime', 'nativeName' => 'close_date'),
+            'closeDate' => array('datetime', 'nativeName' => 'close_date')
         );
     }
     
@@ -45,7 +45,7 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
         return $years;
     }
 
-    public static function ConvertToDescription ($code)
+    public static function ConvertToDescription ($code, $onlyTerm=false)
     {
         $term = $code[3];
         $year = $code[0] . '0' . $code[1] . $code[2];
@@ -66,6 +66,11 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
             case 7:
                 $term = 'Fall';
                 break;
+        }
+
+        if ($onlyTerm)
+        {
+            return $term;
         }
 
         return $term . ' ' . $year;
@@ -125,7 +130,11 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
         {
             return $openDate;
         }
-        return $this->_fetch('startDate')->modify('+1 week');
+        if ($startDate = $this->_fetch('startDate'))
+        {
+            return $startDate->modify('+1 week');
+        }   
+        return '';
     }
     public function getCloseDate ()
     {
@@ -135,7 +144,7 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
         }
         return $this->_fetch('endDate');
     }
-  
+
     public function validate ()
     {
         $errors = array();

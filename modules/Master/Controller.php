@@ -99,7 +99,20 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
 
         parent::afterCallback($callback);
     }
-    
+
+    public function convertToDateTimes ($strings)
+    {
+        $dates = array();
+        if ($strings)
+        {
+            foreach ($strings as $i => $day)
+            {
+                $dates[$i] = new DateTime($day);
+            }            
+        }
+        return $dates;       
+    }
+   
     public function userMessage ($primary, $details = null)
     {
         $this->userMessageList[] = array(

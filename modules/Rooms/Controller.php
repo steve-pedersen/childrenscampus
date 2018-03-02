@@ -134,28 +134,9 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             {
                 $date->modify('-1 day');
             }
+
             $calendar['weekofdate'] = (clone $date);
-
-            // $sems = $this->schema('Ccheckin_Semesters_Semester');
-            // $activeSemesterCode = Ccheckin_Semesters_Semester::guessActiveSemester(true);
-            // $activeSemester = $sems->findOne($sems->internal->equals($activeSemesterCode));
-            // $withinSemesterRange = false;
-
-            // foreach ($courses as $course)
-            // {
-            //     if ($course->semester->id === $activeSemester->id)
-            //     {
-            //         $withinSemesterRange = ($activeSemester->openDate < $currDate && $currDate < $activeSemester->closeDate);
-            //     }
-            //     // elseif ($course->semester->internal[3] == 1)
-            //     // {
-
-            //     // }
-            // }
-
-            // $calendar['week'] = ($withinSemesterRange ? $this->buildWeek($room, $date, null, true) : array());
             $calendar['week'] =  $this->buildWeek($room, $date, null, true);
-
             $calendar['times'] = array();
             
             for ($i = self::START_HOUR; $i <= self::END_HOUR; $i++)
@@ -163,37 +144,11 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                 $calendar['times'][$i] = ($i < 13 ? $i . ' AM' : ($i % 12) . ' PM');
             }
             
+            $siteSettings = $this->getApplication()->siteSettings;
+            $storedDates = json_decode($siteSettings->getProperty('blocked-dates'), true);
+            $this->template->blockDates = $this->convertToDateTimes($storedDates);            
             $this->template->calendar = $calendar;
             $this->template->room = $room;
-
-            // $calendar['times'] = array();
-
-            // $hours = array();
-            // $longest = 0;
-            // $longestIndex = 0;
-
-            // foreach ($this->schedule as $day => $dayhours)
-            // {
-            //     if (count($dayhours) > $longest)
-            //     {
-            //         $longestIndex = $day;
-            //     }      
-            // }
-            // foreach ($this->schedule[$longestIndex] as $hour => $value)
-            // {          
-            //     $hours[] = (($hour < 13) ? $hour . ' am' : ($hour - 12) . ' pm');
-            // } 
-            // $hours = array(7,8,9,10,11,12,13,14,15,16,17,18,19,20);
-            // for ($i = self::START_HOUR; $i <= self::END_HOUR; $i++)
-            // {
-            //     if (in_array($i, $hours))
-            //     {
-            //         $calendar['times'][$i] = ($i < 13 ? $i . ' AM' : ($i % 12) . ' PM');
-            //     }
-            // }
-            
-            // $this->template->calendar = $calendar;
-            // $this->template->room = $room;
         }
         else
         {
@@ -201,7 +156,6 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         }
     }
     
-    // $roomId, $year = 0, $month = 0, $day = 0
     public function week ()
     {
         $viewer = $this->requireLogin();
@@ -264,9 +218,8 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             {
                 $withinSemesterRange = ($activeSemester->openDate < $currDate && $currDate < $activeSemester->closeDate);
             }
-            // elseif ($course->semester->internal[3] == 1)     // account for possible voerlap with winter and spring....
+            // elseif ($course->semester->internal[3] == 1)     // account for possible overlap with winter and spring....
             // {
-
             // }
         }
 
@@ -278,7 +231,10 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         {
             $calendar['times'][$i] = ($i < 13 ? $i . ' AM' : ($i % 12) . ' PM');
         }
-        
+
+        $siteSettings = $this->getApplication()->siteSettings;
+        $storedDates = json_decode($siteSettings->getProperty('blocked-dates'), true);
+        $this->template->blockDates = $this->convertToDateTimes($storedDates);          
         $this->template->calendar = $calendar;
         $this->template->room = $room;
     }
@@ -288,13 +244,14 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         $reservationId = $this->getRouteVariable('id');
         $reservation = $this->requireExists($this->schema('Ccheckin_Rooms_Reservation')->get($reservationId));
         
+        $this->template->ismissed = $reservation->missed || (!$reservation->checkedIn && ($reservation->endTime < new DateTime));
         $this->template->reservation = $reservation;
         $this->template->dateFormat = "%b %e, %Y at %l %p";
     }
     
     public function upcoming ()
     {
-        $viewer = $this->requireLogin();             
+        $viewer = $this->requireLogin();
         $reservations = $this->schema('Ccheckin_Rooms_Reservation');
         
         if (!$this->hasPermission('admin'))
@@ -330,7 +287,12 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         }
         else
         {
-            $reservations = $reservations->find($reservations->missed->isTrue());
+            $reservations = $reservations->find(
+                $reservations->missed->isTrue()->orIf(
+                    $reservations->checkedIn->isFalse()->andIf(
+                    $reservations->endTime->beforeOrEquals(new DateTime('now - 30 minutes'))
+                )
+            ));
         }
         
 		$this->template->pAdmin = $this->hasPermission('admin');
@@ -358,7 +320,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                     // TODO: Fix this Date stuff ****************************************
                     case 'override':
                         $now = new DateTime;
-						$now->setTime($now->getHour() - 1, 0);
+						$now->setTime((int)$now->format('h') - 1, 0);
 						
 						$observation = $reservation->observation;
 						$observation->startTime = $now;
@@ -468,6 +430,20 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                                         $continue = false;
                                         $message = 'You cannot reserve a room for a date and time that has already passed.';
                                     }
+
+                                    $siteSettings = $this->getApplication()->siteSettings;
+                                    $storedDates = json_decode($siteSettings->getProperty('blocked-dates'), true);
+                                    $blockDates = $this->convertToDateTimes($storedDates);
+                                    // double check they aren't trying to reserve a blocked off day.
+                                    foreach ($blockDates as $blocked)
+                                    {
+                                        if ($blocked->format('Y/m/d') === $date->format('Y/m/d'))
+                                        {
+                                            $continue = false;
+                                            $message = "You cannot reserve a room on a day that has been closed by Children's Campus.";
+                                            break;
+                                        }
+                                    }  
                                 }
                                 else
                                 {

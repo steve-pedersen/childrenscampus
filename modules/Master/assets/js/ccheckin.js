@@ -18,6 +18,9 @@
 	  $( '#closeDate' ).datepicker({
 	    formatDate: 'yy-mm-dd'
 	  });
+	  $( '#blockeddatenew' ).datepicker({
+	    formatDate: 'yy-mm-dd'
+	  });
 
 	});
 

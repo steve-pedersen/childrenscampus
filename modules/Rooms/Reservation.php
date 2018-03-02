@@ -45,7 +45,7 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
     {
         $available = false;
         $continue = true;
-        $endHour = (int)$start->format('h') + $duration;
+        $endHour = (int)$start->format('h') + (int)$duration;
         $hours = $room->getHours($start->format('N')-1);
         
         for ($i = (int)$start->format('h'); $i < $endHour; $i++)
@@ -86,8 +86,8 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
                     $tRoomReservation->endTime->beforeOrEquals($end)
                 )
             ));
-         
-            $reservations = $tRoomReservation->find($cond);
+            
+            $reservations = is_array($cond) ? $cond : $tRoomReservation->find($cond);
             
             if (count($reservations) < $room->maxObservers)
             {

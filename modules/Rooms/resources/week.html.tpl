@@ -27,19 +27,30 @@
           {foreach from=$calendar.week item='day'}
             {assign var='result' value=$day.times[$time]}
             {if $day.dayOfWeek != 0 && $day.dayOfWeek != 6}
-                {if $day.outside}
-                <td class="outside-month {$result}">
-                {elseif $day.today}
-                <td class="month-day today {$result}">
-                {else}
-                <td class="month-day {$result}">
-                {/if}
+                {assign var='blockedDate' value=false}
+                {foreach from=$blockDates item=$blocked}
+                    {if $blocked->format('Y/m/d') == $day.date}
+                        <!-- <h1>MATCH FOUND: {$blocked->format('Y/m/d')}</h1> -->
+                        {assign var='blockedDate' value=true}
+                    {/if}
+                {/foreach}
+                {if !$blockedDate}
+                    {if $day.outside}
+                    <td class="outside-month {$result}">
+                    {elseif $day.today}
+                    <td class="month-day today {$result}">
+                    {else}
+                    <td class="month-day {$result}">
+                    {/if}
                     {if $result == 'open-space'}
                         <a href="reservations/reserve/{$room->id}/{$day.date}/{$time}">reserve</a>
                     {elseif $result == 'full'}
                         <p>full</p>
                     {/if}
-                </td>
+                    </td>
+                {else}
+                    <td class="blocked-date text-center">&mdash;<small>closed</small>&mdash;</td>
+                {/if}
             {/if}
                     {foreachelse}
             <td colspan="5"></td>

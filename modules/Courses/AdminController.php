@@ -125,6 +125,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
             $coursesFiltered = $courses->find($courses->active->isFalse(), array('orderBy' => 'shortName'));
         }
 
+        $this->template->requests = $this->schema('Ccheckin_Courses_Request');
         $this->template->coursesIndexTabs = $coursesIndexTabs;
         $this->template->tab = $tab;
         $this->template->message = $message;

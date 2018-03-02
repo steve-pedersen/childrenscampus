@@ -148,7 +148,7 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
 
     public function currentReservations () 
     {
-        $reservations = $this->schema('Ccheckin_Rooms_Reservation');
+        $reservations = $this->schema('Ccheckin_Rooms_Reservation')->getAll();
 
         $this->template->reservations = $reservations;
     }

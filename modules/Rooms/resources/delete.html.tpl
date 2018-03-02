@@ -3,10 +3,12 @@
 <form action="{$smarty.server.REQUEST_URI|escape}" method="post">
     <p>
         Are you sure you want to cancel the reservation for {$reservation->room->name|escape}
-        at {$reservation->startTime|date_format:"%b %e, %Y at %l %p"}?
+        at {$reservation->startTime->format('M j, Y g:ia')}?
     </p>
+    <hr>
     <div class="commands">
-        <p><input type="submit" name="command[delete]" value="Cancel Reservation" /><a href="reservations/upcoming">cancel</a></p>
+        <input class="btn btn-danger" type="submit" name="command[delete]" value="Cancel Reservation" />
+        <a class="btn btn-default" href="reservations/upcoming">Go back</a>
     </div>
 {generate_form_post_key}
 </form>

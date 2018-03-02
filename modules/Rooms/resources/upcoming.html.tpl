@@ -12,13 +12,13 @@
     <tbody>
 {foreach item='reservation' from=$reservations}
         <tr>
-            <td>{$reservation->startTime|date_format:"%b %e, %Y at %l %p"}</td>
+            <td>{$reservation->startTime->format('M j, Y - g:ia')}</td>
             <td>{$reservation->account->firstName} {$reservation->account->lastName}</td>
             <td>{$reservation->room->name|escape}</td>
             <td class="actions">
 				<a href="reservations/delete/{$reservation->id}" class="btn btn-xs btn-default">cancel</a>
                 <a href="reservations/view/{$reservation->id}" class="btn btn-xs btn-default">view</a>
-			{if $pAdmin}<a href="reservations/override/{$reservation->id}">check-in</a>{/if}
+			{if $pAdmin}<a href="reservations/override/{$reservation->id}" class="btn btn-xs btn-default">check-in</a>{/if}
 			</td>
         </tr>
 {/foreach}

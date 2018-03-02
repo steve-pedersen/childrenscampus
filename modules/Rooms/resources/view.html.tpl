@@ -1,6 +1,14 @@
 <h1>Reservation for room <br><small>{$reservation->room->name|escape}</small></h1>
 <div class="callOut">
 
+{if $ismissed}
+<div class="alert alert-danger"><strong>This reservation has been missed.</strong>
+    {if $pAdmin}
+    <a href="reservations/delete/{$reservation->id}">Cancel reservation</a>
+    {/if}
+</div>
+{/if}
+
 <img class="img-responsive" src="assets/images/childrensCampus.jpg" alt="Photo of the front door to the Children's Campus">
 {if $existing}
     {foreach item='reservation' from=$existing}
