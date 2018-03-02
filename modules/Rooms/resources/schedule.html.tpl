@@ -30,34 +30,58 @@
                 {assign var='blockedDate' value=false}
                 {foreach from=$blockDates item=$blocked}
                     {if $blocked->format('Y/m/d') == $day.date}
-                        <!-- <h1>MATCH FOUND: {$blocked->format('Y/m/d')}</h1> -->
                         {assign var='blockedDate' value=true}
                     {/if}
                 {/foreach}
-                {if !$blockedDate}
-                    {assign var='result' value=$day.times[$time]}
-                    <td>
-                    {foreach item='reservation' from=$result}
-                        {if $reservation->account}
-                        <p>
-                            <a href="reservations/view/{$reservation->id}">
-                            {$reservation->account->firstName|escape} {$reservation->account->lastName|escape} ({$reservation->observation->purpose->object->course->shortName})
-                            </a>
-                        </p>
-                        {else}
-                        <!-- <p class="unavailable text-center">&mdash;</p> -->
-                        {/if}
-                    {/foreach}
-                    </td>
+            {if !$blockedDate}               
+                {assign var='isScheduled' value=false}
+                {foreach from=$room->schedule[$day.dayOfWeek-1][$time] item=schedule}
+                    
+                    {if $schedule}                        
+                    {assign var='isScheduled' value=true}
+                    {/if}
+                {/foreach}
+                
+                {assign var='result' value=$day.times[$time]}
+                {if count($result) >= $room->maxObservers}
+                <td class="{if $isScheduled}available-date-full{else}unavailable-date{/if}">
                 {else}
-                    <td class="blocked-date text-center">&mdash;<small>closed</small>&mdash;</td>
+                <td class="{if $isScheduled}available-date{else}unavailable-date{/if}">
                 {/if}
+                {foreach item='reservation' from=$result}
+                    {if $reservation->account}
+                        {assign var='courseArr' value=explode('-',$reservation->observation->purpose->object->course->shortName,3)}
+                    <a href="reservations/view/{$reservation->id}">
+                        <small>{$reservation->account->firstName|escape} {$reservation->account->lastName|escape} <span class="text-primary">({$courseArr[0]}-{$courseArr[1]})</span></small>
+                    </a>
+                    {/if}
+                {/foreach}
+                </td>
+            {else}
+                {if $timeDisplay@index == 0}
+                <td class="blocked-date text-center" rowspan="{$timeDisplay@total}">&mdash; closed &mdash;</td>      
+                {/if}
+            {/if}
             {/if}
           {/foreach}
         </tr>
         {/foreach}
     </tbody>
 </table>
+
+<div class='color-legend'>
+<div class='legend-title'>Color legend</div>
+<div class='legend-scale'>
+  <ul class='legend-labels'>
+    <li><span style='background:#dff0d8;'></span>open</li>
+    <li><span style='background:#d9edf7;'></span>full</li>
+    <li><span style='background:#f5f5f5;'></span>closed</li>
+    <li><span style='background:#FFF;'></span>unavailable</li>
+  </ul>
+</div>
+<div class='legend-source'><em>Open&mdash;open for reservations. Full&mdash;reservations are at maximum. Closed&mdash;entire day blocked off from reservations. Unavailable&mdash;timeslot unavailable for the room.</em></div>
+</div>
+
 {else}
 <h1>Select a room to see the schedule</h1>
 <div class="form-group">

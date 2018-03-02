@@ -24,41 +24,56 @@
         {foreach item='timeDisplay' key='time' from=$calendar.times}
         <tr class="reservation-table">
             <th scope="row" class="time-display">{$timeDisplay}</th>
-          {foreach from=$calendar.week item='day'}
-            {assign var='result' value=$day.times[$time]}
+            {foreach from=$calendar.week item='day'}
+                {assign var='result' value=$day.times[$time]}
             {if $day.dayOfWeek != 0 && $day.dayOfWeek != 6}
                 {assign var='blockedDate' value=false}
                 {foreach from=$blockDates item=$blocked}
                     {if $blocked->format('Y/m/d') == $day.date}
-                        <!-- <h1>MATCH FOUND: {$blocked->format('Y/m/d')}</h1> -->
                         {assign var='blockedDate' value=true}
                     {/if}
                 {/foreach}
-                {if !$blockedDate}
-                    {if $day.outside}
-                    <td class="outside-month {$result}">
-                    {elseif $day.today}
-                    <td class="month-day today {$result}">
-                    {else}
-                    <td class="month-day {$result}">
-                    {/if}
-                    {if $result == 'open-space'}
-                        <a href="reservations/reserve/{$room->id}/{$day.date}/{$time}">reserve</a>
-                    {elseif $result == 'full'}
-                        <p>full</p>
-                    {/if}
-                    </td>
+            {if !$blockedDate}
+                {if $day.outside}
+                <td class="outside-month {$result} {if $result == 'open-space'}available-date{elseif $result == 'full'}unavailable-date{/if}">
+                {elseif $day.today}
+                <td class="month-day today {$result} {if $result == 'open-space'}available-date{elseif $result == 'full'}unavailable-date{/if}">
                 {else}
-                    <td class="blocked-date text-center">&mdash;<small>closed</small>&mdash;</td>
+                <td class="month-day {$result} {if $result == 'open-space'}available-date{elseif $result == 'full'}unavailable-date{/if}">
+                {/if}
+                {if $result == 'open-space'}
+                    <a href="reservations/reserve/{$room->id}/{$day.date}/{$time}">reserve</a>
+                {elseif $result == 'full'}
+                    <p>full</p>
+                {/if}
+                </td>
+            {else}
+                {if $timeDisplay@index == 0}
+                <td class="blocked-date text-center" rowspan="{$timeDisplay@total}">&mdash; closed &mdash;</td>      
                 {/if}
             {/if}
+            {/if}
+
                     {foreachelse}
             <td colspan="5"></td>
           {/foreach}
-
+            
         </tr>
         {foreachelse}
             <td colspan="6">Outside of range of course dates.</td>
         {/foreach}
     </tbody>
 </table>
+
+<div class='color-legend'>
+<div class='legend-title'>Color legend</div>
+<div class='legend-scale'>
+  <ul class='legend-labels'>
+    <li><span style='background:#dff0d8;'></span>open</li>
+    <li><span style='background:#d9edf7;'></span>full</li>
+    <li><span style='background:#f5f5f5;'></span>closed</li>
+    <li><span style='background:#FFF;'></span>unavailable</li>
+  </ul>
+</div>
+<div class='legend-source'><em>Open&mdash;open for reservations. Full&mdash;reservations are at maximum. Closed&mdash;entire day blocked off from reservations. Unavailable&mdash;timeslot unavailable for the room.</em></div>
+</div>
