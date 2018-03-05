@@ -116,7 +116,7 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
                 break;
         }
    
-        // Always places Student role at end of list, since the number of accounts with that role greatly outnumbers every other
+        // Always places Student role at end of list, since there are far more Student accounts than any other account 
         // and therefore doesn't make it very useful to intersperse with others
         // Does not currently work with pagination
         if ($sortBy === 'role')

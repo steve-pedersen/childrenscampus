@@ -44,7 +44,7 @@ If you need help locating our center, please check the <a href="http://www.sfsu.
 </div>
 <div class="link-controls">
     <p class="first">
-        <a class="ok btn btn-success" href="home">OK</a>
+        <a class="ok btn btn-success" href="reservations/upcoming">OK</a>
         <a class="cancel btn btn-danger" href="reservations/delete/{$reservation->id}">Cancel reservation</a>
     </p>
 </div>

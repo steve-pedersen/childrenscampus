@@ -63,7 +63,8 @@ class Ccheckin_AuthN_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUpg
                     array(
                         array('name' => 'Anonymous', 'description' => 'Automatically granted to everyone who visits CCheckIn.', 'is_system_role' => true),
                         array('name' => 'Administrator', 'description' => 'Has every possible permission. Assign to anyone you trust with the ability to wreak havoc.', 'is_system_role' => true),
-                        array('name' => 'Teacher', 'description' => 'Assign to Children\'s Campus teachers.', 'is_system_role' => true),
+                        array('name' => 'Teacher', 'description' => 'Assign to SF State teachers. Probably CAD teachers.', 'is_system_role' => true),
+                        array('name' => 'CC Teacher', 'description' => "Assign to Children\'s Campus teachers. These are the actual children's teachers.", 'is_system_role' => true),
                         array('name' => 'Student', 'description' => 'Assign to Children\'s Campus students.', 'is_system_role' => true),
                     ),
                     array(

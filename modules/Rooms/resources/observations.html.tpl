@@ -1,7 +1,7 @@
 <h1>Past Observations</h1>
 {foreach item='purposeInfo' from=$purposes}
 <h2>{$purposeInfo.purpose->shortDescription}</h2>
-<table class="table">
+<table class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>Room</th>

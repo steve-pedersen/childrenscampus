@@ -15,13 +15,6 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         );
     }
 
-    // protected function beforeCallback ($callback)
-    // {
-    //     parent::beforeCallback($callback);
-    //     $this->template->clearBreadcrumbs();
-    //     $this->addBreadcrumb('home', 'Home');
-    // }
-
     public function index ()
     {
         $viewer = $this->getAccount();
@@ -67,7 +60,6 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         $id = $this->getRouteVariable('id');
         $course = $this->requireExists($this->schema('Ccheckin_Courses_Course')->get($id));
         
-        // TODO: Figure out what is actually happening in this block.
         // If don't have permission to view course or not admin viewing an inactive course
         // Student viewing one of their inactive courses
         if (!$this->hasPermission('course view', $course) || (!$this->hasPermission('admin') && !$course->active))
@@ -163,11 +155,15 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
     protected function setCourses ($user, $term)
     {
         $service = new Ccheckin_ClassData_Service($this->getApplication());
-        list($status, $courses) = $service->getUserEnrollments($user->username, $term);
 
-        if ($status < 400)
+        if (!$this->hasPermission('admin'))
         {
-            $this->template->courses = $courses;
+            list($status, $courses) = $service->getUserEnrollments($user->username, $term);
+
+            if ($status < 400)
+            {
+                $this->template->courses = $courses;
+            }
         }
     }
 

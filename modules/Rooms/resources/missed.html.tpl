@@ -3,7 +3,7 @@
     These are the reservations which were scheduled but the appointment was not kept.  
     {if $pAdmin}Includes all missed reservations that are over 30 minutes past their ending time.{/if}
 </p>
-<table class="table">
+<table class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>Start Time</th>

@@ -28,7 +28,6 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
 
 		if (($locator = $this->getRouteVariable('_locator')))
 		{
-            // echo "<pre>"; var_dump($locator); die;
 			$this->addTemplateFileLocator($locator);
 
             // if has admin permission load master
@@ -56,27 +55,11 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
     protected function beforeCallback ($callback)
     {
         parent::beforeCallback($callback);
-
-        // add 'Home' breadcrumb so long as not on homepage
-        $path = $this->request->getFullRequestedUri();
-        if (($path !== '') && ($path !== '/') && ($path !== '/home') && ($path !== '/ccheckin') &&
-            ($path !== '/ccheckin/') && ($path !== '/ccheckin/home'))
-        {
-            $this->addBreadcrumb('home', 'Home');
-        }
-
-        // if admin and on admin page, don't display 'Contact' sidebar
-        $adminPage = false;
-        if ($this->hasPermission('admin') && (strpos($path, 'admin') !== false))
-        {
-            $adminPage = true;
-        }
-        $this->template->adminPage = $adminPage; 
+        $this->setupTemplatePermissions();
     }
 
     protected function afterCallback ($callback)
     {
-        $this->template->pAdmin = $this->hasPermission('admin');
         $this->template->onLoad = $this->onLoadScriptList;
         $this->template->userMessageList = $this->userMessageList;
         $this->template->includeScripts = $this->includeScriptList;
@@ -98,6 +81,29 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         }
 
         parent::afterCallback($callback);
+    }
+
+    public function setupTemplatePermissions ()
+    {
+        // add 'Home' breadcrumb so long as not on homepage
+        $path = $this->request->getFullRequestedUri();
+        if (($path !== '') && ($path !== '/') && ($path !== '/home') && ($path !== '/ccheckin') &&
+            ($path !== '/ccheckin/') && ($path !== '/ccheckin/home'))
+        {
+            $this->addBreadcrumb('home', 'Home');
+        }
+
+        // if admin and on admin page, don't display 'Contact' sidebar
+        $adminPage = false;
+        if ($this->hasPermission('admin') && (strpos($path, 'admin') !== false))
+        {
+            $adminPage = true;
+        }
+        $this->template->adminPage = $adminPage; 
+        $this->template->pAdmin = $this->hasPermission('admin');
+        $this->template->isTeacher = $this->hasPermission('course request');
+        $this->template->isCCTeacher = $this->hasPermission('room view schedule');
+
     }
 
     public function convertToDateTimes ($strings)

@@ -112,19 +112,20 @@
         <div class="col-md-3">
             <div class="sidebar-nav">
                 <div class="well">
-                	<!-- <h3 class="menu-header">Hello, {$userContext->account->firstName|escape}</h3> -->
                 	<h3 class="menu-header">Menu</h3>
                     <ul class="nav left-nav">
-                        <!-- <li class="nav-header"><strong>Hello, {$userContext->account->firstName|escape}</strong></li> -->
                         <li><a href="reservations">Sign Up For a Visit</a></li>
-                        <li><a href="reports/generator">Create Reports</a></li>
                         <li><a href="reservations/upcoming">My Reservations</a></li>
+                        {if $pAdmin}
+                        <li><a href="reports/generator">Create Reports</a></li>
+                        {/if}
+                        {if $isCCTeacher || $pAdmin}
                         <li><a href="reservations/schedule">Room Schedules</a></li>
-                        <!-- <li role="separator" class="divider"></li> -->
+                        {/if}
+                        {if $isTeacher || $pAdmin}            
                         <li><a href="courses">View Courses</a></li>
                         <li><a href="courses/request">Request a Course</a></li>
-                        <!-- <li role="separator" class="divider"></li> -->
-                        <!-- <li><a href="admin">Administrate</a></li> -->
+                        {/if}
                         <li><a href="reservations/missed">Missed Reservations</a></li>
                         <li><a href="reservations/observations">Past Observations</a></li>
                     </ul>

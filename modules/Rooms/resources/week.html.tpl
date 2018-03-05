@@ -10,13 +10,11 @@
     <thead>
         <tr>
             <th></th>
-            <!-- <th>Sunday</th> -->
             <th>Monday<br><small>{$calendar.week[1].month} {$calendar.week[1].dayOfMonth}{$calendar.week[1].suffix}</small></th>
             <th>Tuesday<br><small>{$calendar.week[2].month} {$calendar.week[2].dayOfMonth}{$calendar.week[2].suffix}</small></th>
             <th>Wednesday<br><small>{$calendar.week[3].month} {$calendar.week[3].dayOfMonth}{$calendar.week[3].suffix}</small></th>
             <th>Thursday<br><small>{$calendar.week[4].month} {$calendar.week[4].dayOfMonth}{$calendar.week[4].suffix}</small></th>
             <th>Friday<br><small>{$calendar.week[5].month} {$calendar.week[5].dayOfMonth}{$calendar.week[5].suffix}</small></th>
-            <!-- <th>Saturday</th> -->
         </tr>
     </thead>
     
@@ -66,13 +64,13 @@
 </table>
 
 <div class='color-legend'>
-<div class='legend-title'>Color legend</div>
+<!-- <div class='legend-title'>Color legend</div> -->
 <div class='legend-scale'>
   <ul class='legend-labels'>
-    <li><span style='background:#dff0d8;'></span>open</li>
-    <li><span style='background:#d9edf7;'></span>full</li>
-    <li><span style='background:#f5f5f5;'></span>closed</li>
-    <li><span style='background:#FFF;'></span>unavailable</li>
+    <li><span class="key-open"></span>open</li>
+    <li><span class="key-full"></span>full</li>
+    <li><span class="key-closed"></span>closed</li>
+    <li><span class="key-unavailable"></span>unavailable</li>
   </ul>
 </div>
 <div class='legend-source'><em>Open&mdash;open for reservations. Full&mdash;reservations are at maximum. Closed&mdash;entire day blocked off from reservations. Unavailable&mdash;timeslot unavailable for the room.</em></div>

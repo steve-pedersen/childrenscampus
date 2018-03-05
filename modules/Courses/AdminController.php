@@ -284,8 +284,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         $courseFacetTypes = $this->schema('Ccheckin_Courses_FacetType');
         $accounts = $this->schema('Bss_AuthN_Account');
         $authZ = $this->getAuthorizationManager();
-        
-        // $instructors = $diva->user->userAccount->findByRoleName('Faculty', array('lastName' => true));
+
         $roles = $this->schema('Ccheckin_AuthN_Role');
         $facultyRole = $roles->findOne($roles->name->equals('Teacher'));     
 
@@ -411,38 +410,6 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         $this->template->errors = $errors;
     }
     
-
-    // // NOTE: Deprecated functionality
-    // public function dropStudents ()
-    // {
-    //     $id = $this->getRouteVariable('id');
-    //     $course = $this->requireExists($this->schema('Ccheckin_Courses_Course')->get($id));
-        
-    //     if ($this->request->wasPostedByUser())
-    //     {
-    //         if ($command = $this->getPostCommand())
-    //         {
-    //             switch ($command)
-    //             {
-    //                 case 'drop':
-    //                     foreach ($course->students as $user)
-    //                     {
-    //                         foreach ($course->facets as $facet)
-    //                         {
-    //                             $facet->removeUser($user);
-    //                         }
-    //                     }
-    //                     $this->flash('The students have been removed from the course');
-    //                     $this->response->redirect('admin/courses');
-    //                     break;
-    //             }
-    //         }
-    //     }
-        
-    //     $this->template->course = $course;
-    // }
-    
-
     public function types ()
     {
         $this->setPageTitle('Manage Course Types');
