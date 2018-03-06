@@ -22,7 +22,7 @@ h1 { font-size: 1.2em; margin-bottom: 0; line-height: 1em;}
 #content {
     border: 1px solid black;
     padding: 1em;
-    margin: 1em 0;
+    margin: 0 0;
 }
 
 .module-item {
@@ -32,8 +32,41 @@ h1 { font-size: 1.2em; margin-bottom: 0; line-height: 1em;}
 #footer,
 .submission .alert { font-size: 0.8em; }
 
-.choice dl { margin-top: 1em; }
-.choice dl dd, .choice dl dt { display: inline-block; margin-left: 1em;}
-.choice dl dt:after {content: ':'; }
-.choice dl dd {border-bottom: 1px solid black; margin-left: 0.5em;}
-.choice dl dt {font-weight: bold; color: #444;}
+/* Children's Campus customizations */
+.right-sidebar, .sidebar-nav, .weekly-schedule, .color-legend, #filmstrip {
+	display: none;
+}
+@media print{
+	a[href]:after {
+		content:none
+	}
+}
+h1 {
+	font-size: 2.5em;
+}
+th, td {
+	/*font-size: 1em !important;*/
+	padding: 5px !important;
+}
+td.has-reservations {
+	border: 2px solid #605F61 !important;
+}
+td.available-date,
+td.available-date-full {
+	max-width: none !important;
+}
+td.available-date > a,
+td.available-date-full > a {
+	padding: 1px;
+	/*border: 1px solid #A5A5A5;*/
+}
+td.available-date > a > span,
+td.available-date-full > a > span {
+	font-weight: bold;
+	font-size: .8em;
+}
+td.blocked-date {
+	font-weight: bold;
+	background-color: #E5E5E5 !important;
+	-webkit-print-color-adjust: exact;
+}

@@ -1,4 +1,4 @@
-<h1>Reservation for room <br><small>{$reservation->room->name|escape}</small></h1>
+<h1>Reservation details<br><small>{$reservation->room->name|escape}</small></h1>
 <div class="callOut">
 
 {if $ismissed}

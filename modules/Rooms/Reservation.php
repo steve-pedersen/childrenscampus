@@ -45,10 +45,11 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
     {
         $available = false;
         $continue = true;
-        $endHour = (int)$start->format('h') + (int)$duration;
+        $endHour = (int)$start->format('G') + (int)$duration;
         $hours = $room->getHours($start->format('N')-1);
         
-        for ($i = (int)$start->format('h'); $i < $endHour; $i++)
+        // capital G for 0-23 hour format
+        for ($i = (int)$start->format('G'); $i < $endHour; $i++)
         {
             if (!in_array($i, $hours))
             {

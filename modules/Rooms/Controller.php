@@ -391,10 +391,6 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         $now = new DateTime;
         $message = '';
         $existing = null;
-        
-        // echo "<pre>"; var_dump('roomid: '. $roomId, ', year: '. $year, ', month: '. $month, ', day: '. $day, ', hour: '. $hour); die;
-        // $existing = RoomReservation::GetAccountReservations($viewer);
-        // $message = (empty($existing) ? '' : 'You cannot have more than one reservation at a time.');
         		
         if ($this->request->wasPostedByUser())
         {
