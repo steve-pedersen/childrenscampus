@@ -34,8 +34,6 @@ class Ccheckin_Rooms_Observation extends Bss_ActiveRecord_BaseWithAuthorization 
         );
     }
 
-    // Should this be done from classdata/sims here or from within the Semester module?
-    // Possibly add a parameter in here for the 'observation' object in question.
     public function getSemester ()
     {
         $semesters = $this->getSchema('Ccheckin_Semesters_Semester');

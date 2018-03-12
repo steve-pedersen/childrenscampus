@@ -317,27 +317,30 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             {
                 switch ($command)
                 {
-                    // TODO: Fix this Date stuff ****************************************
                     case 'override':
-                        $now = new DateTime;
-						$now->setTime((int)$now->format('h') - 1, 0);
-						
+                        $checkinDate = $this->request->getPostParameter('checkinDate');
+                        $checkinTime = $this->request->getPostParameter('checkinTime');
+                        $checkin = new DateTime($checkinDate . ' ' . $checkinTime);
+
 						$observation = $reservation->observation;
-						$observation->startTime = $now;
+						$observation->startTime = $checkin;
 						$observation->save();
-						$reservation->checkedIn = true;
+						
+                        $reservation->checkedIn = true;
 						$reservation->missed = false;
 						$reservation->save();
+                        
                         $this->flash('The person has been checked-in.');
                         $this->response->redirect('reservations/upcoming');
                         exit;
                 }
             }
         }
-        else
-        {
-            $this->template->reservation = $reservation;
-        }
+        $now = new DateTime;
+        $now->setTime((int)$now->format('G'), 0);
+
+        $this->template->reservation = $reservation;
+        $this->template->topOfHour = $now;
 	}
     
     public function delete ()
@@ -470,6 +473,14 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                                 $reservation->missed = false;
                                 $reservation->save();
                                 
+                                $emailData = array();
+                                $emailData['user'] = $viewer;
+                                $emailData['reservation'] = $reservation;
+                                $emailData['purpose_info'] = $purpose->shortDescription;
+                                $emailData['room_name'] = $room->name;
+                                $emailManager = new Ccheckin_Admin_EmailManager($this->getApplication(), $this);
+                                $emailManager->processEmail('sendReservationDetails', $emailData);
+
                                 $this->flash('Your reservation has been scheduled for '.$date->format('M j, Y g:ia').' for '.$duration.' hour'. ($duration > 1 ? 's.' : '.'));
                                 $this->response->redirect('reservations/view/' . $reservation->id);
                             }

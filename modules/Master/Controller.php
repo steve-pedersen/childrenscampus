@@ -26,6 +26,9 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
             ))
         );
 
+        // $masterModule = $this->getApplication()->moduleManager->getModule('at:ccheckin:master');
+        // $this->template->setMasterTemplate($masterModule->getResource('master.html.tpl'));
+
 		if (($locator = $this->getRouteVariable('_locator')))
 		{
 			$this->addTemplateFileLocator($locator);
@@ -331,7 +334,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         ) === 1;
     }
      
-    protected function createEmailTemplate ()
+    public function createEmailTemplate ()
     {
         $template = $this->createTemplateInstance();
         $template->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'email.html.tpl'));
@@ -339,10 +342,10 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
     }
     
     
-    protected function createEmailMessage ($contentTemplate = null)
+    public function createEmailMessage ($contentTemplate = null)
     {
         $message = new Bss_Mailer_Message($this->getApplication());
-        
+
         if ($contentTemplate)
         {
             $tpl = $this->createEmailTemplate();

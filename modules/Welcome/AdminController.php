@@ -30,22 +30,10 @@ class Ccheckin_Welcome_AdminController extends At_Admin_Controller
         
         if ($this->getPostCommand() == 'save' && $this->request->wasPostedByUser())
         {           
-            if ($welcomeText = $this->request->getPostParameter('welcome-text'))
-            {
-                $siteSettings->setProperty('welcome-text', $welcomeText);
-            }
-            if ($welcomeTitle = $this->request->getPostParameter('welcome-title'))
-            {
-                $siteSettings->setProperty('welcome-title', $welcomeTitle);
-            }
-            if ($welcomeTextExtended = $this->request->getPostParameter('welcome-text-extended'))
-            {
-                $siteSettings->setProperty('welcome-text-extended', $welcomeTextExtended);
-            }
-            if ($locationMessage = $this->request->getPostParameter('location-message'))
-            {
-                $siteSettings->setProperty('location-message', $locationMessage);
-            }
+            $siteSettings->setProperty('welcome-text', $this->request->getPostParameter('welcome-text'));
+            $siteSettings->setProperty('welcome-title', $this->request->getPostParameter('welcome-title'));
+            $siteSettings->setProperty('welcome-text-extended', $this->request->getPostParameter('welcome-text-extended'));
+            $siteSettings->setProperty('location-message', $this->request->getPostParameter('location-message'));
         }
 
         if ($this->request->wasPostedByUser())
@@ -80,25 +68,10 @@ class Ccheckin_Welcome_AdminController extends At_Admin_Controller
             }
         }
 
-        if ($welcomeText = $siteSettings->getProperty('welcome-text'))
-        {
-            $this->template->welcomeText = $welcomeText;
-        }
-        if ($welcomeTitle = $siteSettings->getProperty('welcome-title'))
-        {
-            $this->template->welcomeTitle = $welcomeTitle;
-        }
-        if ($welcomeTextExtended = $siteSettings->getProperty('welcome-text-extended'))
-        {
-            $this->template->welcomeTextExtended = $welcomeTextExtended;
-        }
-        if ($announcements = $siteSettings->getProperty('announcements'))
-        {
-            $this->template->announcements = json_decode($announcements, true);
-        }
-        if ($locationMessage = $siteSettings->getProperty('location-message'))
-        {
-            $this->template->locationMessage = $locationMessage;
-        }
+        $this->template->welcomeText = $siteSettings->getProperty('welcome-text');
+        $this->template->welcomeTitle = $siteSettings->getProperty('welcome-title');
+        $this->template->welcomeTextExtended = $siteSettings->getProperty('welcome-text-extended');
+        $this->template->announcements = json_decode($siteSettings->getProperty('announcements'), true);
+        $this->template->locationMessage = $siteSettings->getProperty('location-message');
     }
 }

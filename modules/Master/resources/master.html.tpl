@@ -13,6 +13,7 @@
 		<link href='//fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" type="text/css" href="assets/css/print.css" media="print">
 		<link rel="stylesheet" type="text/css" href="assets/css/app-js.css" media="screen">
+		<link rel="stylesheet" type="text/css" href="assets/css/jquery.timepicker.min.css">
 		<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
 		<!-- <script>document.write('<link rel="stylesheet" type="text/css" href="assets/css/app-js.css" media="screen">');</script>  -->
 	</head>

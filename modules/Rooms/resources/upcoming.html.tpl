@@ -14,7 +14,7 @@
 {foreach item='reservation' from=$reservations}
     {assign var='courseArr' value=explode('-',$reservation->observation->purpose->object->course->shortName,3)}
         <tr>
-            <td>{$reservation->startTime->format('M j, Y - g:ia')}</td>
+            <td>{$reservation->startTime->format('M j, Y - ga')}</td>
             <td>{$reservation->account->firstName} {$reservation->account->lastName}</td>
             <td>{$reservation->room->name|escape}</td>
             <td>{$courseArr[0]}-{$courseArr[1]}</td>

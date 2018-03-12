@@ -16,6 +16,7 @@
 #require js/jhollingworth/bootstrap-wysihtml5.js
 #require js/bootbox.js
 #require js/jquery.autosize.min.js
+#require js/jquery.timepicker.min.js
 #require js/ccheckin.js
 
 

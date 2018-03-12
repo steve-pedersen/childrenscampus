@@ -13,6 +13,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
             '/admin/cron' => array('callback' => 'cron'),
             '/admin/settings/siteNotice' => array('callback' => 'siteNotice'),
             '/admin/settings/blockDates' => array('callback' => 'blockDates'),
+            '/admin/settings/email' => array('callback' => 'emailSettings'),
         );
     }
     
@@ -29,6 +30,43 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
     {
         $this->setPageTitle('Administrate');
         $this->template->crs = $this->schema('Ccheckin_Courses_Request')->getAll(array('orderBy' => 'requestDate'));
+    }
+
+    public function emailSettings ()
+    {
+        $siteSettings = $this->getApplication()->siteSettings;
+
+        if ($this->request->wasPostedByUser())
+        {
+            switch ($this->getPostCommand()) {
+                case 'save':
+                    $siteSettings->setProperty('email-default-address', $this->request->getPostParameter('defaultAddress'));
+                    $siteSettings->setProperty('email-course-allowed-teacher', $this->request->getPostParameter('courseAllowedTeacher'));
+                    $siteSettings->setProperty('email-course-allowed-students', $this->request->getPostParameter('courseAllowedStudents'));
+                    $siteSettings->setProperty('email-course-denied', $this->request->getPostParameter('emailCourseDenied'));
+                    $siteSettings->setProperty('email-course-requested-admin', $this->request->getPostParameter('courseRequestedAdmin'));
+                    $siteSettings->setProperty('email-course-requested-teacher', $this->request->getPostParameter('courseRequestedTeacher'));
+                    $siteSettings->setProperty('email-reservation-details', $this->request->getPostParameter('reservationDetails'));
+                    $siteSettings->setProperty('email-reservation-reminder-time', $this->request->getPostParameter('reservationReminderTime'));
+                    $siteSettings->setProperty('email-reservation-reminder', $this->request->getPostParameter('reservationReminder'));
+                    $siteSettings->setProperty('email-reservation-missed', $this->request->getPostParameter('reservationMissed'));
+
+                    $this->flash("Children's Campus email settings and content have been saved.");
+                    $this->response->redirect('admin');
+                    exit;
+            }
+        }
+
+        $this->template->defaultAddress = $siteSettings->getProperty('email-default-address');
+        $this->template->courseRequestedAdmin = $siteSettings->getProperty('email-course-requested-admin');
+        $this->template->courseRequestedTeacher = $siteSettings->getProperty('email-course-requested-teacher');
+        $this->template->courseAllowedTeacher = $siteSettings->getProperty('email-course-allowed-teacher');
+        $this->template->courseAllowedStudents = $siteSettings->getProperty('email-course-allowed-students');
+        $this->template->courseDenied = $siteSettings->getProperty('email-course-denied');       
+        $this->template->reservationDetails = $siteSettings->getProperty('email-reservation-details');
+        $this->template->reservationReminder = $siteSettings->getProperty('email-reservation-reminder');
+        $this->template->reservationReminderTime = $siteSettings->getProperty('email-reservation-reminder-time');
+        $this->template->reservationMissed = $siteSettings->getProperty('email-reservation-missed');
     }
     
     /**
