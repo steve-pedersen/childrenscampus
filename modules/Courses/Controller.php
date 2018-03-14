@@ -311,6 +311,16 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                     
                     // TODO: Fix email functions
                     // $this->sendCourseRequestedNotification($course, $viewer);                                       // TODO: FIX EMAIL FUNCTION *********************
+
+                    $emailData = array();
+                    $emailData['user'] = $viewer;
+                    $emailData['courseRequest'] = $request;
+                    $emailManager = new Ccheckin_Admin_EmailManager($this->getApplication(), $this);
+                    // Send admin an email
+                    $emailManager->processEmail('sendCourseRequestedAdmin', $emailData);
+                    // Send an email to Teacher
+                    $emailManager->processEmail('sendCourseRequestedTeacher', $emailData);
+
                     $this->flash('You course request is now pending.  You will be notified when a decision has been made.');
                     $this->response->redirect('courses');
                 }

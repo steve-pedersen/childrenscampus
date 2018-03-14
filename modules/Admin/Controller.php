@@ -21,6 +21,17 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
     {
         parent::beforeCallback($callback);
         $this->requirePermission('admin');
+        $this->template->clearBreadcrumbs();
+        $this->addBreadcrumb('home', 'Home');
+        $this->addBreadcrumb('admin', 'Admin');
+        // if admin and on admin page, don't display 'Contact' sidebar
+        $adminPage = false;
+        $path = $this->request->getFullRequestedUri();
+        if ($this->hasPermission('admin') && (strpos($path, 'admin') !== false))
+        {
+            $adminPage = true;
+        }
+        $this->template->adminPage = $adminPage; 
     }
     
     /**
@@ -41,9 +52,10 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
             switch ($this->getPostCommand()) {
                 case 'save':
                     $siteSettings->setProperty('email-default-address', $this->request->getPostParameter('defaultAddress'));
+                    $siteSettings->setProperty('email-signature', $this->request->getPostParameter('signature'));
                     $siteSettings->setProperty('email-course-allowed-teacher', $this->request->getPostParameter('courseAllowedTeacher'));
                     $siteSettings->setProperty('email-course-allowed-students', $this->request->getPostParameter('courseAllowedStudents'));
-                    $siteSettings->setProperty('email-course-denied', $this->request->getPostParameter('emailCourseDenied'));
+                    $siteSettings->setProperty('email-course-denied', $this->request->getPostParameter('courseDenied'));
                     $siteSettings->setProperty('email-course-requested-admin', $this->request->getPostParameter('courseRequestedAdmin'));
                     $siteSettings->setProperty('email-course-requested-teacher', $this->request->getPostParameter('courseRequestedTeacher'));
                     $siteSettings->setProperty('email-reservation-details', $this->request->getPostParameter('reservationDetails'));
@@ -52,12 +64,114 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                     $siteSettings->setProperty('email-reservation-missed', $this->request->getPostParameter('reservationMissed'));
 
                     $this->flash("Children's Campus email settings and content have been saved.");
-                    $this->response->redirect('admin');
+                    $this->response->redirect('admin/settings/email');
                     exit;
+                case 'send':
+                    $viewer = $this->getAccount();
+                    $command = $this->request->getPostParameter('command');
+                    $which = array_keys($command['send']);
+                    $which = array_pop($which);
+
+                    if ($which)
+                    {
+                        $emailData = array();
+                        $emailData['user'] = $viewer;
+                        $emailManager = new Ccheckin_Admin_EmailManager($this->getApplication(), $this);                   
+
+                        switch ($which) 
+                        {
+                            case 'courseRequestedAdmin':
+                                $emailData['courseRequest'] = new stdClass();
+                                $emailData['courseRequest']->id = 0;
+                                $emailData['courseRequest']->fullName = 'TEST: Introduction to Childhood Development';
+                                $emailData['courseRequest']->shortName = 'TEST-CAD-0101-01-Spring-2025';
+                                $emailData['courseRequest']->semester = 'TEST Spring 2025';
+                                $emailManager->processEmail('send' . ucfirst($which), $emailData, true);
+                                
+                                $this->template->sendSuccess = 'You should receive a test email momentarily for Course-Requested-Admin template.';
+                                break;
+
+                            case 'courseRequestedTeacher':
+                                $emailData['courseRequest'] = new stdClass();
+                                // $emailData['courseRequest']->id = 0;
+                                $emailData['courseRequest']->fullName = 'TEST: Introduction to Childhood Development';
+                                $emailData['courseRequest']->shortName = 'TEST-CAD-0101-01-Spring-2025';
+                                $emailData['courseRequest']->semester = 'TEST Spring 2025';
+                                $emailManager->processEmail('send' . ucfirst($which), $emailData, true);
+
+                                $this->template->sendSuccess = 'You should receive a test email momentarily for Course-Requested-Teacher template.';                                
+                                break;
+
+                            case 'courseAllowedTeacher':
+                                $emailData['course'] = new stdClass();
+                                $emailData['course']->id = 0;
+                                $emailData['course']->fullName = 'TEST: Introduction to Childhood Development';
+                                $emailData['course']->shortName = 'TEST-CAD-0101-01-Spring-2025';
+                                $emailData['course']->openDate = new DateTime;
+                                $emailData['course']->closeDate = new DateTime('now + 1 month');
+                                $emailManager->processEmail('send' . ucfirst($which), $emailData, true);
+
+                                $this->template->sendSuccess = 'You should receive a test email momentarily for Course-Allowed-Teacher template.';
+                                break;
+
+                            case 'courseAllowedStudents':
+                                $emailData['course'] = new stdClass();
+                                $emailData['course']->fullName = 'TEST: Introduction to Childhood Development';
+                                $emailData['course']->shortName = 'TEST-CAD-0101-01-Spring-2025';
+                                $emailData['course']->openDate = new DateTime;
+                                $emailData['course']->closeDate = new DateTime('now + 1 month');
+                                $emailManager->processEmail('send' . ucfirst($which), $emailData, true);
+
+                                $this->template->sendSuccess = 'You should receive a test email momentarily for Course-Allowed-Students template.';
+                                break;
+
+                            case 'courseDenied':
+                                $emailData['course'] = new stdClass();
+                                $emailData['course']->fullName = 'TEST: Introduction to Childhood Development';
+                                $emailData['course']->shortName = 'TEST-CAD-0101-01-Spring-2025';
+                                $emailData['course']->semester = 'TEST Spring 2025';
+                                $emailManager->processEmail('send' . ucfirst($which), $emailData, true);
+
+                                $this->template->sendSuccess = 'You should receive a test email momentarily for Course-Denied template.';                       
+                                break;
+
+                            case 'reservationDetails':
+                                $emailData['reservation'] = new stdClass();
+                                $emailData['reservation']->id = 0;
+                                $emailData['reservation']->startTime = new DateTime;
+                                $emailData['reservation']->purpose = 'TEST Observation only course - TEST-CAD-0101-01-Spring-2025';
+                                $emailData['reservation']->room = 'TEST CC-221';
+                                $emailManager->processEmail('send' . ucfirst($which), $emailData, true);
+
+                                $this->template->sendSuccess = 'You should receive a test email momentarily for Reservation-Details template.';  
+                                break;
+                            
+                            case 'reservationReminder':
+                                $emailData['reservation'] = new stdClass();
+                                $emailData['reservation']->id = 0;
+                                $emailData['reservation']->startTime = new DateTime;
+                                $emailData['reservation']->purpose = 'TEST Observation only course - TEST-CAD-0101-01-Spring-2025';
+                                $emailData['reservation']->room = 'TEST CC-221';
+                                $emailManager->processEmail('send' . ucfirst($which), $emailData, true);
+
+                                $this->template->sendSuccess = 'You should receive a test email momentarily for Reservation-Reminder template.';  
+                                break;
+
+                            case 'reservationMissed':
+                                $emailData['reservation'] = new stdClass();
+                                $emailData['reservation']->startTime = new DateTime;
+                                $emailData['reservation']->purpose = 'TEST Observation only course - TEST-CAD-0101-01-Spring-2025';
+                                $emailManager->processEmail('send' . ucfirst($which), $emailData, true);
+
+                                $this->template->sendSuccess = 'You should receive a test email momentarily for Reservation-Reminder template.';  
+                                break;
+                        }
+                    }
             }
         }
 
         $this->template->defaultAddress = $siteSettings->getProperty('email-default-address');
+        $this->template->signature = $siteSettings->getProperty('email-signature');
         $this->template->courseRequestedAdmin = $siteSettings->getProperty('email-course-requested-admin');
         $this->template->courseRequestedTeacher = $siteSettings->getProperty('email-course-requested-teacher');
         $this->template->courseAllowedTeacher = $siteSettings->getProperty('email-course-allowed-teacher');

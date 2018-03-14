@@ -95,10 +95,16 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         {
             $this->addBreadcrumb('home', 'Home');
         }
+        $homePage = false;
+        if ($path === '' || $path === '/' || $path === '/ccheckin' || $path === '/ccheckin/')
+        {
+            $homePage = true;
+        }
+        $this->template->homePage = $homePage;
 
         // if admin and on admin page, don't display 'Contact' sidebar
         $adminPage = false;
-        if ($this->hasPermission('admin') && (strpos($path, 'admin') !== false))
+        if (!$homePage && $this->hasPermission('admin') && (strpos($path, 'admin') !== false))
         {
             $adminPage = true;
         }
@@ -222,39 +228,6 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
 		
 		return $entity;
 	}
-    
-    // Which signature to use?
-    // Original:
-    // public function getPostCommand ()
-    // Fixed:
-    // public function getPostCommand ($checkPost = false, $postVar = 'command')
-    // public function getPostCommand ()
-    // {
-    //     // Original:
-    //     $action = null;
-        
-    //     if ($command = $this->request->getPostParameter('command'))
-    //     {
-    //         $action = array_shift(array_keys($command));
-    //     }
-        
-    //     return $action;
-
-    //     // Fixed:
-    //     // if ($checkPost && !$this->request->wasPostedByUser())
-    //     // {
-    //     //     return false;
-    //     // }
-
-    //     // $action = null;
-        
-    //     // if ($command = $this->request->getPostParameter($postVar))
-    //     // {
-    //     //     $action = array_shift(array_keys($command));
-    //     // }
-        
-    //     // return $action;
-    // }
     
     public function processSubmission (Bss_ActiveRecord_Base $record, $fieldMap, $paramMap = array())
     {

@@ -7,23 +7,33 @@
 </div>
 {/if}
 
+<br>
 <form action="" method="post">
 	{generate_form_post_key}
 
 	<div class="row">
 		<div class="col-xs-8">
 			<div class="form-group">
-				<label for="defaultAddress">Default email address from which to send emails?</label>
+				<label for="defaultAddress">Default email address</label>
 				<input type="email" class="form-control" name="defaultAddress" id="defaultAddress" value="{$defaultAddress}" placeholder="e.g. children@sfsu.edu" />				
 			</div>
 		</div>
 	</div>
+	<div class="row">
+		<div class="col-xs-8">
+			<div class="form-group">
+				<label for="signature">Email Signature</label>
+				<textarea name="signature" id="signature" class="wysiwyg form-control" rows="5" placeholder="  --The Children's Campus">{$signature}</textarea>		
+			</div>
+		</div>
+	</div>
+	<hr>
 
 	<div class="row">
 		<div class="col-xs-8">
 			<div class="form-group choice-widget">
 				<label for="courseRequestedAdmin">Course Requested Admin: <span class="email-type-description">sent to Administrator as a notification of a course request.</span></label>
-				<textarea name="courseRequestedAdmin" id="courseRequestedAdmin" class="wysiwyg form-control" rows="5">{$courseRequestedAdmin}</textarea>
+				<textarea name="courseRequestedAdmin" id="courseRequestedAdmin" class="wysiwyg form-control" rows="{if $courseRequestedAdmin}{$courseRequestedAdmin|count_paragraphs*2}{else}8{/if}">{$courseRequestedAdmin}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
 					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%COURSE_FULL_NAME%|</code>, <code>|%COURSE_SHORT_NAME%|</code>, <code>|%REQUEST_LINK%|</code>, <code>|%SEMESTER%|</code>
@@ -43,7 +53,7 @@
 		<div class="col-xs-8">
 			<div class="form-group choice-widget">
 				<label for="courseRequestedTeacher">Course Requested Teacher: <span class="email-type-description">sent as a receipt to Teacher who requested the course, once request is submitted.</span></label>
-				<textarea name="courseRequestedTeacher" id="courseRequestedTeacher" class="wysiwyg form-control" rows="5">{$courseRequestedTeacher}</textarea>
+				<textarea name="courseRequestedTeacher" id="courseRequestedTeacher" class="wysiwyg form-control" rows="{if $courseRequestedTeacher}{$courseRequestedTeacher|count_paragraphs*2}{else}8{/if}">{$courseRequestedTeacher}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
 					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%COURSE_FULL_NAME%|</code>, <code>|%COURSE_SHORT_NAME%|</code>, <code>|%SEMESTER%|</code>
@@ -63,7 +73,7 @@
 		<div class="col-xs-8">
 			<div class="form-group choice-widget">
 				<label for="courseAllowedTeacher">Course Allowed Teacher: <span class="email-type-description">sent to Teacher who requested the course, once approved.</span></label>
-				<textarea name="courseAllowedTeacher" id="courseAllowedTeacher" class="wysiwyg form-control" rows="5">{$courseAllowedTeacher}</textarea>
+				<textarea name="courseAllowedTeacher" id="courseAllowedTeacher" class="wysiwyg form-control" rows="{if $courseAllowedTeacher}{$courseAllowedTeacher|count_paragraphs*2}{else}8{/if}">{$courseAllowedTeacher}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
 					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%COURSE_FULL_NAME%|</code>, <code>|%COURSE_SHORT_NAME%|</code>, <code>|%OPEN_DATE%|</code>, <code>|%CLOSE_DATE%|</code>, <code>|%COURSE_VIEW_LINK%|</code>
@@ -83,7 +93,7 @@
 		<div class="col-xs-8">
 			<div class="form-group choice-widget">
 				<label for="courseAllowedStudents">Course Allowed Students: <span class="email-type-description">sent to all enrolled Students in a course, once approved.</span></label>
-				<textarea name="courseAllowedStudents" id="courseAllowedStudents" class="wysiwyg form-control" rows="5">{$courseAllowedStudents}</textarea>
+				<textarea name="courseAllowedStudents" id="courseAllowedStudents" class="wysiwyg form-control" rows="{if $courseAllowedStudents}{$courseAllowedStudents|count_paragraphs*2}{else}8{/if}">{$courseAllowedStudents}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
 					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%COURSE_FULL_NAME%|</code>, <code>|%COURSE_SHORT_NAME%|</code>, <code>|%OPEN_DATE%|</code>, <code>|%CLOSE_DATE%|</code>, <code>|%SITE_LINK%|</code>
@@ -103,7 +113,7 @@
 		<div class="col-xs-8">
 			<div class="form-group choice-widget">
 				<label for="courseDenied">Course Denied: <span class="email-type-description">sent to Teacher who requested the course, once denied.</span></label>
-				<textarea name="courseDenied" id="courseDenied" class="wysiwyg form-control" rows="5">{$courseDenied}</textarea>
+				<textarea name="courseDenied" id="courseDenied" class="wysiwyg form-control" rows="{if $courseDenied}{$courseDenied|count_paragraphs*2}{else}8{/if}">{$courseDenied}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
 					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%COURSE_FULL_NAME%|</code>, <code>|%COURSE_SHORT_NAME%|</code>, <code>|%SEMESTER%|</code>
@@ -123,7 +133,7 @@
 		<div class="col-xs-8">
 			<div class="form-group choice-widget">
 				<label for="reservationDetails">Reservation Details: <span class="email-type-description">sent as a receipt with pertinent info to Student who made a reservation, once one is made.</span></label>
-				<textarea name="reservationDetails" id="reservationDetails" class="wysiwyg form-control" rows="5">{$reservationDetails}</textarea>
+				<textarea name="reservationDetails" id="reservationDetails" class="wysiwyg form-control" rows="{if $reservationDetails}{$reservationDetails|count_paragraphs*2}{else}8{/if}">{$reservationDetails}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
 					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%RESERVE_DATE%|</code>, <code>|%RESERVE_VIEW_LINK%|</code>, <code>|%RESERVE_CANCEL_LINK%|</code>, <code>|%PURPOSE_INFO%|</code>, <code>|%ROOM_NAME%|</code>
@@ -150,7 +160,7 @@
 		<div class="col-xs-8">
 			<div class="form-group choice-widget">
 				<label for="reservationReminder">Reservation Reminder: <span class="email-type-description">send reservation details to Student prior to start of reservation.</span></label>
-				<textarea name="reservationReminder" id="reservationReminder" class="wysiwyg form-control" rows="5">{$reservationReminder}</textarea>
+				<textarea name="reservationReminder" id="reservationReminder" class="wysiwyg form-control" rows="{if $reservationReminder}{$reservationReminder|count_paragraphs*2}{else}8{/if}">{$reservationReminder}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
 					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%RESERVE_DATE%|</code>, <code>|%RESERVE_VIEW_LINK%|</code>, <code>|%RESERVE_CANCEL_LINK%|</code>, <code>|%PURPOSE_INFO%|</code>, <code>|%ROOM_NAME%|</code>
@@ -170,7 +180,7 @@
 		<div class="col-xs-8">
 			<div class="form-group choice-widget">
 				<label for="reservationMissed">Reservation Missed: <span class="email-type-description">sent to Student when they miss a reservation.</span></label>
-				<textarea name="reservationMissed" id="reservationMissed" class="wysiwyg form-control" rows="5">{$reservationMissed}</textarea>
+				<textarea name="reservationMissed" id="reservationMissed" class="wysiwyg form-control" rows="{if $reservationMissed}{$reservationMissed|count_paragraphs*2}{else}8{/if}">{$reservationMissed}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
 					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%RESERVE_DATE%|</code>, <code>|%PURPOSE_INFO%|</code>, <code>|%RESERVATION_MISSED_LINK%|</code>

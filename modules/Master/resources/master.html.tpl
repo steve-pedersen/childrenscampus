@@ -144,13 +144,15 @@
 			{else}
 			<div class="col-md-7 main-content">
 			{/if}
+		{elseif !$viewer && $homePage}
+			<div class="col-md-10 main-content">
 		{else}
-		<div class="col-md-12 main-content">
+			<div class="col-md-12 main-content">
 		{/if}
 		{include file=$contentTemplate}
 		</div>
 		
-		{if $viewer && !$adminPage}
+		{if ($viewer && !$adminPage) || (!$viewer && $homePage)}
 		<!-- RIGHT SIDEBAR - Contact -->
         <div class="col-md-2 col-sm-4 col-xs-12">
             <div class="right-sidebar pull-right">

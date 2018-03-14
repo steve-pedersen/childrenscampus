@@ -476,8 +476,6 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                                 $emailData = array();
                                 $emailData['user'] = $viewer;
                                 $emailData['reservation'] = $reservation;
-                                $emailData['purpose_info'] = $purpose->shortDescription;
-                                $emailData['room_name'] = $room->name;
                                 $emailManager = new Ccheckin_Admin_EmailManager($this->getApplication(), $this);
                                 $emailManager->processEmail('sendReservationDetails', $emailData);
 

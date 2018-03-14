@@ -45,7 +45,7 @@ class Ccheckin_Purposes_Purpose extends Bss_ActiveRecord_BaseWithAuthorization /
     
     public function setObject ($object)
     {
-        if ($object instanceof Bss_ActiveRecord_BaseWithAuthorization && $object->inDataSource) // TODO: Test **************** 2.8.18 - 1st test works for object=Facet
+        if ($object instanceof Bss_ActiveRecord_BaseWithAuthorization && $object->inDataSource)
         {
             $id = $object->id;
             $type = get_class($object);
