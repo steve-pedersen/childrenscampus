@@ -46,10 +46,61 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
     public function emailSettings ()
     {
         $siteSettings = $this->getApplication()->siteSettings;
+        $files = $this->schema('Ccheckin_Admin_File');
+
+        $removedFiles = array();
 
         if ($this->request->wasPostedByUser())
         {
+
+            if ($removedFiles = $this->request->getPostParameter('removed-files', array()))
+            {
+                $removedFiles = $files->find($files->id->inList($removedFiles), array('arrayKey' => 'id'));
+            }
+
+            if ($attachments = $this->request->getPostParameter('attachments'))
+            {
+                $attRecords = $files->find($files->id->inList($attachments));
+                
+                foreach ($attRecords as $record)
+                {
+                    if (empty($removedFiles[$record->id]))
+                    {
+                        $attachments[$record->id] = $record;
+                    }
+                }
+            }
+
             switch ($this->getPostCommand()) {
+                case 'upload':
+                    $file = $this->schema('Ccheckin_Admin_File')->createInstance();
+                    $file->createFromRequest($this->request, 'attachment');
+                    
+                    if ($file->isValid())
+                    {
+                        $file->uploadedBy = $this->getAccount();
+                        $file->save();
+
+                        $this->flash('The file has been uploaded to the server.');
+                        $this->response->redirect('admin/settings/email');
+                    }
+                    
+                    $this->template->errors = $file->getValidationMessages();
+                    break;
+
+                case 'remove-attachment':
+                    $command = $this->request->getPostParameter('command');
+                    $tmpArray = array_keys($command['remove-attachment']);
+                    $id = array_shift($tmpArray);
+                    if ($fileToRemove = $files->get($id))
+                    {
+                        $removedFiles[$fileToRemove->id] = $fileToRemove;
+                        $fileToRemove->delete();
+                    }
+
+                    $this->flash("This file has been removed from the server.");
+                    break;
+
                 case 'save':
                     $siteSettings->setProperty('email-default-address', $this->request->getPostParameter('defaultAddress'));
                     $siteSettings->setProperty('email-signature', $this->request->getPostParameter('signature'));
@@ -170,6 +221,8 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
             }
         }
 
+        $this->template->removedFiles = $removedFiles;
+        $this->template->attachments = $files->getAll();
         $this->template->defaultAddress = $siteSettings->getProperty('email-default-address');
         $this->template->signature = $siteSettings->getProperty('email-signature');
         $this->template->courseRequestedAdmin = $siteSettings->getProperty('email-course-requested-admin');

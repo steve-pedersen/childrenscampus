@@ -6,9 +6,73 @@
 	<p><strong>If you have made changes to the templates please make sure to save the changes below.</strong></p>
 </div>
 {/if}
-
 <br>
-<form action="" method="post">
+
+<form id="fileAttachment" method="post" action="{$smarty.server.REQUEST_URI}" enctype="multipart/form-data">
+	{generate_form_post_key}
+
+    <h2>Attachment Files</h2>
+	<p>Upload new files to the server, which can then be selected to be sent as attachments for each email below.</p>
+
+    <div class="form-group row">
+        <div class="col-xs-12">
+			{foreach item='att' from=$removedFiles}
+			<input type="hidden" name="removed-files[{$att->id}]" value="{$att->id}" />
+			{/foreach}
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Attachment</th>
+                        <th>Size</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+            {foreach item='attachment' from=$attachments}
+                <tr>
+                    <td>{$attachment->getDownloadLink('admin')}</td>
+                    <td>{$attachment->contentLength|bytes}</td>
+                    <td>
+                        <input type="submit" name="command[remove-attachment][{$attachment->id}]" value="Remove From Server" class="btn btn-xs btn-danger" />
+                        <input type="hidden" name="attachments[{$attachment->id}]" value="{$attachment->id}" />
+                    </td>
+                </tr>
+            {foreachelse}
+                <tr><td colspan="3">There are no attachments on the server.</td></tr>
+            {/foreach}
+            </table>
+        </div>
+    </div>
+
+    <div class="form-group upload-form row">
+        <div class="col-xs-8">
+            <label for="attachment" class="field-label field-linked">Upload file attachment</label>       
+            <input class="form-control" type="file" name="attachment" id="attachment" />
+        {foreach item='error' from=$errors.attachment}<div class="error">{$error}</div>{/foreach}
+        </div>
+        <div class="col-xs-8 help-block text-center">
+            <p id="type-error" class="bg-danger" style="display:none"><strong>File format should be doc, docx, or pdf.</strong></p>
+        </div>          
+    </div>
+
+    <div class="form-group row">  
+        <div class="col-xs-8">
+            <label for="files-title" class="field-linked inline">Optional title</label>
+            <input class="form-control" type="text" name="file[title]" id="files-title" class="inline" />
+        </div>
+    </div>
+
+    <div class="form-group commands file-submit row">
+        <div class="col-xs-8">
+            <input type="submit" name="command[upload]" id="fileSubmit" value="Upload File" class="btn btn-info hide" onclick="this.form.submit();" />
+        </div>
+    </div>    
+</form>
+
+<hr>
+
+<h2>Emails</h2>
+
+<form action="{$smarty.server.REQUEST_URI}" method="post">
 	{generate_form_post_key}
 
 	<div class="row">
