@@ -73,7 +73,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
 
             switch ($this->getPostCommand()) {
                 case 'upload':
-                    $file = $this->schema('Ccheckin_Admin_File')->createInstance();
+                    $file = $files->createInstance();
                     $file->createFromRequest($this->request, 'attachment');
                     
                     if ($file->isValid())
@@ -114,13 +114,39 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                     $siteSettings->setProperty('email-reservation-reminder', $this->request->getPostParameter('reservationReminder'));
                     $siteSettings->setProperty('email-reservation-missed', $this->request->getPostParameter('reservationMissed'));
 
+                    $attachedFiles = array();
+                    $attachmentData = $this->request->getPostParameter('attachment');
+                    
+                    foreach ($attachmentData as $emailKey => $fileIds)
+                    {
+                        foreach ($fileIds as $fileId)
+                        {
+                            // echo "<pre>"; var_dump($fileId); die;
+                            if (!isset($attachedFiles[$fileId]))
+                            {
+                                $attachedFiles[$fileId] = array();
+                            }
+                            if (!in_array($emailKey, $attachedFiles[$fileId]))
+                            {
+                                $attachedFiles[$fileId][] = $emailKey;
+                            }
+                        }
+                    }
+
+                    foreach ($attachedFiles as $fileId => $emailKeys)
+                    {
+                        $file = $files->get($fileId);
+                        $file->attachedEmailKeys = $emailKeys;
+                        $file->save();
+                    }
+
                     $this->flash("Children's Campus email settings and content have been saved.");
                     $this->response->redirect('admin/settings/email');
                     exit;
-                case 'send':
+                case 'sendtest':
                     $viewer = $this->getAccount();
                     $command = $this->request->getPostParameter('command');
-                    $which = array_keys($command['send']);
+                    $which = array_keys($command['sendtest']);
                     $which = array_pop($which);
 
                     if ($which)
@@ -144,7 +170,6 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
 
                             case 'courseRequestedTeacher':
                                 $emailData['courseRequest'] = new stdClass();
-                                // $emailData['courseRequest']->id = 0;
                                 $emailData['courseRequest']->fullName = 'TEST: Introduction to Childhood Development';
                                 $emailData['courseRequest']->shortName = 'TEST-CAD-0101-01-Spring-2025';
                                 $emailData['courseRequest']->semester = 'TEST Spring 2025';

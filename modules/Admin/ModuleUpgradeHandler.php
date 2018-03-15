@@ -42,6 +42,7 @@ class Ccheckin_Admin_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUpg
                 $def->addProperty('hash', 'string');
                 $def->addProperty('temporary', 'bool');
                 $def->addProperty('title', 'string');
+                $def->addProperty('attached_email_keys', 'string');
                 $def->addProperty('uploaded_date', 'datetime');
                 $def->addProperty('uploaded_by_id', 'int');
                 $def->addForeignKey('bss_authn_accounts', array('uploaded_by_id' => 'id'));

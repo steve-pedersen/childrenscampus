@@ -17,6 +17,9 @@ class Ccheckin_Admin_File extends Bss_ActiveRecord_Base
             'hash' => 'string',
             'title' => 'string',
             'temporary' => 'bool',
+
+            // comma-separated list of email key names for which this file is used as an attachment
+            'attachedEmailKeys' => array('string', 'nativeName' => 'attached_email_keys'),  
             
             'uploadedBy' => array('1:1', 'to' => 'Bss_AuthN_Account', 'keyMap' => array('uploaded_by_id' => 'id')),
             'uploadedDate' => array('datetime', 'nativeName' => 'uploaded_date'),
@@ -31,6 +34,30 @@ class Ccheckin_Admin_File extends Bss_ActiveRecord_Base
     public function exists ()
     {
         return file_exists($this->localName);
+    }
+
+    public function getAttachedEmailKeys ()
+    {
+        return explode(',', $this->_fetch('attachedEmailKeys'));
+    }
+
+    // TODO: Add some functionality to add on extra keys to already existing ones if doesn't exist already
+    public function setAttachedEmailKeys ($emailKeys)
+    {
+        if (is_array($emailKeys))
+        {
+            $this->_assign('attachedEmailKeys', implode(',', $emailKeys));
+        }
+        else
+        {
+            $this->_assign('attachedEmailKeys', implode(',', $emailKeys));
+        }
+        // if ($emailKey !== '' && $emailKey !== null)
+        // {
+        //     $keys = $this->attachedEmailKeys;
+        //     $keys[] = $emailKey;
+        //     $this->_assign('attachedEmailKeys', implode(',', $keys));
+        // }
     }
 
     public function createFromRequest ($request, $inputName)
@@ -48,7 +75,7 @@ class Ccheckin_Admin_File extends Bss_ActiveRecord_Base
                     {
                         if ($fileData = $request->getPostParameter('file'))
                         {
-                            if (!empty($fileData['title']))
+                            if (!empty($fileData['title']) && $fileData['title'] !== '')
                             {
                                 $this->_assign('title', $fileData['title']);
                             }
