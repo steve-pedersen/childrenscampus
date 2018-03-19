@@ -153,6 +153,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                         switch ($which) 
                         {
                             case 'courseRequestedAdmin':
+                                $emailData['requestingUser'] = $viewer;
                                 $emailData['courseRequest'] = new stdClass();
                                 $emailData['courseRequest']->id = 0;
                                 $emailData['courseRequest']->fullName = 'TEST: Introduction to Childhood Development';

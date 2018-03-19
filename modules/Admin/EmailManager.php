@@ -10,7 +10,8 @@ class Ccheckin_Admin_EmailManager
 	private $testingOnly;
 	private $subjectLine;
 	private $attachments;
-	// private $facultyRole;
+	private $ccRequest;
+	private $emailLogId;
 
 	private $schemas = array();
 
@@ -24,6 +25,7 @@ class Ccheckin_Admin_EmailManager
 		$this->testEmail = $app->getConfiguration()->getProperty('email-test-address');
 		$this->subjectLine = "The Children's Campus";
 		$this->attachments = array();
+		$this->ccRequest = false;
 	}
 
 	public function validEmailTypes ()
@@ -57,12 +59,17 @@ class Ccheckin_Admin_EmailManager
 		}
 
 		$fileType = lcfirst(str_replace('send', '', $type));
-		$this->attachments = $this->getEmailAttachments($fileType);
-		
+		$this->attachments = $this->getEmailAttachments($fileType);	
+		$this->ccRequest = ($type === 'sendCourseRequestedAdmin');
+
+		$emailLog = $this->getSchema('Ccheckin_Admin_EmailLog')->createInstance();
+		$emailLog->type = ($test ? 'TEST' : '') . $type;
+		$emailLog->creationDate = new DateTime;
+		$emailLog->save();
+		$this->emailLogId = $emailLog->id;
+
 		// send email based on type
 		$this->$type($params, $test);
-
-		// TODO: Add some email logging here ******************************************************
 	}
 
     public function getEmailAttachments ($emailType)
@@ -90,8 +97,8 @@ class Ccheckin_Admin_EmailManager
 		}
 		
 		$params = array(
-			'|%FIRST_NAME%|' => $data['user']->firstName,
-			'|%LAST_NAME%|' => $data['user']->lastName,
+			'|%FIRST_NAME%|' => $data['requestingUser']->firstName,
+			'|%LAST_NAME%|' => $data['requestingUser']->lastName,
 			'|%COURSE_FULL_NAME%|' => (!$test ? $courseReq->course->fullName : $data['courseRequest']->fullName),
 			'|%COURSE_SHORT_NAME%|' => (!$test ? $courseReq->course->shortName : $data['courseRequest']->shortName),
 			'|%SEMESTER%|' => (!$test ? $courseReq->course->semester->display : $data['courseRequest']->semester),
@@ -313,23 +320,30 @@ class Ccheckin_Admin_EmailManager
 			$mail->set('Sender', $this->fromEmail);
 			$mail->AddReplyTo($this->fromEmail, $this->fromName);
 
+			$recipients = array();
+
 			if ($this->testingOnly && $this->testEmail)
 			{
 				// send only to testing address
 				$mail->AddAddress($this->testEmail, "Testing Children's Campus");
+				$recipients[] = -1;
 			}
 			elseif (count($user) > 1)
 			{
 				// send to multiple recipients
 				foreach ($user as $recipient)
 				{
+					$recipient = is_array($recipient) ? array_shift($recipient) : $recipient;
 					$mail->AddAddress($recipient->emailAddress, $recipient->fullName);
+					$recipients[] = $recipient->id;
 				}
 			}
 			else
 			{
 				// send to a single specified recipient
+				$user = is_array($user) ? array_shift($user) : $user;
 				$mail->AddAddress($user->emailAddress, $user->fullName);
+				$recipients[] = $user->id;
 			}
 
 			foreach ($this->attachments as $attachment)
@@ -337,12 +351,25 @@ class Ccheckin_Admin_EmailManager
 				$title = isset($attachment->title) ? $attachment->title : $attachment->remoteName;
 				$mail->AddAttachment($attachment->getLocalFilename(true), $title);
 			}
-			
+			if ($this->ccRequest && !($this->testingOnly && $this->testEmail))
+			{
+				$mail->AddAddress($this->fromEmail, $this->fromName);
+			}
+
 			$mail->getTemplate()->message = $preppedText;
 			$mail->getTemplate()->messageTitle = $messageTitle;
 			$mail->getTemplate()->signature = $this->app->siteSettings->getProperty('email-signature', "<br><p>&nbsp;&nbsp;&mdash;The Children's Campus</p>");
 			
-			$mail->Send();
+			$success = $mail->Send();
+        
+			// finish email log
+			$emailLog = $this->getSchema('Ccheckin_Admin_EmailLog')->get($this->emailLogId);
+			$emailLog->recipients = implode(',', $recipients);
+			$emailLog->subject = $this->subjectLine;
+			$emailLog->body = $preppedText;
+			$emailLog->attachments = $this->attachments;
+			$emailLog->success = $success;
+			$emailLog->save();
 		}
 	}
 

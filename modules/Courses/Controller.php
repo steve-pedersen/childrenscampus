@@ -215,7 +215,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
             $this->template->activeDisplay = $semesters[$semid]->display;
             $this->setCourses($viewer, $activeSemester);
         }
- 
+
         if ($this->request->wasPostedByUser())
         {      
             if ($this->getPostCommand() == 'request')
@@ -309,16 +309,15 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                     // Save all Course => Accounts mapped data
                     $course->enrollments->save();
 
-                    $emailData = array();                  
+                    $emailData = array();        
                     $emailData['courseRequest'] = $request;
                     $emailManager = new Ccheckin_Admin_EmailManager($this->getApplication(), $this);
-                    // Send admin an email
-                    $adminRole = $roles->findOne($roles->name->equals('Administrator'));
-                    // find all Admin accounts that have 'receiveAdminNotifications' turned on.
-                    $emailData['user'] = '';
+                    // Send admin an email to all Admin accounts that have 'receiveAdminNotifications' turned on.
+                    $emailData['requestingUser'] = $viewer;
+                    $emailData['user'] = $accounts->find($accounts->receiveAdminNotifications->isTrue());
                     $emailManager->processEmail('sendCourseRequestedAdmin', $emailData);
                     
-                    // Send an email to Teacher
+                    // Send an email to the requesting Teacher
                     $emailData['user'] = $viewer;
                     $emailManager->processEmail('sendCourseRequestedTeacher', $emailData);
 
@@ -427,44 +426,4 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         $this->template->course = $course;
     }
 
-    // TODO: Sort out these three functions below ******************************************************
-    
-    protected function sendStudentRequestedNotification ($course, $account)
-    {
-        $diva = Diva::GetInstance();
-        $template = $this->createEmailTemplateTEMPORARYFUNCTIONNAME('email_students_requested.tpl');
-        $template->assign('adminLink', $diva->Link('admin/courses/queue'));
-        $template->assign('account', $account);
-        // And send them an e-mail so they can use it:
-        $mail = new DivaMailer();
-        $mail->Subject = 'Children\'s Campus Checkin: A new request for students to be added to course';
-        $mail->Body = $template->render();
-        $mail->AltBody = strip_tags($mail->Body);
-        $mail->AddAddress(CC_REQUEST_NOTIFIEE_EMAIL);
-        $mail->Send();
-    }
-
-
-    protected function sendCourseRequestedNotification ($course, $account)
-    {
-        $diva = Diva::GetInstance();
-        $template = $this->createEmailTemplateTEMPORARYFUNCTIONNAME('email_course_requested.tpl');
-        $template->assign('adminLink', $diva->Link('admin/courses/queue'));
-        $template->assign('account', $account);
-        // And send them an e-mail so they can use it:
-        $mail = new DivaMailer();
-        $mail->Subject = 'Children\'s Campus Checkin: A new course has been requested';
-        $mail->Body = $template->render();
-        $mail->AltBody = strip_tags($mail->Body);
-        $mail->AddAddress(CC_REQUEST_NOTIFIEE_EMAIL);
-        $mail->Send();
-    }
-
-    protected function createEmailTemplateTEMPORARYFUNCTIONNAME($templateName)
-    {
-        $template = new DivaTemplate;
-        $template->setDefaultResourceDirectory(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'resources');
-        $template->setTemplateFile($templateName);
-        return $template;
-    }
 }

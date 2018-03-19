@@ -50,6 +50,17 @@ class Ccheckin_Admin_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUpg
                 $def->addForeignKey('bss_authn_accounts', array('uploaded_by_id' => 'id'));
                 $def->save();
 
+                $def = $this->createEntityType('ccheckin_email_log', $this->getDataSource('Ccheckin_Admin_EmailLog'));
+                $def->addProperty('id', 'int', array('sequence' => true, 'primaryKey' => true));
+                $def->addProperty('type', 'string');
+                $def->addProperty('creation_date', 'datetime');
+                $def->addProperty('recipients', 'string');
+                $def->addProperty('subject', 'string');
+                $def->addProperty('body', 'string');
+                $def->addProperty('attachments', 'string');
+                $def->addProperty('success', 'bool');
+                $def->save();
+
                 break;
         }
     }

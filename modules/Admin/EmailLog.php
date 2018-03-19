@@ -6,32 +6,39 @@ class Ccheckin_Admin_EmailLog extends Bss_ActiveRecord_Base
     public static function SchemaInfo ()
     {
         return array(
-            '__type' => 'ccheckin_admin_email_log',
+            '__type' => 'ccheckin_email_log',
             '__pk' => array('id'),
             
-            'id' => 'int',
-            
+            'id' => 'int',          
             'type' => 'string',         
             'creationDate' => array('datetime', 'nativeName' => 'creation_date'),
-            'senderId' => array('int', 'nativeName' => 'sender_id'),
-            'recipients' => 'string', // array('string', 'nativeName' => 'recipients'),
+            'recipients' => 'string',
             'subject' => 'string',
-
-            'sender' => array('1:1', 'to' => 'Bss_AuthN_Account', 'keyMap' => array('sender_id' => 'id')),
-            // 'recipients' => array('1:N', 'to' => 'Bss_AuthN_Account', ....),
+            'body' => 'string',
+            'attachments' => 'string',
+            'success' => 'bool',
         );
     }
 
-    // public function addLogEntry($type, $message, $viewer)
-    // {
-    //     $entry = $this->logs->getReference()->getToSchema()->createInstance();
-    //     $entry->request = $this;
-    //     $entry->faculty = $this->faculty;
-    //     $entry->term = $this->term;
-    //     $entry->type = $type;
-    //     $entry->message = $message;
-    //     $entry->entryDate = new DateTime;
-    //     $entry->enteredBy = $viewer;
-    //     $this->logs->add($entry);
-    // }
+    public function getRecipients ()
+    {
+        return explode(',', $this->_fetch('recipients'));
+    }
+
+    public function setAttachments ($attachments)
+    {
+        $atts = array();
+        foreach ($attachments as $att)
+        {
+            $atts[] = $att->id;
+        }
+        $this->_assign('attachments', (string)implode(',', $atts));
+    }
+    public function getAttachments ()
+    {
+        $attIds = explode(',', $this->_fetch('attachments'));
+        $files = $this->getSchema('Ccheckin_Admin_File');
+        
+        return $files->find($files->inList($attIds));
+    }
 }
