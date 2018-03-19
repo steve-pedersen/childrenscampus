@@ -308,17 +308,18 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
 
                     // Save all Course => Accounts mapped data
                     $course->enrollments->save();
-                    
-                    // TODO: Fix email functions
-                    // $this->sendCourseRequestedNotification($course, $viewer);                                       // TODO: FIX EMAIL FUNCTION *********************
 
-                    $emailData = array();
-                    $emailData['user'] = $viewer;
+                    $emailData = array();                  
                     $emailData['courseRequest'] = $request;
                     $emailManager = new Ccheckin_Admin_EmailManager($this->getApplication(), $this);
                     // Send admin an email
+                    $adminRole = $roles->findOne($roles->name->equals('Administrator'));
+                    // find all Admin accounts that have 'receiveAdminNotifications' turned on.
+                    $emailData['user'] = '';
                     $emailManager->processEmail('sendCourseRequestedAdmin', $emailData);
+                    
                     // Send an email to Teacher
+                    $emailData['user'] = $viewer;
                     $emailManager->processEmail('sendCourseRequestedTeacher', $emailData);
 
                     $this->flash('You course request is now pending.  You will be notified when a decision has been made.');

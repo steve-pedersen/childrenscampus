@@ -20,6 +20,8 @@ class Ccheckin_Admin_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUpg
                 $settings->defineProperty('blocked-dates', 'A JSON encoded string of dates for when Childrens Campus is closed and reservations are unavailable', 'string');
 
                 // Email
+                $settings->defineProperty('email-testing-only', 'If set, email will only be sent to the test address. SHOULD ONLY TURNED ON FOR TESTING.', 'int');
+                $settings->defineProperty('email-test-address', 'Email address for testing. If set, all emails will be sent here.', 'string');
                 $settings->defineProperty('email-default-address', 'The default email address from which emails will be sent.', 'string');
                 $settings->defineProperty('email-signature', 'A signature to use for the bottom of every email.', 'string');
                 $settings->defineProperty('email-course-allowed-teacher', 'Email content for the Course Allowed email to send to the Requesting Teacher.', 'string');

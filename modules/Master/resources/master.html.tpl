@@ -129,6 +129,9 @@
                         {/if}
                         <li><a href="reservations/missed">Missed Reservations</a></li>
                         <li><a href="reservations/observations">Past Observations</a></li>
+						{if !$pAdmin}
+                        <li><a href="profile">Edit Profile</a></li>
+                        {/if}
                     </ul>
                 </div>
                 <!--/.well -->

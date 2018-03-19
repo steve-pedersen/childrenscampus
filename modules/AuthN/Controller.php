@@ -1,0 +1,38 @@
+<?php
+
+/**
+ */
+class Ccheckin_AuthN_Controller extends Ccheckin_Master_Controller
+{
+    public static function getRouteMap ()
+    {
+        return array(
+            'profile' => array('callback' => 'editProfile'),
+        );
+    }
+
+    public function editProfile ()
+    {
+        $account = $this->requireLogin();
+        if ($this->hasPermission('admin'))
+        {
+            $this->response->redirect('admin/accounts/' . $account->id);
+        }
+
+        if (($this->getPostCommand() == 'save') && $this->request->wasPostedByUser())
+        {
+            $account->firstName = $this->request->getPostParameter('firstname');
+            $account->middleName = $this->request->getPostParameter('middlename');
+            $account->lastName = $this->request->getPostParameter('lastname');
+            $account->receiveAdminNotifications = $this->request->getPostParameter('receiveAdminNotifications', false);
+            $account->save();
+
+            $this->flash('Account information saved.');
+            $this->response->redirect('home');
+        }
+
+        $this->template->account = $account;
+        $this->template->canEditNotifications = $this->hasPermission('edit system notifications');
+    }
+
+}

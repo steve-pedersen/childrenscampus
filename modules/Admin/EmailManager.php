@@ -6,7 +6,10 @@ class Ccheckin_Admin_EmailManager
 	private $ctrl;
 	private $fromEmail;
 	private $fromName;
+	private $testEmail;
+	private $testingOnly;
 	private $subjectLine;
+	private $attachments;
 	// private $facultyRole;
 
 	private $schemas = array();
@@ -16,8 +19,11 @@ class Ccheckin_Admin_EmailManager
 		$this->app = $app;
 		$this->ctrl = $ctrl;
 		$this->fromEmail = $app->getConfiguration()->getProperty('email-default-address', 'children@sfsu.edu');
-		$this->fromName = "The Children's Campus"; 
+		$this->fromName = "The Children's Campus";
+		$this->testingOnly = $app->getConfiguration()->getProperty('email-testing-only', false);
+		$this->testEmail = $app->getConfiguration()->getProperty('email-test-address');
 		$this->subjectLine = "The Children's Campus";
+		$this->attachments = array();
 	}
 
 	public function validEmailTypes ()
@@ -50,10 +56,29 @@ class Ccheckin_Admin_EmailManager
 			exit;
 		}
 
+		$fileType = lcfirst(str_replace('send', '', $type));
+		$this->attachments = $this->getEmailAttachments($fileType);
+		
+		// send email based on type
 		$this->$type($params, $test);
 
 		// TODO: Add some email logging here ******************************************************
 	}
+
+    public function getEmailAttachments ($emailType)
+    {
+        $attachments = array();
+        $files = $this->getSchema('Ccheckin_Admin_File')->getAll();
+        foreach ($files as $file)
+        {
+            if (in_array($emailType, $file->attachedEmailKeys))
+            {
+                $attachments[] = $file;
+            }
+        }
+
+        return $attachments;
+    }
 
 	public function sendCourseRequestedAdmin ($data, $test)
 	{
@@ -147,8 +172,6 @@ class Ccheckin_Admin_EmailManager
 		}
 
 		$params = array(
-			'|%FIRST_NAME%|' => $data['user']->firstName,
-			'|%LAST_NAME%|' => $data['user']->lastName,
 			'|%COURSE_FULL_NAME%|' => (!$test ? $course->fullName : $data['course']->fullName),
 			'|%COURSE_SHORT_NAME%|' => (!$test ? $course->shortName : $data['course']->shortName),
 			'|%OPEN_DATE%|' => (!$test ? $course->semester->openDate : $data['course']->openDate)->format('M j, Y'),
@@ -288,15 +311,32 @@ class Ccheckin_Admin_EmailManager
 			$mail->set('From', $this->fromEmail);
 			$mail->set('FromName', $this->fromName);
 			$mail->set('Sender', $this->fromEmail);
-			$mail->AddAddress($user->emailAddress, $user->fullName);
 			$mail->AddReplyTo($this->fromEmail, $this->fromName);
 
-			// AddAttachment($path, $name = '')
-			// $mail->AddAttachment(
-			// 	glue_path(
-			// 		dirname(__FILE__), 'resources', 'Guidelines_for_SF_State_Student_Participants_2016-17.pdf'), 
-			// 	'Guidelines for SF State Student Participants 2016-2017.pdf'
-			// );
+			if ($this->testingOnly && $this->testEmail)
+			{
+				// send only to testing address
+				$mail->AddAddress($this->testEmail, "Testing Children's Campus");
+			}
+			elseif (count($user) > 1)
+			{
+				// send to multiple recipients
+				foreach ($user as $recipient)
+				{
+					$mail->AddAddress($recipient->emailAddress, $recipient->fullName);
+				}
+			}
+			else
+			{
+				// send to a single specified recipient
+				$mail->AddAddress($user->emailAddress, $user->fullName);
+			}
+
+			foreach ($this->attachments as $attachment)
+			{
+				$title = isset($attachment->title) ? $attachment->title : $attachment->remoteName;
+				$mail->AddAttachment($attachment->getLocalFilename(true), $title);
+			}
 			
 			$mail->getTemplate()->message = $preppedText;
 			$mail->getTemplate()->messageTitle = $messageTitle;

@@ -73,18 +73,35 @@
 	
 	<h2 class="email-header"><u>Settings</u></h2>
 	<div class="row">
-		<div class="col-xs-8">
+		<div class="col-xs-12">
 			<div class="form-group">
 				<label for="defaultAddress">Default email address</label>
-				<input type="email" class="form-control" name="defaultAddress" id="defaultAddress" value="{$defaultAddress}" placeholder="e.g. children@sfsu.edu" />				
+				<input type="email" class="form-control" name="defaultAddress" id="defaultAddress" value="{$defaultAddress}" placeholder="children@sfsu.edu..." />				
 			</div>
 		</div>
 	</div>
-	<div class="row email-row">
-		<div class="col-xs-8">
+	<div class="row">
+		<div class="col-xs-12">
 			<div class="form-group">
 				<label for="signature">Email Signature</label>
-				<textarea name="signature" id="signature" class="wysiwyg form-control" rows="5" placeholder="  --The Children's Campus">{$signature}</textarea>		
+				<textarea name="signature" id="signature" class="wysiwyg form-control" rows="5" placeholder="  ---<br>The Children's Campus">{$signature}</textarea>		
+			</div>
+		</div>
+	</div>
+
+	<div class="row email-row testing-row">
+		<h3 class="">Testing</h3>
+		<p class="alert alert-warning"><strong>NOTE: Turning on testing will make it so that ALL email will only be sent to the "Testing recipient email address". If no testing address is specified, but testing is turned on, email will fail to send to anyone.</strong></p>
+		<div class="col-xs-4">
+			<div class="form-group testingOnly">
+				<label for="testingOnly">Turn Testing On</label><br>
+				<input type="checkbox"  name="testingOnly" id="testingOnly" value="{if $testingOnly}1{/if}" {if $testingOnly}checked aria-checked="true"{/if} />						
+			</div>
+		</div>
+		<div class="col-xs-8">
+			<div class="form-group">
+				<label for="testAddress">Testing recipient email address</label>
+				<input type="email" class="form-control" name="testAddress" id="testAddress" value="{$testAddress}" placeholder="e.g. testaddress@gmail.com" />				
 			</div>
 		</div>
 	</div>
@@ -202,7 +219,7 @@
 				<textarea name="courseAllowedStudents" id="courseAllowedStudents" class="wysiwyg form-control" rows="{if $courseAllowedStudents}{$courseAllowedStudents|count_paragraphs*2}{else}8{/if}">{$courseAllowedStudents}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
-					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%COURSE_FULL_NAME%|</code>, <code>|%COURSE_SHORT_NAME%|</code>, <code>|%OPEN_DATE%|</code>, <code>|%CLOSE_DATE%|</code>, <code>|%SITE_LINK%|</code>
+					<code>|%COURSE_FULL_NAME%|</code>, <code>|%COURSE_SHORT_NAME%|</code>, <code>|%OPEN_DATE%|</code>, <code>|%CLOSE_DATE%|</code>, <code>|%SITE_LINK%|</code>
 				</span>
 			</div>
 		</div>

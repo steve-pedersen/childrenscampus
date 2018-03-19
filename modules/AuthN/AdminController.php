@@ -25,18 +25,12 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
     public function beforeCallback ($callback)
     {
         parent::beforeCallback($callback);
-        $this->requirePermission('admin');
+        // $this->requirePermission('admin');
         $this->template->clearBreadcrumbs();
         $this->addBreadcrumb('home', 'Home');
         $this->addBreadcrumb('admin', 'Admin');
         // if admin and on admin page, don't display 'Contact' sidebar
-        $adminPage = false;
-        $path = $this->request->getFullRequestedUri();
-        if ($this->hasPermission('admin') && (strpos($path, 'admin') !== false))
-        {
-            $adminPage = true;
-        }
-        $this->template->adminPage = $adminPage;  
+        $this->template->adminPage = $this->hasPermission('admin') && (strpos($this->request->getFullRequestedUri(), 'admin') !== false); 
     }
  
     /**
@@ -187,6 +181,7 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
 
     public function editAccount ()
     {
+        $viewer = $this->requireLogin();
         $id = $this->getRouteVariable('id');
         $accounts = $this->schema('Bss_AuthN_Account');
         $returnTo = $this->request->getQueryParameter('returnTo', 'admin/accounts');
@@ -195,6 +190,7 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
         {
             $this->setPageTitle('New account');
             $account = $accounts->createInstance();
+            $newAccount = true;
         }
         else
         {
@@ -202,7 +198,7 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
             {
                 $this->notFound();
             }
-            
+            $newAccount = false;
             $this->setPageTitle('Edit ' . $account->displayName);
         }
 
@@ -227,7 +223,8 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
                 $this->template->errorMap = $account->getValidationMessages();
             }
         }
-        
+
+        $this->template->newAccount = $newAccount;
         $this->template->account = $account;
         $this->template->roleList = $roleList;
         $this->template->returnTo = $returnTo;

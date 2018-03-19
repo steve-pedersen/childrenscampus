@@ -26,9 +26,6 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
             ))
         );
 
-        // $masterModule = $this->getApplication()->moduleManager->getModule('at:ccheckin:master');
-        // $this->template->setMasterTemplate($masterModule->getResource('master.html.tpl'));
-
 		if (($locator = $this->getRouteVariable('_locator')))
 		{
 			$this->addTemplateFileLocator($locator);
@@ -69,7 +66,6 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         $this->template->analyticsCode = $this->getApplication()->configuration->getProperty('analyticsTrackingCode');
         $this->template->setPageTitle(!empty($this->pageTitle) ? implode(' - ', $this->pageTitle) : '');
     
-
         $siteSettings = $this->getApplication()->siteSettings;
         if ($contactInfo = $siteSettings->getProperty('contact-info'))
         {
@@ -103,12 +99,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         $this->template->homePage = $homePage;
 
         // if admin and on admin page, don't display 'Contact' sidebar
-        $adminPage = false;
-        if (!$homePage && $this->hasPermission('admin') && (strpos($path, 'admin') !== false))
-        {
-            $adminPage = true;
-        }
-        $this->template->adminPage = $adminPage; 
+        $this->template->adminPage = $this->hasPermission('admin') && (strpos($path, 'admin') !== false);
         $this->template->pAdmin = $this->hasPermission('admin');
         $this->template->isTeacher = $this->hasPermission('course request');
         $this->template->isCCTeacher = $this->hasPermission('room view schedule');

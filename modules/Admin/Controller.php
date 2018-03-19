@@ -25,13 +25,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
         $this->addBreadcrumb('home', 'Home');
         $this->addBreadcrumb('admin', 'Admin');
         // if admin and on admin page, don't display 'Contact' sidebar
-        $adminPage = false;
-        $path = $this->request->getFullRequestedUri();
-        if ($this->hasPermission('admin') && (strpos($path, 'admin') !== false))
-        {
-            $adminPage = true;
-        }
-        $this->template->adminPage = $adminPage; 
+        $this->template->adminPage = $this->hasPermission('admin') && (strpos($this->request->getFullRequestedUri(), 'admin') !== false);
     }
     
     /**
@@ -47,12 +41,10 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
     {
         $siteSettings = $this->getApplication()->siteSettings;
         $files = $this->schema('Ccheckin_Admin_File');
-
         $removedFiles = array();
 
         if ($this->request->wasPostedByUser())
         {
-
             if ($removedFiles = $this->request->getPostParameter('removed-files', array()))
             {
                 $removedFiles = $files->find($files->id->inList($removedFiles), array('arrayKey' => 'id'));
@@ -102,6 +94,10 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                     break;
 
                 case 'save':
+                    $testing = $this->request->getPostParameter('testingOnly');
+                    $testingOnly = ((is_null($testing) || $testing === 0) ? 0 : 1);
+                    $siteSettings->setProperty('email-testing-only', $testingOnly);
+                    $siteSettings->setProperty('email-test-address', $this->request->getPostParameter('testAddress'));
                     $siteSettings->setProperty('email-default-address', $this->request->getPostParameter('defaultAddress'));
                     $siteSettings->setProperty('email-signature', $this->request->getPostParameter('signature'));
                     $siteSettings->setProperty('email-course-allowed-teacher', $this->request->getPostParameter('courseAllowedTeacher'));
@@ -121,7 +117,6 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                     {
                         foreach ($fileIds as $fileId)
                         {
-                            // echo "<pre>"; var_dump($fileId); die;
                             if (!isset($attachedFiles[$fileId]))
                             {
                                 $attachedFiles[$fileId] = array();
@@ -132,7 +127,6 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                             }
                         }
                     }
-
                     foreach ($attachedFiles as $fileId => $emailKeys)
                     {
                         $file = $files->get($fileId);
@@ -143,6 +137,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                     $this->flash("Children's Campus email settings and content have been saved.");
                     $this->response->redirect('admin/settings/email');
                     exit;
+                    
                 case 'sendtest':
                     $viewer = $this->getAccount();
                     $command = $this->request->getPostParameter('command');
@@ -248,6 +243,8 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
 
         $this->template->removedFiles = $removedFiles;
         $this->template->attachments = $files->getAll();
+        $this->template->testingOnly = $siteSettings->getProperty('email-testing-only', 0);
+        $this->template->testAddress = $siteSettings->getProperty('email-test-address');
         $this->template->defaultAddress = $siteSettings->getProperty('email-default-address');
         $this->template->signature = $siteSettings->getProperty('email-signature');
         $this->template->courseRequestedAdmin = $siteSettings->getProperty('email-course-requested-admin');

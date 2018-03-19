@@ -46,8 +46,23 @@
 			$('#fileSubmit').addClass('hide');
 		  }
 		  else {
-			$('#fileSubmit').removeClass('hide'); //.css({'margin': '-20px 0 40px -15px'});
+			$('#fileSubmit').removeClass('hide');
 		  } 
+		});
+
+		$('input[id^="account-role-"]').change(function() {
+			if ($(this).hasClass('account-role-Administrator')) {
+				if ($(this).is(':checked')) {
+					$('input[name=receiveAdminNotifications]').prop( "checked", true );
+				} else {
+					$('input[name=receiveAdminNotifications]').prop( "checked", false );
+				}				
+			}
+			if ($(this).is(':checked')) {
+				$('input[name=status]#account-status').prop( "checked", true );
+			} else {
+				$('input[name=status]#account-status').prop( "checked", false );
+			}
 		});
 	});
 

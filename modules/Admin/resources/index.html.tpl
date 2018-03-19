@@ -43,7 +43,7 @@
 <div class="list-group col-xs-6">
     <h3><img src="assets/images/icon_files.png" class="transparent control_icon" width="64" height="64"> Site Text & Email</h3>
     <a class="list-group-item" href="admin/welcome">Home Page</a>
-    <a class="list-group-item" href="admin/settings/email">Email Content</a>    
+    <a class="list-group-item" href="admin/settings/email">Email</a>    
     <a class="list-group-item" href="admin/courses/tasks">Course Tasks</a>
     <a class="list-group-item" href="admin/courses/instructions">Course Request Instructions</a>
 </div>

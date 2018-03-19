@@ -20,6 +20,7 @@ class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension impleme
             'userAlias' => array('string', 'nativeName' => 'user_alias'),
             'ldap_user' => 'string',    // old data simply used underscores ***
             'isActive' => array('bool', 'nativeName' => 'is_active'),
+            'receiveAdminNotifications' => array('bool', 'nativeName' => 'receive_admin_notifications'),
             'roles' => array('N:M', 'to' => 'Ccheckin_AuthN_Role', 'via' => 'ccheckin_authn_account_roles', 'fromPrefix' => 'account', 'toPrefix' => 'role'),          
         );
     }
@@ -119,6 +120,7 @@ class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension impleme
 
             // save active status
             $account->isActive = $request->getPostParameter('status', false);
+            $account->receiveAdminNotifications = $request->getPostParameter('receiveAdminNotifications', true);
             $account->save();
 		}
         
@@ -129,8 +131,11 @@ class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension impleme
     {
         $roles = $handler->schema('Ccheckin_AuthN_Role');
 		$roleList = $roles->find($roles->isSystemRole->equals(true), array('orderBy' => '+name'));
-        
-        return array('roleList' => $roleList);
+        $canEditNotifications = $handler->hasPermission('admin') || $handler->hasPermission('edit system notifications');
+        $newAccount = $handler->getRouteVariable('id') === 'new';
+        $adminPage = $handler->hasPermission('admin') && (strpos($handler->getRequest()->getFullRequestedUri(), 'admin') !== false);
+
+        return array('roleList' => $roleList, 'canEditNotifications' => $canEditNotifications, 'newAccount' => $newAccount, 'adminPage' => $adminPage);
     }
     
     public function initializeRecord (Bss_ActiveRecord_Base $account)
