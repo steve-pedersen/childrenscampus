@@ -63,7 +63,7 @@ class Ccheckin_Admin_EmailManager
 		$this->ccRequest = ($type === 'sendCourseRequestedAdmin');
 
 		$emailLog = $this->getSchema('Ccheckin_Admin_EmailLog')->createInstance();
-		$emailLog->type = ($test ? 'TEST' : '') . $type;
+		$emailLog->type = ($test ? 'TEST: ' : '') . $type;
 		$emailLog->creationDate = new DateTime;
 		$emailLog->save();
 		$this->emailLogId = $emailLog->id;
@@ -403,93 +403,93 @@ class Ccheckin_Admin_EmailManager
 
 	public $defaultEmails = array(
 		'sendCourseRequestedAdmin' => '
-				<p>A new course has been requested by |%FIRST_NAME%| |%LAST_NAME%|.</p>
-				<p>Click here to view your requested course: |%REQUEST_LINK%|</p>
-				<p>You can go to the manage course requests page by clicking the provided link or copying the above URL into your browser.</p>',
+<p>A new course has been requested by |%FIRST_NAME%| |%LAST_NAME%|.</p>
+<p>Click here to view your requested course: |%REQUEST_LINK%|</p>
+<p>You can go to the manage course requests page by clicking the provided link or copying the above URL into your browser.</p>',
 		'sendCourseRequestedTeacher' => '
-				<p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-				<br>
-				<p>You have requested a new course:</p>
-				<ul>
-					<li>|%COURSE_FULL_NAME%|</li>
-					<li>|%COURSE_SHORT_NAME%|</li>
-					<li>|%SEMESTER%|</li>
-				</ul>
-				<br>
-				<p>Your request will be reviewed and you will be notified of our decision.</p>',
+<p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
+<br>
+<p>You have requested a new course:</p>
+<ul>
+	<li>|%COURSE_FULL_NAME%|</li>
+	<li>|%COURSE_SHORT_NAME%|</li>
+	<li>|%SEMESTER%|</li>
+</ul>
+<br>
+<p>Your request will be reviewed and you will be notified of our decision.</p>',
 		'sendCourseAllowedTeacher' => '
-				<p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-				<br>
-				<p>Thank you for choosing the Children’s Campus for your students to conduct observations. The following course has been approved:</p>
-				<ul>
-					<li>|%COURSE_FULL_NAME%|</li>
-					<li>|%COURSE_SHORT_NAME%|</li>
-				</ul>
-				<br>
-				<p>Attached to this email you’ll find our guidelines for student observers, both in the classroom and the observation rooms.  Please see that your students receive a copy of this prior to their first observation at the center.  If you or the students have any questions about their observations they should contact us.</p>
-				<br>
-				<p>You can access it here |%COURSE_VIEW_LINK%|, using your SFSU ID and password.</p>
-				<br>
-				<p>Your students have already been automatically enrolled and will be able to make reservations from |%OPEN_DATE%| to |%CLOSE_DATE%|.</p>',
+<p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
+<br>
+<p>Thank you for choosing the Children’s Campus for your students to conduct observations. The following course has been approved:</p>
+<ul>
+	<li>|%COURSE_FULL_NAME%|</li>
+	<li>|%COURSE_SHORT_NAME%|</li>
+</ul>
+<br>
+<p>Attached to this email you’ll find our guidelines for student observers, both in the classroom and the observation rooms.  Please see that your students receive a copy of this prior to their first observation at the center.  If you or the students have any questions about their observations they should contact us.</p>
+<br>
+<p>You can access it here |%COURSE_VIEW_LINK%|, using your SFSU ID and password.</p>
+<br>
+<p>Your students have already been automatically enrolled and will be able to make reservations from |%OPEN_DATE%| to |%CLOSE_DATE%|.</p>',
 		'sendCourseAllowedStudents' => '
-				<p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-				<br>
-				<p>You have been invited to conduct observations at Children’s Campus –- SF State’s quality Early Care and Education Center. Here are the details of the course:</p>
-				<ul>
-					<li>|%COURSE_FULL_NAME%|</li>
-					<li>|%COURSE_SHORT_NAME%|</li>
-				</ul>
-				<br>
-				<p>Attached to this email you’ll find our guidelines for student observers, both in the classroom and the observation rooms. Please see that you read this documentation prior to your first observation at the center. If you have any questions about your observations they should contact me.</p>
-				<br>
-				<p>You can begin making reservations from |%OPEN_DATE%| until |%CLOSE_DATE%|, which can be done here |%SITE_LINK%|, using your SFSU ID and password to login.</p>',
+<p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
+<br>
+<p>You have been invited to conduct observations at Children’s Campus –- SF State’s quality Early Care and Education Center. Here are the details of the course:</p>
+<ul>
+	<li>|%COURSE_FULL_NAME%|</li>
+	<li>|%COURSE_SHORT_NAME%|</li>
+</ul>
+<br>
+<p>Attached to this email you’ll find our guidelines for student observers, both in the classroom and the observation rooms. Please see that you read this documentation prior to your first observation at the center. If you have any questions about your observations they should contact me.</p>
+<br>
+<p>You can begin making reservations from |%OPEN_DATE%| until |%CLOSE_DATE%|, which can be done here |%SITE_LINK%|, using your SFSU ID and password to login.</p>',
 		'sendCourseDenied' => '
-				<p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-				<br>
-				<p>Children’s Campus has denied the following course you requested:</p>
-				<ul>
-					<li>|%COURSE_FULL_NAME%|</li>
-					<li>|%COURSE_SHORT_NAME%|</li>
-					<li>|%SEMESTER%|</li>
-				</ul>
-				<br>
-				<p>If you need any further help, feel free to contact us by responding to this email address.</p>',
+<p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
+<br>
+<p>Children’s Campus has denied the following course you requested:</p>
+<ul>
+	<li>|%COURSE_FULL_NAME%|</li>
+	<li>|%COURSE_SHORT_NAME%|</li>
+	<li>|%SEMESTER%|</li>
+</ul>
+<br>
+<p>If you need any further help, feel free to contact us by responding to this email address.</p>',
 		'sendReservationDetails' => '
-				<p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-				<br>
-				<p>Thank you for choosing the Children’s Campus for your course observation requirement. Here are the details of your reservation:</p>				
-				<ul>
-					<li>|%RESERVE_DATE%|</li>
-					<li>|%PURPOSE_INFO%|</li>
-					<li>|%ROOM_NAME%|</li>
-					<li>|%RESERVE_VIEW_LINK%|</li>
-				</ul>
-				<br>
-				<p>If you made this reservation by mistake, please cancel your reservation here |%RESERVE_CANCEL_LINK%|. Observation at the Children’s Campus is a privilege and should not be taken for granted. Thank you for understanding.</p>',
+<p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
+<br>
+<p>Thank you for choosing the Children’s Campus for your course observation requirement. Here are the details of your reservation:</p>				
+<ul>
+	<li>|%RESERVE_DATE%|</li>
+	<li>|%PURPOSE_INFO%|</li>
+	<li>|%ROOM_NAME%|</li>
+	<li>|%RESERVE_VIEW_LINK%|</li>
+</ul>
+<br>
+<p>If you made this reservation by mistake, please cancel your reservation here |%RESERVE_CANCEL_LINK%|. Observation at the Children’s Campus is a privilege and should not be taken for granted. Thank you for understanding.</p>',
 		'sendReservationReminder' => '
-				<p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-				<br>
-				<p>This is a reminder about your upcoming reservation at Children’s Campus for your course observation requirement. Here are the details of your reservation:</p>
-				<ul>
-					<li>|%RESERVE_DATE%|</li>
-					<li>|%PURPOSE_INFO%|</li>
-					<li>|%ROOM_NAME%|</li>
-					<li>|%RESERVE_VIEW_LINK%|</li>
-				</ul>
-				<br>
-				<p>If you need to cancel this reservation, please do so immediately here |%RESERVE_CANCEL_LINK%|. Observation at the Children’s Campus is a privilege and should not be taken for granted. Thank you for understanding.</p>',
+<p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
+<br>
+<p>This is a reminder about your upcoming reservation at Children’s Campus for your course observation requirement. Here are the details of your reservation:</p>
+<ul>
+	<li>|%RESERVE_DATE%|</li>
+	<li>|%PURPOSE_INFO%|</li>
+	<li>|%ROOM_NAME%|</li>
+	<li>|%RESERVE_VIEW_LINK%|</li>
+</ul>
+<br>
+<p>If you need to cancel this reservation, please do so immediately here |%RESERVE_CANCEL_LINK%|. Observation at the Children’s Campus is a privilege and should not be taken for granted. Thank you for understanding.</p>',
 		'sendReservationMissed' => '
-				<p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-				<br>
-				<p>Thank you for choosing the Children’s Campus for your course observation requirement.  Our online reservation system is showing that you missed your last observation appointment.  <u>If you miss one more</u>, the system will remove all future reservations that you’ve created.  If the system removes your reservations, you will be allowed to re-reserve rooms but the same rules will apply.  Please respect that other students need to do observations and are affected by your decision to miss your appointment.</p>
-				<p>Here are the details of your missed reservation:</p>
-				<ul>
-					<li>|%RESERVE_DATE%|</li>
-					<li>|%PURPOSE_INFO%|</li>
-					<li>|%RESERVE_MISSED_LINK%|</li>
-				</ul>
-				<br>
-				<p>In the future if you’re going to miss your observation appointment, you should cancel your reservation in advance.  Many students want to observe at the CC but cannot due to our full reservation system.</p>
-				<p>Observation at the Children’s Campus is a privilege and should not be taken for granted.  Thank you for understanding.</p>'
+<p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
+<br>
+<p>Thank you for choosing the Children’s Campus for your course observation requirement.  Our online reservation system is showing that you missed your last observation appointment.  <u>If you miss one more</u>, the system will remove all future reservations that you’ve created.  If the system removes your reservations, you will be allowed to re-reserve rooms but the same rules will apply.  Please respect that other students need to do observations and are affected by your decision to miss your appointment.</p>
+<p>Here are the details of your missed reservation:</p>
+<ul>
+	<li>|%RESERVE_DATE%|</li>
+	<li>|%PURPOSE_INFO%|</li>
+	<li>|%RESERVE_MISSED_LINK%|</li>
+</ul>
+<br>
+<p>In the future if you’re going to miss your observation appointment, you should cancel your reservation in advance.  Many students want to observe at the CC but cannot due to our full reservation system.</p>
+<p>Observation at the Children’s Campus is a privilege and should not be taken for granted.  Thank you for understanding.</p>'
 	);
 }

@@ -140,7 +140,8 @@ class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension impleme
             'roleList' => $roleList,
             'canEditNotifications' => $canEditNotifications, 
             'newAccount' => $newAccount, 
-            'adminPage' => $adminPage);
+            'adminPage' => $adminPage
+        );
     }
     
     public function initializeRecord (Bss_ActiveRecord_Base $account)

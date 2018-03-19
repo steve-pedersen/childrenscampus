@@ -23,11 +23,6 @@ class Ccheckin_Courses_Facet extends Ccheckin_Purposes_AbstractPurpose // NOT? e
         );
     }
 
-    // protected function initialize ()
-    // {
-    //     $this->addEventHandler('after-insert', array($this, 'afterInsert'));
-    // }
-
 	public function GetAllTasks ()
 	{
         $siteSettings = $this->getApplication()->siteSettings;
@@ -52,11 +47,9 @@ class Ccheckin_Courses_Facet extends Ccheckin_Purposes_AbstractPurpose // NOT? e
             'Complete the ECERS or ITERS on the classroom',
         );
     }
-	
-    // NOTE: Figure this out...
+
 	public function getTasks ()
 	{
-        // return array(); // added this to get the page working temporarily
 		$tasks = $this->_fetch('tasks');
 		$tasks = json_decode($tasks, true);
 
@@ -73,9 +66,6 @@ class Ccheckin_Courses_Facet extends Ccheckin_Purposes_AbstractPurpose // NOT? e
         return "{$this->type->name} for {$this->course->shortName}";
     }
     
-    // use RichText/HtmkSanitizer.php:$this->sanitize() instead of convertSmartQuotes() ???
-    // $sanitizer = new Bss_RichText_HtmlSanitizer;
-    // $sanitized_string = $sanitizer->sanitize($some_string);
     public function validate ()
     {
         $errors = array();
@@ -84,13 +74,6 @@ class Ccheckin_Courses_Facet extends Ccheckin_Purposes_AbstractPurpose // NOT? e
         {
             $errors['facet_type'] = 'You need to select a type of course';
         }
-
-        // if ($this->description)
-        // {
-        //     // $this->description = iconv("Windows-1252", "UTF-8", $this->convertSmartQuotes($this->description));
-        //     $sanitizer = new Bss_RichText_HtmlSanitizer;
-        //     $this->description = $sanitizer->sanitize($this->description);
-        // }
         
         return $errors;
     }
@@ -102,13 +85,5 @@ class Ccheckin_Courses_Facet extends Ccheckin_Purposes_AbstractPurpose // NOT? e
 
         return $facetPurpose;
     }
-
-    // protected function afterInsert ()
-    // {
-    //     // parent::afterInsert();
-    //     $purpose = $this->getSchema('Ccheckin_Purposes_Purpose')->createInstance();
-    //     $purpose->object = $this;
-    //     $purpose->save();
-    // }
 
 }

@@ -27,7 +27,7 @@
 </fieldset>
 {if $canEditNotifications}
 <fieldset class="field">
-	<legend>Admin Email Notifications {$viewer->username}</legend>
+	<legend>Admin Email Notifications</legend>
 	
 	<ul class="list-group">
 		<li>

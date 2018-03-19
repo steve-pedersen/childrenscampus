@@ -40,31 +40,6 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization //i
         // $this->addEventHandler('before-insert', array($this, 'beforeInsert'));
     }
 
-    // public function getObjectProxies () {}
-
-    // public function setDepartment ($department)
-    // {
-    //     $dept = $department;
-
-    //     if (!$this->department && $department === $this->shortName)
-    //     {
-    //         $dept = $this->convertShortNameToDept($department);
-    //     }
-
-    //     $this->_assign('department', $dept);
-    // }
-
-    // public function getDepartment ($fetchNew=false)
-    // {
-    //     $department = $this->_fetch('department');
-    //     if ($fetchNew)
-    //     {
-    //         $department = $this->convertShortNameToDept($this->shortName);
-    //     }
-
-    //     return $department;
-    // }
-
     public function getCollege ()
     {
         list($dept, $college) = $this->convertShortNameToDept($this->shortName, true);
@@ -194,14 +169,6 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization //i
         return $errors;
     }
 
-    // protected function beforeInsert ()
-    // {
-    //     if (!$this->department)
-    //     {
-    //         $this->setDepartment($this->shortName);
-    //     }       
-    // }   
-
     // TODO: Test Instructor stuff **********************************************
     protected function beforeDelete ()
     {
@@ -213,5 +180,31 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization //i
         $this->deleted = true;
         $this->save();
     }
+
+
+    // public function getObjectProxies () {}
+
+    // public function setDepartment ($department)
+    // {
+    //     $dept = $department;
+
+    //     if (!$this->department && $department === $this->shortName)
+    //     {
+    //         $dept = $this->convertShortNameToDept($department);
+    //     }
+
+    //     $this->_assign('department', $dept);
+    // }
+
+    // public function getDepartment ($fetchNew=false)
+    // {
+    //     $department = $this->_fetch('department');
+    //     if ($fetchNew)
+    //     {
+    //         $department = $this->convertShortNameToDept($this->shortName);
+    //     }
+
+    //     return $department;
+    // }
 
 }

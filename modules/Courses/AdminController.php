@@ -130,6 +130,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
     {
         $this->setPageTitle('Courses Queue');
         $courseRequests = $this->schema('Ccheckin_Courses_Request');
+        $courseSchema = $this->schema('Ccheckin_Courses_Course');
         $facets = $this->schema('Ccheckin_Courses_Facet');
         $purposes = $this->schema('Ccheckin_Purposes_Purpose');
 
@@ -173,9 +174,6 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                                     $cr->course->active = true;
                                     $cr->course->save();
                                     
-                                    // $this->sendCourseAllowedNotification($cr->course, $cr->requestedBy);    // TODO: Fix email notifications!!!! *****************
-                                    // TODO: Send an email to the users as well..
-                                    
                                     $authZ = $this->getAuthorizationManager();
                                     $authZ->grantPermission($cr->requestedBy, 'course view', $cr->course);
                                   
@@ -203,7 +201,10 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                                     {
                                         $facet->addUsers($cr->course->students, true);
                                     }
-                                    
+
+                                    $this->sendCourseAllowedTeacherNotification($cr->course, $cr->requestedBy);
+                                    $this->sendCourseAllowedStudentsNotification($cr->course);    
+
                                     $allowed[] = $cr->course->fullName;
                                     $cr->delete();
                                 }
@@ -216,8 +217,6 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                             {                           
                                 if ($cr = $courseRequests->get($id))
                                 {
-                                    // $this->sendCourseDeniedNotification($cr->course, $cr->requestedBy);     // TODO: Fix email notifications!!!! *****************
-                                    $denied[] = $cr->course->fullName;
                                     $cr->course->active = false;
                                     $cr->course->deleted = true;
                                     $cr->course->save();
@@ -231,6 +230,9 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                                         }
                                     }
 
+                                    $this->sendCourseDeniedNotification($cr->course, $cr->requestedBy);
+
+                                    $denied[] = $cr->course->fullName;
                                     $cr->delete();
                                 }
                             }
@@ -249,6 +251,16 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         // Get the remaining queued records
         $crs = $courseRequests->getAll(array('orderBy' => 'requestDate'));
         $duplicates = array();
+        // add all courses that have already been approved first.
+        $cs = $courseSchema->find($courseSchema->active->isTrue());
+        foreach ($cs as $c)
+        {
+            $temp = $c->shortName . $c->facetType->name;
+            if (!in_array($temp, $duplicates))
+            {
+                $duplicates[] = $temp;
+            }
+        }
         foreach ($crs as $cr)
         {
             $temp = $cr->course->shortName . $cr->course->facetType->name;
@@ -294,24 +306,24 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
             $semesters[$sem->id] = $sem;
         }
         $errors = array();
-		$new = false;
+        $new = false;
                
         if (is_numeric($id))
-		{
+        {
             $course = $this->requireExists($courses->get($id));
             $facet = $course->facets->index(0);
             $this->setPageTitle('Edit Course: ' . $course->shortName);
             $instructors = $course->teachers;
-		}
-		else
-		{
-			$new = true;
-			$this->setPageTitle('Create a Course');
+        }
+        else
+        {
+            $new = true;
+            $this->setPageTitle('Create a Course');
             $course = $courses->createInstance();
             $facet = $courseFacets->createInstance();
             $instructors = $facultyRole->accounts;
-		}
-		
+        }
+        
         $facetTypes = $courseFacetTypes->getAll(array('orderBy' => 'sortName'));
 
         if ($this->request->wasPostedByUser())
@@ -345,7 +357,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                         
                         if (empty($errors))
                         {
-							$course->active = $course->active ? true : false;    // TODO: update to accept courseData value
+                            $course->active = $course->active ? true : false;    // TODO: update to accept courseData value
                             $course->save();
 
                             if (!$facet->inDataSource)
@@ -385,7 +397,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                             }
                             
                             $this->flash('Course has been updated');
-							$this->response->redirect('admin/courses');
+                            $this->response->redirect('admin/courses');
                         }
                         
                         break;
@@ -393,7 +405,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
             }
         }
         
-		$this->template->facetTypes = $facetTypes;
+        $this->template->facetTypes = $facetTypes;
         $this->template->course = $course;
         $this->template->facet = $facet;
         $this->template->instructors = $instructors;
@@ -524,90 +536,41 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         $this->template->instructions = $instructions;
     }
 
-    // TODO: Convert functions below -- they use DivaMailer, which inherits from PHPMailer
+    protected function sendCourseAllowedTeacherNotification ($course, $account)
+    {
+        $emailManager = new Ccheckin_Admin_EmailManager($this->getApplication(), $this);
+        $emailData = array();        
+        $emailData['course'] = $course;
+        $emailData['user'] = $account;
+        $emailManager->processEmail('sendCourseAllowedTeacher', $emailData);
+    }
 
-	protected function sendCourseAllowedNotification ($course, $account)
-	{
-		$diva = Diva::GetInstance();
-		
-        $template = $this->createEmailTemplate('email_course_allowed.tpl');
-        $template->assign('courseViewLink', $diva->Link('courses/view/' . $course->id));
-        $template->assign('courseStudentsLink', $diva->Link('courses/students/' . $course->id));
-		// And send them an e-mail so they can use it:
-		$mail = new DivaMailer();
-		$mail->Subject = 'Children\'s Campus Checkin: Course request has been approved';
-		$mail->Body = $template->render();
-		$mail->AltBody = strip_tags($mail->Body);
-		$mail->AddAddress($account->email);
-		//$mail->AddAttachment(glue_path(dirname(__FILE__), 'resources', 'Guidelines_Observing_2014_2015.pdf'), 'Guidelines for Observing 2014 2015.pdf');
-		$mail->AddAttachment(glue_path(dirname(__FILE__), 'resources', 'Guidelines_for_SF_State_Student_Participants_2016-17.pdf'), 'Guidelines for SF State Student Participants 2016-2017.pdf');
-		$mail->AddAttachment(glue_path(dirname(__FILE__), 'resources', 'Guidelines_for_SF_State_Student_Observers_2016-17.pdf'), 'Guidelines for SF State Student Observers 2016-2017.pdf');
-		$mail->Send();
-	}
-	
-	protected function sendCourseDeniedNotification ($course, $account)
-	{
-		$diva = Diva::GetInstance();
-		$template = $this->createEmailTemplate('email_course_denied.tpl');
-		// And send them an e-mail so they can use it:
-		$mail = new DivaMailer();
-		$mail->Subject = 'Children\'s Campus Checkin: Course request has been denied';
-		$mail->Body = $template->render();
-		$mail->AltBody = strip_tags($mail->Body);
-		$mail->AddAddress($account->email);
-		$mail->Send();
-	}
+    protected function sendCourseAllowedStudentsNotification ($course)
+    {
+        $emailManager = new Ccheckin_Admin_EmailManager($this->getApplication(), $this);
+        $emailData = array();        
+        $emailData['course'] = $course;
+        $emailData['user'] = $course->students;
+        $emailManager->processEmail('sendCourseAllowedStudents', $emailData);
+    }
     
-    protected function sendUsersAllowedNotification ($course, $account)
-	{
-		$diva = Diva::GetInstance();
-		
-		$template = $this->createEmailTemplate('email_students_allowed.tpl');
-        $template->assign('course', $course);
-		// And send them an e-mail so they can use it:
-		$mail = new DivaMailer();
-		$mail->Subject = 'Children\'s Campus Checkin: Course students request has been approved';
-		$mail->Body = $template->render();
-		$mail->AltBody = strip_tags($mail->Body);
-		$mail->AddAddress($account->email);
-		$mail->Send();
-	}
-	
-	protected function sendUsersDeniedNotification ($course, $account)
-	{
-		$diva = Diva::GetInstance();
-		
-        $template = $this->createEmailTemplate('email_students_denied.tpl');
-        $template->assign('course', $course);
-		// And send them an e-mail so they can use it:
-		$mail = new DivaMailer();
-		$mail->Subject = 'Children\'s Campus Checkin: Course students request has been denied';
-		$mail->Body = 
-			'<p>Children\'s Campus has denied the request to add students to your course.' . "{$course->fullName}.\n" . 
-			"\n" .
-			'<p>If you need any further help, feel free to contact us by responding to this' . "\n" .
-			'e-mail address</p>' . "\n";
-		$mail->AltBody = strip_tags($mail->Body);
-		$mail->AddAddress($account->email);
-		$mail->Send();
-	}
-    
-    // private function createEmailTemplate($templateName)
-    // {
-    //     $template = new DivaTemplate;
-    //     $template->setDefaultResourceDirectory(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'resources');
-    //     $template->setTemplateFile($templateName);
-    //     return $template;
-    // }
+    protected function sendCourseDeniedNotification ($course, $account)
+    {
+        $emailManager = new Ccheckin_Admin_EmailManager($this->getApplication(), $this);
+        $emailData = array();        
+        $emailData['course'] = $course;
+        $emailData['user'] = $account;
+        $emailManager->processEmail('sendCourseDenied', $emailData);
+    }
 
-    protected function createEmailTemplate ()
+    public function createEmailTemplate ()
     {
         $template = $this->createTemplateInstance();
         $template->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'email.html.tpl'));
         return $template;
     }
 
-    protected function createEmailMessage ($contentTemplate = null)
+    public function createEmailMessage ($contentTemplate = null)
     {
         $message = new Bss_Mailer_Message($this->getApplication());
         
@@ -619,5 +582,6 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         
         return $message;
     }
+
 }
 
