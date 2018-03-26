@@ -256,6 +256,9 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
             }
         }
 
+        $accounts = $this->schema('Bss_AuthN_Account');
+        $this->template->systemNotificationRecipients = $accounts->find($accounts->receiveAdminNotifications->isTrue());
+        $this->template->authZ = $this->getApplication()->authorizationManager;
         $this->template->removedFiles = $removedFiles;
         $this->template->attachments = $files->getAll();
         $this->template->testingOnly = $siteSettings->getProperty('email-testing-only', 0);

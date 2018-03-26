@@ -106,6 +106,36 @@
 		</div>
 	</div>
 
+	<h2 class="email-header"><u>Users</u></h2>
+	<div class="row email-row users-row">
+		<div class="col-xs-12">
+			<h3 class="">System Notification Recipients</h3>
+			<p>Users that receive 'Admin' emails</p>
+            <table class="table table-bordered table-striped table-condensed">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Can Edit Notifications</th>
+                    </tr>
+                </thead>
+            {foreach item='recipient' from=$systemNotificationRecipients}
+                <tr>
+                    <td><a href="admin/accounts/{$recipient->id}?returnTo={$smarty.server.REQUEST_URI}">{$recipient->fullName}</a></td>
+                    <td>
+                    	{foreach item=role from=$recipient->roles}
+							{$role->name}{if !$role@last}, {/if}
+						{/foreach}
+                    </td>
+                    <td>{if $authZ->hasPermission($recipient, 'edit system notifications')}yes{else}no{/if}</td>
+                </tr>
+            {foreachelse}
+                <tr><td colspan="3">There are no System Notification Recipients configured.</td></tr>
+            {/foreach}
+            </table>
+		</div>
+	</div>	
+
 	<h2 class="email-header"><u>Content</u></h2>
 	<div class="row email-row">
 		<div class="col-xs-8">

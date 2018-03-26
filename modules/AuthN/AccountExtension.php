@@ -120,7 +120,10 @@ class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension impleme
 
             // save active status
             $account->isActive = $request->getPostParameter('status', false);
-            $account->receiveAdminNotifications = $request->getPostParameter('receiveAdminNotifications', false);
+            if ($authZ->hasPermission($account, 'admin') || $authZ->hasPermission($account, 'receive system notifications'))
+            {
+                $account->receiveAdminNotifications = $request->getPostParameter('receiveAdminNotifications', false);
+            }
             $account->save();
 		}
         
@@ -135,12 +138,14 @@ class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension impleme
         $canEditNotifications = $handler->hasPermission('admin') || $handler->hasPermission('edit system notifications');
         $newAccount = $handler->getRouteVariable('id') === 'new';
         $adminPage = $handler->hasPermission('admin') && (strpos($handler->getRequest()->getFullRequestedUri(), 'admin') !== false);
+        $authZ = $handler->getAuthorizationManager();
 
         return array(
             'roleList' => $roleList,
-            'canEditNotifications' => $canEditNotifications, 
+            'canEditNotifications' => $canEditNotifications,
             'newAccount' => $newAccount, 
-            'adminPage' => $adminPage
+            'adminPage' => $adminPage,
+            'authZ' => $authZ
         );
     }
     
