@@ -228,12 +228,9 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                 $course->department = $courseData['department'];
 
                 $facetData = $this->request->getPostParameter('facet');
-
-                // TODO: CHECK IF I NEED TO CREATE A NEW FACET FOR EVERY COURSE!!!
                 $facet = $this->schema('Ccheckin_Courses_Facet')->createInstance();
-
                 $facet->typeId = $facetData['typeId'];
-                $facet->description = $courseData['description'];
+                $facet->description = $courseData['description'];               
                 if (isset($facetData['tasks']))
                 {
                     $facet->tasks = array_intersect_key($facet->GetAllTasks(), $facetData['tasks']);
@@ -308,18 +305,9 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
 
                     // Save all Course => Accounts mapped data
                     $course->enrollments->save();
-
-                    $emailData = array();        
-                    $emailData['courseRequest'] = $request;
-                    $emailManager = new Ccheckin_Admin_EmailManager($this->getApplication(), $this);
-                    // Send admin an email to all Admin accounts that have 'receiveAdminNotifications' turned on.
-                    $emailData['requestingUser'] = $viewer;
-                    $emailData['user'] = $accounts->find($accounts->receiveAdminNotifications->isTrue());
-                    $emailManager->processEmail('sendCourseRequestedAdmin', $emailData);
                     
-                    // Send an email to the requesting Teacher
-                    $emailData['user'] = $viewer;
-                    $emailManager->processEmail('sendCourseRequestedTeacher', $emailData);
+                    $this->sendCourseRequestedAdminNotification($request, $viewer);
+                    $this->sendCourseRequestedTeacherNotification($request, $viewer);
 
                     $this->flash('You course request is now pending.  You will be notified when a decision has been made.');
                     $this->response->redirect('courses');
@@ -398,7 +386,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
     {
         $this->addBreadcrumb('courses', 'View Courses');
         $this->requireLogin();
-        $courseId = $this->getRouteVariable('cid');    // TODO: Verify these are the correct route var names
+        $courseId = $this->getRouteVariable('cid');
         $accountId = $this->getRouteVariable('aid'); 
         $course = $this->requireExists($this->schema('Ccheckin_Courses_Course')->get($id));       
         $account = $this->requireExists($this->schema('Bss_AuthN_Account')->get($accountId));
@@ -413,7 +401,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                     case 'drop':
                         foreach ($course->facets as $facet)
                         {
-                            $facet->removeUser($account);       // TODO: Verify removeUser() functionality
+                            $facet->removeUser($account);
                         }
                         $this->flash('The student has been removed from the course');
                         $this->response->redirect('courses/students/' . $course->id);
@@ -424,6 +412,27 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         
         $this->template->student = $account;
         $this->template->course = $course;
+    }
+
+    // Send email to all Admin accounts that have 'receiveAdminNotifications' turned on.
+    protected function sendCourseRequestedAdminNotification ($request, $account)
+    {
+        $accounts = $this->schema('Bss_AuthN_Account');
+        $emailManager = new Ccheckin_Admin_EmailManager($this->getApplication(), $this);
+        $emailData = array();        
+        $emailData['courseRequest'] = $request;
+        $emailData['requestingUser'] = $account;
+        $emailData['user'] = $accounts->find($accounts->receiveAdminNotifications->isTrue());
+        $emailManager->processEmail('sendCourseRequestedAdmin', $emailData);
+    }
+
+    protected function sendCourseRequestedTeacherNotification ($request, $account)
+    {
+        $emailManager = new Ccheckin_Admin_EmailManager($this->getApplication(), $this);
+        $emailData = array();        
+        $emailData['courseRequest'] = $request;
+        $emailData['user'] = $account;
+        $emailManager->processEmail('sendCourseRequestedTeacher', $emailData);
     }
 
 }

@@ -473,11 +473,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                                 $reservation->missed = false;
                                 $reservation->save();
                                 
-                                $emailData = array();
-                                $emailData['user'] = $viewer;
-                                $emailData['reservation'] = $reservation;
-                                $emailManager = new Ccheckin_Admin_EmailManager($this->getApplication(), $this);
-                                $emailManager->processEmail('sendReservationDetails', $emailData);
+                                $this->sendReservationDetailsNotification($reservation, $viewer);
 
                                 $this->flash('Your reservation has been scheduled for '.$date->format('M j, Y g:ia').' for '.$duration.' hour'. ($duration > 1 ? 's.' : '.'));
                                 $this->response->redirect('reservations/view/' . $reservation->id);
@@ -661,5 +657,15 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         
         return $times;
     }
+
+    protected function sendReservationDetailsNotification ($reservation, $account)
+    {
+        $emailManager = new Ccheckin_Admin_EmailManager($this->getApplication(), $this);
+        $emailData = array();        
+        $emailData['reservation'] = $reservation;
+        $emailData['user'] = $account;
+        $emailManager->processEmail('sendReservationDetails', $emailData);
+    }
+
 }
 
