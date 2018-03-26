@@ -34,7 +34,21 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
     public function index ()
     {
         $this->setPageTitle('Administrate');
-        $this->template->crs = $this->schema('Ccheckin_Courses_Request')->getAll(array('orderBy' => 'requestDate'));
+        $requestSchema = $this->schema('Ccheckin_Courses_Request');
+        $courseSchema = $this->schema('Ccheckin_Courses_Course');
+        $deletedCourses = $courseSchema->find($courseSchema->deleted->isTrue());
+        $dcs = array();
+        
+        foreach ($deletedCourses as $dc)
+        {
+            $dcs[] = $dc->id;
+        }
+        $crs = $requestSchema->find(
+            $requestSchema->courseId->notInList($dcs),
+            array('orderBy' => 'requestDate')
+        );
+
+        $this->template->crs = $crs;
     }
 
     public function emailSettings ()

@@ -35,13 +35,14 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
     public function manage ()
     {
         $courses = $this->schema('Ccheckin_Courses_Course');
+        $requestSchema = $this->schema('Ccheckin_Courses_Request');
         $facets = $this->schema('Ccheckin_Courses_Facet');
         $purposes = $this->schema('Ccheckin_Purposes_Purpose');
         $message = '';
         
         $coursesIndexTabs = array(
             'active' => 'Active Courses',
-            'inactive' => 'Inactive Courses',
+            'inactive' => 'Archived Courses',
         );
         
         $tab = $this->request->getQueryParameter('tab', 'active');
@@ -63,7 +64,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                                 $course->save();
                             }
                             
-                            $message = 'The selected courses have been deactivated';
+                            $message = 'The selected courses have been archived.';
                         }
                         break;
                     case 'active':
@@ -77,7 +78,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                                 $course->save();
                             }
                             
-                            $message = 'The selected courses have been activated';
+                            $message = 'The selected courses have been activated.';
                         }
                         break;
                     case 'remove':
@@ -101,6 +102,11 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                                         $facet->removeUser($student);
                                     }
                                 }
+                                // remove an associated course-request, if it exists
+                                if ($cr = $requestSchema->findOne($requestSchema->courseId->equals($course->id)))
+                                {
+                                    $cr->delete();
+                                }
                             }
                             
                             $message = 'The selected courses have been deleted';
@@ -112,14 +118,32 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         
         if ($tab == 'active')
         {
-            $coursesFiltered = $courses->find($courses->active->isTrue(), array('orderBy' => 'shortName'));
+            $coursesFiltered = $courses->find(
+                $courses->active->isTrue()->andIf($courses->deleted->isNull()->orIf($courses->deleted->isFalse())),
+                array('orderBy' => 'shortName')
+            );
         }
         else
         {
-            $coursesFiltered = $courses->find($courses->active->isFalse(), array('orderBy' => 'shortName'));
+            $crs = $requestSchema->getAll();
+            $notDeletedCourseIds = array();
+            foreach ($crs as $cr)
+            {
+                if ($cr->course->deleted === null || !$cr->course->deleted)
+                {
+                    $notDeletedCourseIds[] = $cr->courseId;
+                }
+            }
+            $coursesFiltered = $courses->find(
+                $courses->active->isFalse()->andIf(
+                    $courses->deleted->isNull()->orIf($courses->deleted->isFalse()))
+                ->andIf(
+                    $courses->id->notInList($notDeletedCourseIds)
+                ),
+                array('orderBy' => 'shortName')
+            );
         }
-
-        $this->template->requests = $this->schema('Ccheckin_Courses_Request');
+        $this->template->requests = $requestSchema;
         $this->template->coursesIndexTabs = $coursesIndexTabs;
         $this->template->tab = $tab;
         $this->template->message = $message;
@@ -177,12 +201,12 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                                     $authZ = $this->getAuthorizationManager();
                                     $authZ->grantPermission($cr->requestedBy, 'course view', $cr->course);
                                   
-                                    // $facet = $cr->course->facets->index(0); // lazy approach
-                                    $facet = $facets->findOne(
-                                        $facets->typeId->equals($cr->course->facetType->id)->andIf(
-                                            $facets->courseId->equals($cr->course->id)
-                                        )
-                                    );  // fail-safe approach                                   
+                                    $facet = $cr->course->facets->index(0); // lazy approach
+                                    // $facet = $facets->findOne(
+                                    //     $facets->typeId->equals($cr->course->facetType->id)->andIf(
+                                    //         $facets->courseId->equals($cr->course->id)
+                                    //     )
+                                    // );  // fail-safe approach                                   
                                     $type = strtolower($facet->type->name);
 
                                     if (!$facet->purpose)
@@ -192,7 +216,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                                         $purpose->save();
                                     } 
 
-                                    // this isn't the best way to differentiate, but is the best thing for now since FacetType is a user editable property
+                                    // FacetType is a user editable property... still not the best way to differentiate
                                     if ((strpos($type, 'participation') !== false) || (strpos($type, 'participate') !== false))
                                     {
                                         $facet->addUsers($cr->course->students, false);
@@ -247,9 +271,15 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                 $this->response->redirect('admin/courses/queue');
             }
         }
-        
-        // Get the remaining queued records
-        $crs = $courseRequests->getAll(array('orderBy' => 'requestDate'));
+
+        // Get the remaining queued records that aren't deleted and check for duplicates
+        $deletedCourses = $courseSchema->find($courseSchema->deleted->isTrue());
+        $dcs = array();       
+        foreach ($deletedCourses as $dc)
+        {
+            $dcs[] = $dc->id;
+        }
+        $crs = $courseRequests->find($courseRequests->courseId->notInList($dcs), array('orderBy' => 'requestDate'));     
         $duplicates = array();
         // add all courses that have already been approved first.
         $cs = $courseSchema->find($courseSchema->active->isTrue());
@@ -284,6 +314,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
     // TODO: Finish this method.
     public function edit ()
     {
+        $this->addBreadcrumb('admin/courses', 'Manage Courses');
         $id = $this->requireExists($this->getRouteVariable('id'));
         $courses = $this->schema('Ccheckin_Courses_Course');
         $courseFacets = $this->schema('Ccheckin_Courses_Facet');

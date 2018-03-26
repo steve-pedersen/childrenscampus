@@ -25,22 +25,22 @@
 		</thead>
 		<tbody>
 		{foreach item='course' from=$courses}
-		{if !$course->deleted}
+			{assign var=request value=false}
+			{if $tab == 'inactive'}
+				{assign var=request value=$requests->findOne($requests->courseId->equals($course->id))}
+			{/if}
+		{if !$course->deleted && !$request}
 			<tr>
 				<td class="checkboxes"><label for="courses-{$course->id}"><input type="checkbox" name="courses[{$course->id}]" id="courses-{$course->id}" value="{$course->id}" /></label></td>
 				<td><label for="courses-{$course->id}">{$course->shortName|escape}</label></td>
 				<td>
 					{foreach item='teacher' from=$course->teachers}
-						<a href="admin/accounts/{$teacher->id}?returnTo={$smarty.server.REQUEST_URI}">{$teacher->firstName} {$teacher->lastName}</a>
+						<a href="admin/accounts/{$teacher->id}?returnTo={$smarty.server.REQUEST_URI}">{$teacher->fullName}</a>
 					{/foreach}
 				</td>
 				<td>{foreach item='facet' from=$course->facets}{$facet->type->name|escape}{/foreach}</td>
                 <td>{$course->students|@count}</td>
 				<td>
-					{if $tab == 'inactive'}
-					{assign var=request value=$requests->findOne($requests->courseId->equals($course->id))}
-						{if $request}<a href="admin/courses/queue/{$request->id}" class="btn btn-xs btn-default">view request</a>{/if}
-					{/if}
                     <a href="admin/courses/edit/{$course->id}" class="btn btn-xs btn-default">edit</a>
                     <!-- <a href="admin/courses/dropstudents/{$course->id}" class="btn btn-xs btn-default">drop students</a> -->
                 </td>
@@ -58,7 +58,7 @@
 	<div class="commands form-group">
 		{generate_form_post_key}
         {if $tab == 'active'}
-        <input class="btn btn-info" type="submit" name="command[inactive]" value="Deactivate Selected" />
+        <input class="btn btn-info" type="submit" name="command[inactive]" value="Archive Selected" />
         {else}
         <input class="btn btn-primary" type="submit" name="command[active]" value="Activate Selected" />
         {/if}

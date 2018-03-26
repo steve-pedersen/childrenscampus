@@ -29,9 +29,6 @@
             <tr>
                 <th>Course Name</th>
                 <th>Requester</th>
-                <!-- <th>Date requested</th> -->
-                <!-- <th>Semester</th> -->
-                <!-- <th>Students</th> -->
                 <th>Course Details</th>
                 <th>Allow</th>
                 <th>Deny</th>
@@ -50,12 +47,8 @@
             <tr {if $dup && $dup == $cr->id}class="bg-warning"{/if}>
                 <td><a href="admin/courses/queue/{$cr->id}">{$cr->course->shortName|escape}</a> {if $dup && $dup == $cr->id}<span class="label label-default">duplicate request</span>{/if}</td>
                 <td><strong><a href="admin/accounts/{$cr->requestedBy->id}?returnTo={$smarty.server.REQUEST_URI}">{$cr->requestedBy->firstName} {$cr->requestedBy->lastName}</a></strong> on {$cr->requestDate->format('M j, h:ia')}</td>
-                <!-- <td>{$cr->requestDate->format('M j h:ia')}</td> -->
-                <!-- <td>{$cr->course->semester->display|escape}</td> -->
-                <!-- <td>{$cr->courseEnrollments.students|@count}</td> -->
                 <td>{$cr->course->facetType->name}<br> 
                     <span class="badge">{$cr->courseEnrollments.students|@count} student{if $cr->courseEnrollments.students|@count > 1}s{/if}</span>
-                    <!-- <span class="badge badge-alt">{$cr->courseEnrollments.teachers|@count} teacher{if $cr->courseEnrollments.teachers|@count > 1}s{/if}</span> -->
                 </td>
                 <td class="checkboxes">
                     <label class="box-label" for="allow-{$cr->id}">
@@ -74,9 +67,11 @@
         {/foreach}
         </tbody>
     </table>
+    {if $courserequests}
     <div class="commands">
         <p><input class="btn btn-info" type="submit" name="command[update-creation]" value="Update" /></p>
     </div>
+    {/if}
 {generate_form_post_key}
 </form>
 {else}

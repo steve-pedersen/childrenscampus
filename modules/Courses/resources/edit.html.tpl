@@ -1,6 +1,10 @@
 <h1>{if $new}Create a Course{else}Edit Course: <small>{$course->shortName|escape}</small>{/if}</h1>
 <form action="{$smarty.server.REQUEST_URI}" method="post">
     <div class="form-group">
+        <p><strong>Status: </strong> {if $course->deleted}Deleted, {/if}{if $course->active}Active{else}Archived{/if}</p>
+    </div>
+    <hr>
+    <div class="form-group">
         <label for="facet-typeId">Type of Course</label>
         <select class="form-control" name="facet[typeId]" id="facet-typeId">
             <option value="">Choose a type of course</option>
@@ -25,7 +29,7 @@
         <select class="form-control" name="instructor" id="instructor">
             <option value="">Choose an instructor</option>
         {foreach item='instructor' from=$instructors}
-            <option value="{$instructor->id}" {if $course->teachers[0]->id == $instructor->id}selected default{/if}>{$instructor->firstName} {$instructor->lastName}</option>
+            <option value="{$instructor->id}" {if $course->teachers[0]->id == $instructor->id}selected default{/if}>{$instructor->fullName}</option>
         {/foreach}
         </select>
     </div>
@@ -69,7 +73,7 @@
             </thead>
         {foreach item='student' from=$course->students}
             <tr>
-                <td><a class="" href="admin/accounts/{$student->id}?returnTo={$smarty.server.REQUEST_URI}">{$student->firstName} {$student->lastName}</a></td>
+                <td><a class="" href="admin/accounts/{$student->id}?returnTo={$smarty.server.REQUEST_URI}">{$student->fullName}</a></td>
                 <td>{if !$student->lastLoginDate}--{else}{$student->lastLoginDate->format('M j, d h:ia')}{/if}</td>
             </tr>
         {foreachelse}
@@ -79,18 +83,6 @@
     {/if}
     </div>
 
-<!--     <div class="course-students row">
-        <div class="student-list form-control col-xs-6">
-            <label for="students-observe">Students for Observation</label>
-            <p class="description">These will be students who can make observations in the observation rooms.</p>
-            <textarea class="form-control" rows="5" name="students-observe" id="students-observe">{$studentsObserve|escape}</textarea>
-        </div>
-        <div class="student-list form-control col-xs-6">
-            <label for="students-participate">Students for Participation</label>
-            <p class="description">These will be students who can particpate in the classrooms.</p>
-            <textarea class="form-control" rows="5" name="students-participate" id="students-participate">{$studentsObserve|escape}</textarea>
-        </div>
-    </div> -->
     <hr>
     <div class="commands">
         {generate_form_post_key}
