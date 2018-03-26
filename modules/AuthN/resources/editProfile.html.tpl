@@ -27,14 +27,27 @@
 	<div class="form-group">
 	<fieldset class="field">
 		<legend>Admin Email Notifications</legend>
-		<p><em>E.g. course requested emails.</em></p>
 		<ul class="list-group">
 			<li>
-				<label for="receiveAdminNotifications">
-				<input type="checkbox" name="receiveAdminNotifications" id="receiveAdminNotifications" 
-				{if $account->receiveAdminNotifications || $account->receiveAdminNotifications == ""}checked aria-checked="true"{else}aria-checked="false"{/if}>
+				<label for="receiveAdminNotifications">		 
+				{if !$canReceiveNotifications}
+					Unable to 
+				{else}
+					<input type="checkbox" name="receiveAdminNotifications" id="receiveAdminNotifications"
+					{if ($account->receiveAdminNotifications) && !$newAccount}
+						checked aria-checked="true" value=true
+					{else}
+						aria-checked="false" value=false
+					{/if}
+					/>
+				{/if} 	
+				
 				Receive Admin Notifications</label>
+				{if !$canReceiveNotifications}<p class="alert alert-info"> -- Note: you are unable to receive system notifications. Contact an admin if this is incorrect or request an upgrade to your role to one that can receive system notifications.</p>{/if}
 			</li>
+			{if $canReceiveNotifications}
+			<li><p><em> E.g. "course requested" emails.</em></p></li>
+			{/if}
 		</ul>
 	</fieldset>
 	</div>

@@ -57,7 +57,6 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
 
             $adminRole = $roles->findOne($roles->name->equals('Administrator'));
 
-
             if ($account->roles->has($adminRole))
             {
                 $this->response->redirect('ccheckin/admin');

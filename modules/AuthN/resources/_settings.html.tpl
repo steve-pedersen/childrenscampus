@@ -26,17 +26,35 @@
 	</ul>
 </fieldset>
 {if $canEditNotifications}
+	{if ($authZ->hasPermission($account, 'admin') || $authZ->hasPermission($account, 'receive system notifications'))}
+		{assign var=canReceiveNotifications value=true}
+	{else}
+		{assign var=canReceiveNotifications value=false}
+	{/if}
 <fieldset class="field">
 	<legend>Admin Email Notifications</legend>
 	
 	<ul class="list-group">
 		<li>
-			<label for="receiveAdminNotifications">
-			<input type="checkbox" name="receiveAdminNotifications" id="receiveAdminNotifications" 
-			{if ($account->receiveAdminNotifications) && !$newAccount}checked aria-checked="true" value=true{else}aria-checked="false" value=false{/if} />
+			<label for="receiveAdminNotifications">		 
+			{if !$canReceiveNotifications}
+				Unable to 
+			{else}
+				<input type="checkbox" name="receiveAdminNotifications" id="receiveAdminNotifications"
+				{if ($account->receiveAdminNotifications) && !$newAccount}
+					checked aria-checked="true" value=true
+				{else}
+					aria-checked="false" value=false
+				{/if}
+				/>
+			{/if} 	
+			
 			Receive Admin Notifications</label>
+			{if !$canReceiveNotifications}<p class="alert alert-info"> -- Note: This user is unable to receive system notifications. Contact an admin if this is incorrect or upgrade this user's role to one that can receive system notifications.</p>{/if}
 		</li>
+		{if $canReceiveNotifications}
 		<li><p><em> E.g. "course requested" emails.</em></p></li>
+		{/if}
 	</ul>
 
 </fieldset>
