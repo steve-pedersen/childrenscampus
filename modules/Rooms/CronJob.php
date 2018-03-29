@@ -3,7 +3,7 @@
 /**
  * Interface for extensions that wish to execute periodic code.
  * 
- * @author	Charles O'Sullivan (chsoney@sfsu.edu)
+ * @author	Steve Pedersen (pedersen@sfsu.edu)
  * @copyright	Copyright &copy; San Francisco State University.
  */
 class Ccheckin_Rooms_CronJob extends Bss_Cron_Job
@@ -104,15 +104,5 @@ class Ccheckin_Rooms_CronJob extends Bss_Cron_Job
 			}
 		}
     }
-	
-	// TODO: Fix mailer stuff ***********************************************
-	private function createEmailTemplate($templateName)
-    {
-        $template = new DivaTemplate;
-        $template->setDefaultResourceDirectory(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'resources');
-        $template->setTemplateFile($templateName);
-        return $template;
-    }
-}
 
-?>
+}

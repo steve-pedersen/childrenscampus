@@ -6,9 +6,9 @@
  * @copyright	Copyright &copy; San Francisco State University.
  * @author	Steve Pedersen (pedersen@sfsu.edu)
  */
-abstract class Ccheckin_ClassData_ImporterExtension extends Bss_Core_NamedExtension
+abstract class Ccheckin_Courses_EnrollmentsImporterExtension extends Bss_Core_NamedExtension
 {
-	public static function getExtensionPointName () { return 'at:ccheckin:classdata/importerextension'; }
+	public static function getExtensionPointName () { return 'at:ccheckin:courses/enrollments'; }
     
     public function getDataSource ($alias = 'default')
     {

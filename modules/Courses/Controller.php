@@ -226,6 +226,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                 $course->fullName = $courseData['title'];
                 $course->shortName = $courseData['shortName'];
                 $course->department = $courseData['department'];
+                $course->externalCourseKey = $courseData['id'];
 
                 $facetData = $this->request->getPostParameter('facet');
                 $facet = $this->schema('Ccheckin_Courses_Facet')->createInstance();
@@ -282,6 +283,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                         $course->enrollments->setProperty($account, 'term', $semester->internal);
                         $course->enrollments->setProperty($account, 'role', 'Student');
                         $course->enrollments->setProperty($account, 'enrollment_method', 'Class Data');
+                        $course->enrollments->setProperty($account, 'drop_date', null);
                     }
                     foreach ($courseData['instructors'] as $teacher)
                     {
@@ -301,6 +303,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                         $course->enrollments->setProperty($account, 'term', $semester->internal);
                         $course->enrollments->setProperty($account, 'role', 'Teacher');
                         $course->enrollments->setProperty($account, 'enrollment_method', 'Class Data');
+                        $course->enrollments->setProperty($account, 'drop_date', null);
                     }                        
 
                     // Save all Course => Accounts mapped data

@@ -29,6 +29,7 @@ class Ccheckin_Courses_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleU
                 $def->addProperty('end_date', 'datetime');
                 $def->addProperty('active', 'bool');
                 $def->addProperty('deleted', 'bool');
+                $def->addProperty('external_course_key', 'string');
                 $def->save();
 
                 $def = $this->createEntityType('ccheckin_course_enrollment_map', $this->getDataSource('Ccheckin_Courses_Course'));
@@ -37,6 +38,7 @@ class Ccheckin_Courses_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleU
                 $def->addProperty('term', 'string');
                 $def->addProperty('role', 'string');
                 $def->addProperty('enrollment_method', 'string');
+                $def->addProperty('drop_date', 'datetime');
                 $def->addForeignKey('bss_authn_accounts', array('account_id' => 'id'));
                 $def->addForeignKey('ccheckin_courses', array('course_id' => 'id'));
                 $def->save();               

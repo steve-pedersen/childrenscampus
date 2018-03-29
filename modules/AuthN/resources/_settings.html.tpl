@@ -50,7 +50,7 @@
 			{/if} 	
 			
 			Receive Admin Notifications</label>
-			{if !$canReceiveNotifications}<p class="alert alert-info"> -- Note: This user is unable to receive system notifications. Contact an admin if this is incorrect or upgrade this user's role to one that can receive system notifications.</p>{/if}
+			{if !$canReceiveNotifications}<p class="alert alert-info"> -- Note: This user is unable to receive system notifications. Contact an admin if this is incorrect or upgrade this user's role to one that can receive system notifications. If this is a new Admin user, save it with Administrator role and then edit it again.</p>{/if}
 		</li>
 		{if $canReceiveNotifications}
 		<li><p><em> E.g. "course requested" emails.</em></p></li>

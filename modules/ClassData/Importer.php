@@ -1,10 +1,11 @@
 <?php
 
-class Ccheckin_ClassData_Importer extends Ccheckin_ClassData_ImporterExtension
+class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterExtension
 {
-    const DATASOURCE_ALIAS = 'ccheckin';
-    const ACCOUNTS_TABLE = 'ccheckin_users';
-    const ENROLLMENTS_TABLE = 'ccheckin_enrollments';
+    const DATASOURCE_ALIAS = 'classdata';
+    const CC_DATASOURCE_ALIAS = 'ccheckin';
+    const ACCOUNTS_TABLE = 'bss_authn_accounts';
+    const ENROLLMENTS_TABLE = 'ccheckin_course_enrollment_map';
     const COURSES_TABLE = 'ccheckin_courses';
     
 
@@ -14,7 +15,13 @@ class Ccheckin_ClassData_Importer extends Ccheckin_ClassData_ImporterExtension
         'SFSUid' => 'username',
         'Email' => 'emailAddress',
     );
-    
+        
+    static $ClassDataCourseFieldMap = array(
+        'id' => 'externalCourseKey',
+        'shortName' => 'shortName',
+        'title' => 'fullName',
+        'department' => 'department',
+    );
 
     public static function getExtensionName () { return 'classdata'; }
     
@@ -90,32 +97,27 @@ class Ccheckin_ClassData_Importer extends Ccheckin_ClassData_ImporterExtension
     }
   
      
-    public function import ($semester)
+    public function updateCourseEnrollments ($semesterCode)
     {
-        set_time_limit(0);
-        $result = false;
-        
+        set_time_limit(0);    
         $schemaManager = $this->getApplication()->schemaManager;
         
         $logs = $schemaManager->getSchema('Ccheckin_ClassData_SyncLog');
-        $logs->setDefaultDataSourceAlias(self::DATASOURCE_ALIAS);
         $lastLog = $logs->findOne($logs->status->equals(200), array('orderBy' => array('-dt', '-id')));
         $newLog = $logs->createInstance();
-        
-        $courses = $schemaManager->getSchema('Ccheckin_ClassData_Course');
-        $courses->setDefaultDataSourceAlias(self::DATASOURCE_ALIAS);
-        $users = $schemaManager->getSchema('Ccheckin_ClassData_User');
-        $users->setDefaultDataSourceAlias(self::DATASOURCE_ALIAS);
-        $enrollments = $schemaManager->getSchema('Ccheckin_ClassData_Enrollment');
-        $enrollments->setDefaultDataSourceAlias(self::DATASOURCE_ALIAS);
-        
-        $dataSource = $courses->getDefaultDataSource();
-        $tx = $dataSource->createTransaction();
         $now = new DateTime;
         
+        $semesters = $schemaManager->getSchema('Ccheckin_Semesters_Semester');
+        $semester = $semesters->findOne($semesters->internal->equals($semesterCode));       
+        $courses = $schemaManager->getSchema('Ccheckin_Courses_Course');
+        $currentCourses = $courses->find($courses->startDate->equals($semester->startDate));       
+        $users = $schemaManager->getSchema('Bss_AuthN_Account');    
+        $roles = $schemaManager->getSchema('Ccheckin_AuthN_Role');
+        $teacherRole = $roles->findOne($roles->name->equals('Teacher'));
+        $studentRole = $roles->findOne($roles->name->equals('Student'));
+          
         if ($lastLog === null)
         {
-            // TODO: We need a real strategy for this. Right now, just pick a date long ago.
             $since = '1970-01-01';
         }
         else
@@ -123,148 +125,122 @@ class Ccheckin_ClassData_Importer extends Ccheckin_ClassData_ImporterExtension
             $since = $lastLog->dt->format('c');
         }
 
+        $results = array();
         $service = new Ccheckin_ClassData_Service($this->getApplication());
         
-        list($status, $data) = $service->getChanges($semester, $since);
-        
-        if ($status != 200)
+        foreach ($currentCourses as $course)
         {
-            if ($data && isset($data['error']))
-            {
-                $newLog->errorCode = $data['error'];
-                $newLog->errorMessage = $data['message'];
-            }
-            else
-            {
-                $newLog->errorCode = 'NoErrorResource';
-                $newLog->errorMessage = 'The response contained an error code, but the body was not a JSON-formatted error document.';
-            }
-        }
-        else
-        {
-            // Keeps track of existing courses and users as we process the batches.
-            $existingCourseSet = $courses->findValues(array('externalCourseKey' => 'externalCourseKey'));
-            $existingUserSet = $users->findValues(array('sfsuId' => 'sfsuId'));
+            list($status, $data) = $service->getCourse($course->externalCourseKey);
+            $results[$course->externalCourseKey]['status'] = $status;
             
-            // Process the courses in batches.
-            
-            foreach ($this->batches($data['courses'], 1000) as $batch)
+            if ($status != 200)
             {
-                foreach ($batch as $courseId => $actionList)
+                if ($data && isset($data['error']))
                 {
-                    foreach ($actionList as $action)
-                    {
-                        if (array_key_exists($courseId, $existingCourseSet))
-                        {
-                            if ($action['t'] == '+' && $existingCourseSet[$courseId])
-                            {
-                                // If we're trying to add a course that was 
-                                // previously marked as deleted, remove all of its
-                                // old enrollments. (We kept them before so that we
-                                // had a record of the course's instructors. But
-                                // now we're expecting new enrollments for the
-                                // course -- which might replicate the info we
-                                // saved.)
-                                
-                                $this->deleteCourseEnrollments($tx, $enrollments, $courseId);
-                            }
-                            
-                            if ($action['t'] == '+' || $action['t'] == '!')
-                            {
-                                $this->updateCourse($tx, $now, $courses, $courseId, $action['d']);
-                            }
-                            elseif ($action['t'] == '-')
-                            {
-                                $this->dropCourse($tx, $now, $courses, $courseId);
-                                $existingCourseSet[$courseId] = true; // Mark as deleted.
-                            }
-                        }
-                        elseif ($action['t'] == '+' || $action['t'] == '!')
-                        {
-                            $this->addCourse($tx, $now, $courses, $courseId, $action['d']);
-                            $existingCourseSet[$courseId] = false;
-                        }
-                    }
-                }
-            }
-            
-            foreach ($this->batches($data['users'], 1000) as $idx => $batch)
-            {
-                foreach ($batch as $userId => $actionList)
-                {
-                    foreach ($actionList as $action)
-                    {
-                        if (array_key_exists($userId, $existingUserSet))
-                        {
-                            switch ($action['t'])
-                            {
-                                case '+':
-                                case '!':
-                                    $this->updateUser($tx, $now, $users, $userId, $action['d']);
-                                    break;
-                                case '-':
-                                    $this->dropUser($tx, $now, $users, $userId);
-                                    unset($existingUserSet[(string)$userId]);
-                                    break;
-                            }
-                        }
-                        elseif ($action['t'] == '+' || $action['t'] == '!')
-                        {
-                            $this->addUser($tx, $now, $users, $userId, $action['d']);
-                            $existingUserSet[(string)$userId] = true;
-                        }
-                    }
-                }
-            }
-            
-            $existingEnrollmentSet = $this->loadExistingEnrollments($dataSource, $data['enrollments'], $existingCourseSet, $existingUserSet);
-            
-            // Enrollments.
-            foreach ($data['enrollments'] as $courseId => $courseEnrollList)
-            {
-                if (array_key_exists($courseId, $existingCourseSet))
-                {
-                    foreach ($courseEnrollList as $action)
-                    {
-                        $role = ($action[1] == 's' ? 'student' : 'instructor');
-                        $userId = substr($action, 2);
-                        
-                        if (isset($existingUserSet[(string)$userId]))
-                        {
-                            switch ($action[0])
-                            {
-                                case '+':
-                                    if (!isset($existingEnrollmentSet[$courseId]) || !isset($existingEnrollmentSet[$courseId][$userId]))
-                                    {
-                                        $this->addEnrollment($tx, $now, $enrollments, $userId, $courseId, $role);
-                                    }
-                                    break;
-                                case '-':
-                                    $this->dropEnrollment($tx, $now, $enrollments, $userId, $courseId, $role);
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            $this->getApplication()->log('debug', "Enrollment {$action} in {$courseId} for non-existent user: {$userId}");
-                        }
-                    }
+                    $newLog->errorCode = $data['error'];
+                    $newLog->errorMessage = $data['message'];
                 }
                 else
                 {
-                    $this->getApplication()->log('debug', "Enrollment for non-existent course: {$courseId}");
+                    $newLog->errorCode = 'NoErrorResource';
+                    $newLog->errorMessage = 'The response contained an error code, but the body was not a JSON-formatted error document.';
                 }
+                $newLog->status = $status;
+            }
+            else
+            {
+                $cdTeachers = $data['instructors'];
+                $cdStudents = $data['students'];
+                unset($data['instructors']);
+                unset($data['students']);
+
+                foreach ($data as $key => $value)
+                {
+                    if (array_key_exists($key, self::$ClassDataCourseFieldMap))
+                    {
+                        if ($key == 'description')
+                        {
+                            $course->facets->index(0)->description = $value;
+                        }
+                        else
+                        {
+                            $mapped = self::$ClassDataCourseFieldMap[$key];
+                            $course->$mapped = $value;
+                        }
+                    }
+                }
+                
+                $this->syncEnrollments($course, $course->getStudents(true, true), $cdStudents, $studentRole, $semester);
+                $this->syncEnrollments($course, $course->getTeachers(true, true), $cdTeachers, $teacherRole, $semester);
+
+                $course->facets->index(0)->save();
+                $course->save();
+
+                // reload cached enrollments
+                $course->getStudents(true);
+                $course->getTeachers(true);
             }
         }
         
+        $newLog->status = $newLog->status ?? 200;
         $newLog->dt = $now;
-        $newLog->status = $status;
         $newLog->save();
-        
-        $tx->commit();
-        return $now;
     }
+  
     
+    protected function syncEnrollments ($course, $existingUsers, $fetchedUsers, $role, $semester)
+    {
+        $schemaManager = $this->getApplication()->schemaManager;
+        $accounts = $schemaManager->getSchema('Bss_AuthN_Account');
+        $fetchedUserIds = array();
+        
+        // create new account and enroll user in course as needed
+        foreach ($fetchedUsers as $user)
+        {
+            $account = $accounts->findOne($accounts->username->equals($user['id']));
+            if (!$account)
+            {
+                $account = $accounts->createInstance();
+                $account->username = $user['id'];
+                $account->firstName = $user['first'];
+                $account->lastName = $user['last'];
+                $account->emailAddress = $user['mail'];
+                $account->roles->add($role);
+                $account->save();
+            }
+
+            if (!$course->enrollments->has($account))
+            {
+                $course->enrollments->add($account);
+                $course->enrollments->setProperty($account, 'term', $semester->internal);
+                $course->enrollments->setProperty($account, 'role', $role->name);
+                $course->enrollments->setProperty($account, 'enrollment_method', 'Class Data');
+                $course->enrollments->setProperty($account, 'drop_date', null);                
+            }
+
+            $fetchedUserIds[] = $account->username;
+        }
+
+        // If a user that was previously enrolled is not in the list of enrollments
+        // fetched from ClassData we will consider them as dropped.
+        // However, if they are in the fetched list and they have a drop_date set,
+        // we consider them as re-enrolled and set drop_date to null.
+        foreach ($existingUsers as $user)
+        {
+            $account = $accounts->findOne($accounts->username->equals($user->username));
+            if (!in_array($user->username, $fetchedUserIds))
+            {              
+                $course->enrollments->setProperty($account, 'drop_date', new DateTime);
+            }
+            elseif ($course->enrollments->getProperty($account, 'drop_date') !== null)
+            {
+                $course->enrollments->setProperty($account, 'drop_date', null);
+            }
+        }
+
+        $course->enrollments->save();
+    }
+
     
     protected function batches ($data, $entries)
     {
@@ -479,5 +455,181 @@ class Ccheckin_ClassData_Importer extends Ccheckin_ClassData_ImporterExtension
         }
         
         return $existingEnrollmentSet;
+    }
+
+
+    public function OLDimport ($semester)
+    {
+        set_time_limit(0);
+        $result = false;
+        
+        $schemaManager = $this->getApplication()->schemaManager;
+        
+        $logs = $schemaManager->getSchema('Ccheckin_ClassData_SyncLog');
+        $logs->setDefaultDataSourceAlias(self::DATASOURCE_ALIAS);
+        $lastLog = $logs->findOne($logs->status->equals(200), array('orderBy' => array('-dt', '-id')));
+        $newLog = $logs->createInstance();
+        
+        $courses = $schemaManager->getSchema('Ccheckin_ClassData_Course');
+        $courses->setDefaultDataSourceAlias(self::DATASOURCE_ALIAS);
+        $users = $schemaManager->getSchema('Bss_AuthN_Account');
+        $users->setDefaultDataSourceAlias(self::DATASOURCE_ALIAS);
+        $enrollments = $schemaManager->getSchema('Ccheckin_ClassData_Enrollment');
+        $enrollments->setDefaultDataSourceAlias(self::DATASOURCE_ALIAS);
+        
+        $dataSource = $courses->getDefaultDataSource();
+        $tx = $dataSource->createTransaction();
+        $now = new DateTime;
+        
+        if ($lastLog === null)
+        {
+            // TODO: We need a real strategy for this. Right now, just pick a date long ago.
+            $since = '1970-01-01';
+        }
+        else
+        {
+            $since = $lastLog->dt->format('c');
+        }
+
+        $service = new Ccheckin_ClassData_Service($this->getApplication());
+        
+        list($status, $data) = $service->getChanges($semester, $since);
+        
+        if ($status != 200)
+        {
+            if ($data && isset($data['error']))
+            {
+                $newLog->errorCode = $data['error'];
+                $newLog->errorMessage = $data['message'];
+            }
+            else
+            {
+                $newLog->errorCode = 'NoErrorResource';
+                $newLog->errorMessage = 'The response contained an error code, but the body was not a JSON-formatted error document.';
+            }
+        }
+        else
+        {
+            // Keeps track of existing courses and users as we process the batches.
+            $existingCourseSet = $courses->findValues(array('externalCourseKey' => 'externalCourseKey'));
+            $existingUserSet = $users->findValues(array('sfsuId' => 'sfsuId'));
+            
+            // Process the courses in batches.
+            
+            foreach ($this->batches($data['courses'], 1000) as $batch)
+            {
+                foreach ($batch as $courseId => $actionList)
+                {
+                    foreach ($actionList as $action)
+                    {
+                        if (array_key_exists($courseId, $existingCourseSet))
+                        {
+                            if ($action['t'] == '+' && $existingCourseSet[$courseId])
+                            {
+                                // If we're trying to add a course that was 
+                                // previously marked as deleted, remove all of its
+                                // old enrollments. (We kept them before so that we
+                                // had a record of the course's instructors. But
+                                // now we're expecting new enrollments for the
+                                // course -- which might replicate the info we
+                                // saved.)
+                                
+                                $this->deleteCourseEnrollments($tx, $enrollments, $courseId);
+                            }
+                            
+                            if ($action['t'] == '+' || $action['t'] == '!')
+                            {
+                                $this->updateCourse($tx, $now, $courses, $courseId, $action['d']);
+                            }
+                            elseif ($action['t'] == '-')
+                            {
+                                $this->dropCourse($tx, $now, $courses, $courseId);
+                                $existingCourseSet[$courseId] = true; // Mark as deleted.
+                            }
+                        }
+                        elseif ($action['t'] == '+' || $action['t'] == '!')
+                        {
+                            $this->addCourse($tx, $now, $courses, $courseId, $action['d']);
+                            $existingCourseSet[$courseId] = false;
+                        }
+                    }
+                }
+            }
+            
+            foreach ($this->batches($data['users'], 1000) as $idx => $batch)
+            {
+                foreach ($batch as $userId => $actionList)
+                {
+                    foreach ($actionList as $action)
+                    {
+                        if (array_key_exists($userId, $existingUserSet))
+                        {
+                            switch ($action['t'])
+                            {
+                                case '+':
+                                case '!':
+                                    $this->updateUser($tx, $now, $users, $userId, $action['d']);
+                                    break;
+                                case '-':
+                                    $this->dropUser($tx, $now, $users, $userId);
+                                    unset($existingUserSet[(string)$userId]);
+                                    break;
+                            }
+                        }
+                        elseif ($action['t'] == '+' || $action['t'] == '!')
+                        {
+                            $this->addUser($tx, $now, $users, $userId, $action['d']);
+                            $existingUserSet[(string)$userId] = true;
+                        }
+                    }
+                }
+            }
+            
+            $existingEnrollmentSet = $this->loadExistingEnrollments($dataSource, $data['enrollments'], $existingCourseSet, $existingUserSet);
+            
+            // Enrollments.
+            foreach ($data['enrollments'] as $courseId => $courseEnrollList)
+            {
+                if (array_key_exists($courseId, $existingCourseSet))
+                {
+                    foreach ($courseEnrollList as $action)
+                    {
+                        $role = ($action[1] == 's' ? 'student' : 'instructor');
+                        $userId = substr($action, 2);
+                        
+                        if (isset($existingUserSet[(string)$userId]))
+                        {
+                            switch ($action[0])
+                            {
+                                case '+':
+                                    if (!isset($existingEnrollmentSet[$courseId]) || !isset($existingEnrollmentSet[$courseId][$userId]))
+                                    {
+                                        $this->addEnrollment($tx, $now, $enrollments, $userId, $courseId, $role);
+                                    }
+                                    break;
+                                case '-':
+                                    $this->dropEnrollment($tx, $now, $enrollments, $userId, $courseId, $role);
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            $this->getApplication()->log('debug', "Enrollment {$action} in {$courseId} for non-existent user: {$userId}");
+                        }
+                    }
+                }
+                else
+                {
+                    $this->getApplication()->log('debug', "Enrollment for non-existent course: {$courseId}");
+                }
+            }
+        }
+        
+        $newLog->dt = $now;
+        $newLog->status = $status;
+        $newLog->save();
+        
+        $tx->commit();
+        return $now;
     }
 }

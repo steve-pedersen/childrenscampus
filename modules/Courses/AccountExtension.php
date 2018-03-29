@@ -22,7 +22,7 @@ class Ccheckin_Courses_AccountExtension extends Bss_AuthN_AccountExtension //imp
                 'via' => 'ccheckin_course_enrollment_map',
                 'fromPrefix' => 'account',
                 'toPrefix' => 'course',
-                'properties' => array('term' => 'string', 'role' => 'string', 'enrollment_method' => 'string')
+                'properties' => array('term' => 'string', 'role' => 'string', 'enrollment_method' => 'string', 'drop_date' => 'datetime')
             ),
         );
     }

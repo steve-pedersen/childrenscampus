@@ -4,6 +4,7 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization //i
 {
     private $_teachers;
     private $_students;
+    private $_droppedStudents;
 
     public static function SchemaInfo ()
     {
@@ -20,6 +21,7 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization //i
             'endDate' => array('datetime', 'nativeName' => 'end_date'),
             'active' => 'bool',
             'deleted' => 'bool',
+            'externalCourseKey' => array('string', 'nativeName' => 'external_course_key'),
 
             'facets' => array('1:N', 'to' => 'Ccheckin_Courses_Facet', 'reverseOf' => 'course', 'orderBy' => array('created_date')), 
 
@@ -28,7 +30,7 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization //i
                 'via' => 'ccheckin_course_enrollment_map',
                 'fromPrefix' => 'course',
                 'toPrefix' => 'account',
-                'properties' => array('term' => 'string', 'role' => 'string', 'enrollment_method' => 'string')
+                'properties' => array('term' => 'string', 'role' => 'string', 'enrollment_method' => 'string', 'drop_date' => 'datetime')
             ),
         );
     }
@@ -111,7 +113,7 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization //i
         return $this->_teachers;
     }
 
-    public function getStudents ($reload=false)
+    public function getStudents ($reload=false, $includeDropped=false)
     {
         if ($this->_students === null || $reload)
         {
@@ -121,13 +123,38 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization //i
             {
                 if ($this->enrollments->getProperty($enrollment, 'role') === 'Student')
                 {
-                    $enrollments['students'][] = $enrollment;
+                    if (($this->enrollments->getProperty($enrollment, 'drop_date') === null) || $includeDropped)
+                    {
+                        $enrollments['students'][] = $enrollment;
+                    }        
                 }
             }
             $this->_students = $enrollments['students'];
         }
         
         return $this->_students;
+    }
+
+    public function getDroppedStudents ($reload=false)
+    {
+        if ($this->_droppedStudents === null || $reload)
+        {
+            $enrollments = array();
+
+            foreach ($this->enrollments as $enrollment)
+            {
+                if ($this->enrollments->getProperty($enrollment, 'role') === 'Student')
+                {
+                    if ($this->enrollments->getProperty($enrollment, 'drop_date') !== null)
+                    {
+                        $enrollments['students'][] = $enrollment;
+                    }                   
+                }
+            }
+            $this->_droppedStudents = $enrollments['students'];
+        }
+        
+        return $this->_droppedStudents;
     }
     
     public function studentCanParticipate ($student)
