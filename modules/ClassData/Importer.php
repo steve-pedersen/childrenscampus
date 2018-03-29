@@ -111,6 +111,7 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
         $semester = $semesters->findOne($semesters->internal->equals($semesterCode));       
         $courses = $schemaManager->getSchema('Ccheckin_Courses_Course');
         $currentCourses = $courses->find($courses->startDate->equals($semester->startDate));       
+        $requests = $schemaManager->getSchema('Ccheckin_Courses_Request');
         $users = $schemaManager->getSchema('Bss_AuthN_Account');    
         $roles = $schemaManager->getSchema('Ccheckin_AuthN_Role');
         $teacherRole = $roles->findOne($roles->name->equals('Teacher'));
@@ -170,11 +171,19 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
                     }
                 }
                 
-                $this->syncEnrollments($course, $course->getStudents(true, true), $cdStudents, $studentRole, $semester);
-                $this->syncEnrollments($course, $course->getTeachers(true, true), $cdTeachers, $teacherRole, $semester);
+                list($studentAdds, $studentDrops) = $this->syncEnrollments(
+                    $course, $course->getStudents(true, true), $cdStudents, $studentRole, $semester);
+                list($teacherAdds, $teacherDrops) = $this->syncEnrollments(
+                    $course, $course->getTeachers(true, true), $cdTeachers, $teacherRole, $semester);
 
                 $course->facets->index(0)->save();
                 $course->save();
+
+                $req = $requests->findOne($requests->courseId->equals($course->id));
+                if ($course->active && !$req)
+                {
+                    $this->updatePermissions($course, $studentAdds, $studentDrops, $teacherAdds, $teacherDrops);
+                }
 
                 // reload cached enrollments
                 $course->getStudents(true);
@@ -193,6 +202,8 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
         $schemaManager = $this->getApplication()->schemaManager;
         $accounts = $schemaManager->getSchema('Bss_AuthN_Account');
         $fetchedUserIds = array();
+        $newAdds = array();
+        $newDrops = array();
         
         // create new account and enroll user in course as needed
         foreach ($fetchedUsers as $user)
@@ -215,9 +226,10 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
                 $course->enrollments->setProperty($account, 'term', $semester->internal);
                 $course->enrollments->setProperty($account, 'role', $role->name);
                 $course->enrollments->setProperty($account, 'enrollment_method', 'Class Data');
-                $course->enrollments->setProperty($account, 'drop_date', null);                
+                $course->enrollments->setProperty($account, 'drop_date', null);
+                $newAdds[] = $account;             
             }
-
+            
             $fetchedUserIds[] = $account->username;
         }
 
@@ -231,17 +243,53 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
             if (!in_array($user->username, $fetchedUserIds))
             {              
                 $course->enrollments->setProperty($account, 'drop_date', new DateTime);
+                $newDrops[] = $user;
             }
             elseif ($course->enrollments->getProperty($account, 'drop_date') !== null)
             {
                 $course->enrollments->setProperty($account, 'drop_date', null);
+                $newAdds[] = $user;
             }
         }
 
         $course->enrollments->save();
+
+        return array($newAdds, $newDrops);
     }
 
-    
+
+    protected function updatePermissions ($course, $studentAdds, $studentDrops, $teacherAdds, $teacherDrops)
+    {
+        $authZ = $this->getApplication()->authorizationManager;
+
+        foreach ($teacherAdds as $teacher)
+        {
+            $authZ->grantPermission($teacher, 'course view', $course);
+        }
+        foreach ($teacherDrops as $teacher)
+        {
+            $authZ->revokePermission($teacher, 'course view', $course);
+        }
+          
+        $facet = $course->facets->index(0);
+        $type = strtolower($facet->type->name);
+
+        if ((strpos($type, 'participation') !== false) || (strpos($type, 'participate') !== false))
+        {
+            $facet->addUsers($studentAdds, false);
+        }
+        elseif ((strpos($type, 'observation') !== false) || (strpos($type, 'observe') !== false))
+        {
+            $facet->addUsers($studentAdds, true);
+        }
+
+        foreach ($studentDrops as $student)
+        {
+            $facet->removeUser($student);
+        }
+    }
+
+
     protected function batches ($data, $entries)
     {
         $count = count($data);

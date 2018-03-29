@@ -51,12 +51,11 @@ abstract class Ccheckin_Purposes_AbstractPurpose extends Bss_ActiveRecord_BaseWi
     public function removeUser ($account)
     {
     	$authZ = $this->getApplication()->authorizationManager;
-        $authZ->revokePermission($account, 'purpose have', $this->purpose);	// TODO: Test
-        $authZ->revokePermission($account, 'purpose observe', $this->purpose);	// TODO: Test
-        $authZ->revokePermission($account, 'purpose participate', $this->purpose);	// TODO: Test
+        $authZ->revokePermission($account, 'purpose have', $this->purpose);
+        $authZ->revokePermission($account, 'purpose observe', $this->purpose);
+        $authZ->revokePermission($account, 'purpose participate', $this->purpose);
     }
 	
-	// TODO: SEND EMAIL NOTIFICATION TO USERS THAT THEY HAVE BEEN ADDED TO A COURSE AND CAN THEN ACCESS IT
 	public function addUsers ($users, $observation = true)
 	{
 		$authZ = $this->getApplication()->authorizationManager;
