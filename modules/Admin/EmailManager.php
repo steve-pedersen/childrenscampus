@@ -12,13 +12,14 @@ class Ccheckin_Admin_EmailManager
 	private $attachments;
 	private $ccRequest;
 	private $emailLogId;
+	private $templateInstance;
 
 	private $schemas = array();
 
-	public function __construct (Bss_Core_Application $app, $ctrl)
+	public function __construct (Bss_Core_Application $app, $ctrl=null)
 	{
 		$this->app = $app;
-		$this->ctrl = $ctrl;
+		$this->ctrl = $ctrl;	// phasing this out...
 		$this->fromEmail = $app->getConfiguration()->getProperty('email-default-address', 'children@sfsu.edu');
 		$this->fromName = "The Children's Campus";
 		$this->testingOnly = $app->getConfiguration()->getProperty('email-testing-only', false);
@@ -42,6 +43,11 @@ class Ccheckin_Admin_EmailManager
 		);
 
 		return $types;
+	}
+
+	public function setTemplateInstance ($inst)
+	{
+		$this->templateInstance = $inst;
 	}
 
  /**
@@ -312,7 +318,7 @@ class Ccheckin_Admin_EmailManager
 			$messageTitle = $params['message_title'];
 			$preppedText = strtr($templateText, $params);			
 			$templateFileName = $templateFile ?? 'emailBody.email.tpl';
-			$mail = $this->ctrl->createEmailMessage($templateFileName);
+			$mail = ($this->templateInstance ? $this->createEmailMessage($templateFileName) : $this->app->createEmailMessage($templateFileName));
 			$mail->Subject = $this->subjectLine;
 
 			$mail->set('From', $this->fromEmail);
@@ -372,6 +378,27 @@ class Ccheckin_Admin_EmailManager
 			$emailLog->save();
 		}
 	}
+
+    public function createEmailTemplate ()
+    {
+        $template = $this->templateInstance;
+        $template->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'email.html.tpl'));
+        return $template;
+    }
+    
+    
+    public function createEmailMessage ($contentTemplate = null)
+    {
+        $message = new Bss_Mailer_Message($this->app);
+
+        if ($contentTemplate)
+        {
+            $tpl = $this->createEmailTemplate();
+            $message->setTemplate($tpl, $this->getModule()->getResource($contentTemplate));
+        }
+        
+        return $message;
+    }
 
 	private function hasContent ($text)
 	{

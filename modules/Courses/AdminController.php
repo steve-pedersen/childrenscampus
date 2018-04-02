@@ -118,10 +118,11 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         
         if ($tab == 'active')
         {
-            $coursesFiltered = $courses->find(
-                $courses->active->isTrue()->andIf($courses->deleted->isNull()->orIf($courses->deleted->isFalse())),
-                array('orderBy' => 'shortName')
+            $cond = $courses->allTrue(
+                $courses->active->isTrue(),
+                $courses->deleted->isNull()->orIf($courses->deleted->isFalse())
             );
+            $coursesFiltered = $courses->find($cond, array('orderBy' => 'shortName'));
         }
         else
         {
@@ -134,15 +135,14 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                     $notDeletedCourseIds[] = $cr->courseId;
                 }
             }
-            $coursesFiltered = $courses->find(
-                $courses->active->isFalse()->andIf(
-                    $courses->deleted->isNull()->orIf($courses->deleted->isFalse()))
-                ->andIf(
-                    $courses->id->notInList($notDeletedCourseIds)
-                ),
-                array('orderBy' => 'shortName')
+            $cond = $courses->allTrue(
+                $courses->active->isFalse(),
+                $courses->deleted->isNull()->orIf($courses->deleted->isFalse()),
+                $courses->id->notInList($notDeletedCourseIds)
             );
+            $coursesFiltered = $courses->find($cond, array('orderBy' => 'shortName'));
         }
+
         $this->template->requests = $requestSchema;
         $this->template->coursesIndexTabs = $coursesIndexTabs;
         $this->template->tab = $tab;
@@ -150,13 +150,22 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         $this->template->courses = $coursesFiltered;
     }
 
+
     public function queue ()
     {
-            // $app = $this->getApplication();
-            // $semesterCode = Ccheckin_Semesters_Semester::guessActiveSemester();
-            // $importer = $app->moduleManager->getExtensionByName('at:ccheckin:courses/enrollments', 'classdata');
-            // $importer->updateCourseEnrollments($semesterCode);
-            // $importer->archiveCourses();
+        // $app = $this->getApplication();
+        // $semesterCode = Ccheckin_Semesters_Semester::guessActiveSemester();
+        // $importer = $app->moduleManager->getExtensionByName('at:ccheckin:courses/enrollments', 'classdata');
+        // $importer->updateCourseEnrollments($semesterCode);
+        // $importer->archiveCourses();
+
+        // $this->sendReservationReminders();
+        // $this->sendReservationMissedNotification();
+
+        $res = $this->schema('Ccheckin_Rooms_Reservation')->get(1);
+        $st = $res->startTime;
+        $et = (clone ($res->startTime))->modify('+1 hours');
+        echo "<pre>"; var_dump($st, $et); die;
 
         $this->setPageTitle('Courses Queue');
         $courseRequests = $this->schema('Ccheckin_Courses_Request');

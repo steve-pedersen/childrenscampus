@@ -8,49 +8,123 @@
  */
 class Ccheckin_Rooms_CronJob extends Bss_Cron_Job
 {
-	const PROCESS_ACTIVE_JOBS_EVERY = 0; // 2 minutes
+	const PROCESS_ACTIVE_JOBS_EVERY = 60 * 24; // once a day
 
     public function run ($startTime, $lastRun, $timeDelta)
     {
         if ($timeDelta >= self::PROCESS_ACTIVE_JOBS_EVERY)
         {
-        	$this->execute(); // TODO: test if this is reight.
-            // $semesters = $this->schema('Ccheckin_Semesters_Semester');
-            // $app = $this->getApplication();
-
-            // $semesterCode = $app->semesterManager->getCurrentSemesterCode();
-
-            // $importer = $app->moduleManager->getExtensionByName('at:ccheckin:classdata/importer', 'classdata');
-            // $importer->import($semester->code);
+        	$this->sendReservationReminderNotifications();
+        	$this->sendReservationMissedNotification();
+        	$this->cleanupOldReservations();
 
             return true;
         }
     }
 
-	/**
-	 * Called by a component which needs to have code executed periodically.
-	 * 
-	 */
-	public function execute ()
-    {     
-		// Get the observations which were never checked out and close them.
-        $reservations = $this->getSchema('Ccheckin_Rooms_Reservation');
+    public function sendReservationReminderNotifications ()
+    {
+        $app = $this->getApplication();
+        $schemaManager = $app->schemaManager;
+        $emailManager = new Ccheckin_Admin_EmailManager($app);
+    	$emailManager->setTemplateInstance($this->createTemplateInstance());
+    	$reservations = $schemaManager->getSchema('Ccheckin_Rooms_Reservation');
+    	$timeDelta = $app->siteSettings->getProperty('email-reservation-reminder-time', '1 day');
+
+        $cond = $reservations->allTrue(
+            $reservations->startTime->before((new DateTime)->modify('+' . $timeDelta)),
+            $reservations->reminderSent->isFalse()->orIf($reservations->reminderSent->isNull()),
+            $reservations->checkedIn->isFalse()->orIf($reservations->checkedIn->isNull()),
+            $reservations->missed->isFalse()->orIf($reservations->missed->isNull())
+        );
+        $upcoming = $reservations->find($cond);
+        
+        foreach ($upcoming as $reservation)
+        {
+            $emailData = array();        
+            $emailData['reservation'] = $reservation;
+            $emailData['user'] = $reservation->account;
+            $emailManager->processEmail('sendReservationReminder', $emailData);
+        }
+    }
+
+    public function sendReservationMissedNotification ()
+    {
+        $app = $this->getApplication();
+        $schemaManager = $app->schemaManager;
+        $emailManager = new Ccheckin_Admin_EmailManager($app);
+        $emailManager->setTemplateInstance($this->createTemplateInstance());
+        $reservations = $schemaManager->getSchema('Ccheckin_Rooms_Reservation');
+
+        $cond = $reservations->allTrue(
+            $reservations->startTime->before((new DateTime)->modify('-4 hours')),
+            $reservations->missed->isNull()->orIf($reservations->missed->isFalse()),
+            $reservations->checkedIn->isNull()->orIf($reservations->checkedIn->isFalse())
+
+        );
+        $missed = $reservations->find($cond);
+        
+        foreach ($missed as $reservation)
+        {
+            $user = $reservation->account;
+            
+            $reservation->missed = true;
+            $reservation->save();
+            
+            if ($user->missedReservation)
+            {
+                // delete all of their upcoming reservations.
+                $cond = $reservations->allTrue(
+                    $reservations->accountId->equals($user->id),
+                    $reservations->startTime->after(new DateTime)
+                );
+                
+                $deleteReservations = $reservations->find($cond);
+                
+                foreach ($deleteReservations as $dr)
+                {
+                    $dr->observation->delete();
+                    $dr->delete();
+                }
+            }
+
+            $user->missedReservation = true;
+            $user->save();
+
+            $emailData = array();        
+            $emailData['reservation'] = $reservation;
+            $emailData['user'] = $user;
+            $emailManager->processEmail('sendReservationReminder', $emailData);
+        }
+    }
+
+    public function cleanupOldReservations ()
+    {
+        $app = $this->getApplication();
+        $schemaManager = $app->schemaManager;
+        $emailManager = new Ccheckin_Admin_EmailManager($app);
+        $emailManager->setTemplateInstance($this->createTemplateInstance());
+        $reservations = $schemaManager->getSchema('Ccheckin_Rooms_Reservation');
+
+        // Get the observations which were never checked out and close them.
         $cond = $reservations->allTrue(
         	$reservations->checkedIn->isTrue(),
-        	$reservations->startTime->before(new Date(strtotime('now - 12 hours')))
+        	$reservations->startTime->before((new DateTime)->modify('-12 hours'))
         );        
         $results = $reservations->find($cond);
-        
+
         foreach ($results as $reservation)
         {
-            $reservation->observation->duration = 60;
-            $reservation->observation->endTime = new Date($reservation->observation->startTime->getTime() + 3600);
+        	$duration = (int) ($reservation->endTime->format('G') - $reservation->startTime->format('G'));
+        	$endTime = (clone ($reservation->observation->startTime))->modify('+' . $duration . 'hours');
+            $reservation->observation->duration = (int) $duration; 
+            $reservation->observation->endTime = $endTime;
             $reservation->observation->save();
 			$reservation->delete();
-        }
-        
-		// Get the reservation which are more than a week old and delete them.
-        $cond = $reservation->startTime->before(new Date(strtotime('now - 1 month')));       
+        }       
+
+        // Get the reservations which are more than a week old and delete them.
+        $cond = $reservations->startTime->before((new DateTime)->modify('- 1 month'));       
         $results = $reservations->find($cond);
         
         foreach ($results as $reservation)
@@ -58,51 +132,22 @@ class Ccheckin_Rooms_CronJob extends Bss_Cron_Job
             $reservation->observation->delete();
 			$reservation->delete();
         }
-		
-		// get the reservation that were missed today and the person did not show up.
-        $cond = $reservations->allTrue(
-			$reservations->startTime->before(new Date(strtotime('now - 4 hours'))),
-			$reservations->missed->isFalse(),
-			$reservations->checkedIn->isFalse()
-        );       
-        $results = $reservations->find($cond);
-        $template = $this->createEmailTemplate('email_reservation_missed.tpl');			// TODO: Fix this **********************
-		
-        foreach ($results as $reservation)
-		{
-			$user = $reservation->account;
-			
-			$reservation->missed = true;
-			$reservation->save();
-			
-			if ($user->missedReservation)
-			{
-				// delete all of their upcoming reservations.
-				$cond = $reservations->allTrue(
-					$reservations->accountId->equals($user->id),
-					$reservations->startTime->after(new Date(strtotime('now')))
-				);
-				
-				$deleteReservations = $reservations->find($cond);
-				
-				foreach ($deleteReservations as $dr)
-				{
-					$dr->observation->delete();
-					$dr->delete();
-				}
-			}
-			else
-			{	// TODO: Fix mailer stuff ***********************************************
-				$mail = new DivaMailer();
-				$mail->Subject = 'Children\'s Campus Checkin: Reservation Missed';
-				$mail->Body = $template->render();
-				$mail->AltBody = strip_tags($mail->Body);
-				$mail->AddAddress($user->email);
-				$mail->Send();
-				$user->missedReservation = true;
-				$user->save();
-			}
-		}
+    }
+
+    public function createTemplateInstance ()
+    {
+        $tplClass = $this->getTemplateClass();
+        $request = new Bss_Core_request($this->app);
+        $response = new Bss_Core_Response($request);
+        
+        $inst = new $tplClass ($this, $request, $response);
+
+        return $inst;
+    }
+
+    protected function getTemplateClass ()
+    {
+        return 'Ccheckin_Master_Template';
     }
 
 }

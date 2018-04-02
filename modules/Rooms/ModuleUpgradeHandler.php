@@ -50,6 +50,7 @@ class Ccheckin_Rooms_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUpg
                 $def->addProperty('checked_in', 'bool');
                 $def->addProperty('start_time', 'datetime');
                 $def->addProperty('end_time', 'datetime');
+                $def->addProperty('reminder_sent', 'bool');
                 $def->addProperty('missed', 'bool');
                 $def->addForeignKey('ccheckin_rooms', array('room_id' => 'id'));
                 $def->addForeignKey('ccheckin_room_observations', array('observation_id' => 'id'));

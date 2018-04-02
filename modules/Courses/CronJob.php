@@ -8,23 +8,50 @@
  */
 class Ccheckin_Courses_CronJob extends Bss_Cron_Job
 {
-    const PROCESS_ACTIVE_JOBS_EVERY = 0; // 2 minutes
+    const PROCESS_ACTIVE_JOBS_EVERY = 60 * 24; // once a day
 
     public function run ($startTime, $lastRun, $timeDelta)
     {
         if ($timeDelta >= self::PROCESS_ACTIVE_JOBS_EVERY)
         {
-            $semesters = $this->schema('Ccheckin_Semesters_Semester');
             $app = $this->getApplication();
-
-            $semesterCode = $semesters->guessActiveSemester();
-
-            $importer = $app->moduleManager->getExtensionByName('at:ccheckin:courses/enrollments', 'classdata');
-            $importer->updateCourseEnrollments($semesterCode);
-
-            $importer->archiveCourses();
+            $importer = $app->moduleManager->getExtensionByName('at:ccheckin:courses/enrollments', 'classdata');           
+            $importer->updateCourseEnrollments();
+            
+            $this->archiveCourses();
 
             return true;
+        }
+    }
+
+    public function archiveCourses ()
+    {
+        $app = $this->getApplication();
+        $schemaManager = $app->schemaManager;
+        $semesters = $schemaManager->getSchema('Ccheckin_Semesters_Semester');
+        $courses = $schemaManager->getSchema('Ccheckin_Courses_Course');
+        $now = new DateTime;
+        
+        $expired = $courses->find(
+            $courses->endDate->before($now)->andIf(
+                $courses->active->isTrue())->andIf(
+                $courses->deleted->isNull()->orIf(
+                    $courses->deleted->isFalse())
+            )
+        );
+        
+        foreach ($expired as $course)
+        {
+            // // TODO: is this necessary to remove each student's permissions, i.e. course purpose?
+            // $facet = $course->facets->index(0);
+            // $students = $course->students;        
+            // foreach ($students as $student)
+            // {
+            //     $facet->removeUser($student);
+            // }
+
+            $course->active = false;
+            $course->save();
         }
     }
 

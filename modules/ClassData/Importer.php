@@ -95,55 +95,26 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
         $courses->setDefaultDataSourceAlias(self::DATASOURCE_ALIAS);
         return $courses->find($courses->externalCourseKey->like($semesterCode . '-%'));
     }
-  
-
-    public function archiveCourses ()
-    {
-        $semesters = $this->schema('Ccheckin_Semesters_Semester');
-        $courses = $this->schema('Ccheckin_Courses_Course');
-        $now = new DateTime;
-        
-        $expired = $courses->find(
-            $courses->endDate->before($now)->andIf(
-                $courses->active->isTrue())->andIf(
-                $courses->deleted->isNull()->orIf(
-                    $courses->deleted->isFalse())
-            )
-        );
-        
-        foreach ($expired as $course)
-        {
-            // // TODO: is this necessary to remove each student's permissions, i.e. course purpose?
-            // $facet = $course->facets->index(0);
-            // $students = $course->students;        
-            // foreach ($students as $student)
-            // {
-            //     $facet->removeUser($student);
-            // }
-
-            $course->active = false;
-            $course->save();
-        }
-    }
 
      
-    public function updateCourseEnrollments ($semesterCode)
+    public function updateCourseEnrollments ($semesterCode=null)
     {
         set_time_limit(0);    
         $schemaManager = $this->getApplication()->schemaManager;
-        
-        $logs = $schemaManager->getSchema('Ccheckin_ClassData_SyncLog');
+        $semesterCode = $semesterCode ?? Ccheckin_Semesters_Semester::guessActiveSemester();
+
+        $logs = $this->schema('Ccheckin_ClassData_SyncLog');
         $lastLog = $logs->findOne($logs->status->equals(200), array('orderBy' => array('-dt', '-id')));
         $newLog = $logs->createInstance();
         $now = new DateTime;
         
-        $semesters = $schemaManager->getSchema('Ccheckin_Semesters_Semester');
+        $semesters = $this->schema('Ccheckin_Semesters_Semester');
         $semester = $semesters->findOne($semesters->internal->equals($semesterCode));       
-        $courses = $schemaManager->getSchema('Ccheckin_Courses_Course');
+        $courses = $this->schema('Ccheckin_Courses_Course');
         $currentCourses = $courses->find($courses->startDate->equals($semester->startDate));       
-        $requests = $schemaManager->getSchema('Ccheckin_Courses_Request');
-        $users = $schemaManager->getSchema('Bss_AuthN_Account');    
-        $roles = $schemaManager->getSchema('Ccheckin_AuthN_Role');
+        $requests = $this->schema('Ccheckin_Courses_Request');
+        $users = $this->schema('Bss_AuthN_Account');    
+        $roles = $this->schema('Ccheckin_AuthN_Role');
         $teacherRole = $roles->findOne($roles->name->equals('Teacher'));
         $studentRole = $roles->findOne($roles->name->equals('Student'));
           
@@ -230,7 +201,7 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
     protected function syncEnrollments ($course, $existingUsers, $fetchedUsers, $role, $semester)
     {
         $schemaManager = $this->getApplication()->schemaManager;
-        $accounts = $schemaManager->getSchema('Bss_AuthN_Account');
+        $accounts = $this->schema('Bss_AuthN_Account');
         $fetchedUserIds = array();
         $newAdds = array();
         $newDrops = array();

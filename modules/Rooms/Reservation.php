@@ -33,6 +33,7 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
             'checkedIn' => array('bool', 'nativeName' => 'checked_in'),
             'startTime' => array('datetime', 'nativeName' => 'start_time'),
             'endTime' => array('datetime', 'nativeName' => 'end_time'),
+            'reminderSent' => array('bool', 'nativeName' => 'reminder_sent'),
             'missed' => 'bool',
 
             'room' => array('1:1', 'to' => 'Ccheckin_Rooms_Room', 'keyMap' => array('room_id' => 'id')),
@@ -109,16 +110,6 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
         $accountReservations = $reservations->find($cond, array('orderBy' => array('start_time')));
         
         return $accountReservations;
-
-        // // Old Code
-        // $diva = Diva::GetInstance();
-        // $proto = new self($diva->dataSource);
-        
-        // $cond = new DormCondition();
-        // $cond->where($proto->q->accountId->equals($account->id));
-        // $cond->where($proto->q->missed->isFalse());
-        
-        // return $proto->query($cond);
     }
 
 }
