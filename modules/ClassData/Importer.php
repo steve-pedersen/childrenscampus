@@ -96,6 +96,36 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
         return $courses->find($courses->externalCourseKey->like($semesterCode . '-%'));
     }
   
+
+    public function archiveCourses ()
+    {
+        $semesters = $this->schema('Ccheckin_Semesters_Semester');
+        $courses = $this->schema('Ccheckin_Courses_Course');
+        $now = new DateTime;
+        
+        $expired = $courses->find(
+            $courses->endDate->before($now)->andIf(
+                $courses->active->isTrue())->andIf(
+                $courses->deleted->isNull()->orIf(
+                    $courses->deleted->isFalse())
+            )
+        );
+        
+        foreach ($expired as $course)
+        {
+            // // TODO: is this necessary to remove each student's permissions, i.e. course purpose?
+            // $facet = $course->facets->index(0);
+            // $students = $course->students;        
+            // foreach ($students as $student)
+            // {
+            //     $facet->removeUser($student);
+            // }
+
+            $course->active = false;
+            $course->save();
+        }
+    }
+
      
     public function updateCourseEnrollments ($semesterCode)
     {
@@ -172,9 +202,9 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
                 }
                 
                 list($studentAdds, $studentDrops) = $this->syncEnrollments(
-                    $course, $course->getStudents(true, true), $cdStudents, $studentRole, $semester);
+                    $course, $course->getStudents(true,true), $cdStudents, $studentRole, $semester);
                 list($teacherAdds, $teacherDrops) = $this->syncEnrollments(
-                    $course, $course->getTeachers(true, true), $cdTeachers, $teacherRole, $semester);
+                    $course, $course->getTeachers(true,true), $cdTeachers, $teacherRole, $semester);
 
                 $course->facets->index(0)->save();
                 $course->save();
@@ -229,7 +259,7 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
                 $course->enrollments->setProperty($account, 'drop_date', null);
                 $newAdds[] = $account;             
             }
-            
+
             $fetchedUserIds[] = $account->username;
         }
 

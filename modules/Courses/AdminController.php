@@ -152,13 +152,11 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
 
     public function queue ()
     {
-            $semesters = $this->schema('Ccheckin_Semesters_Semester');
-            $app = $this->getApplication();
-
-            $semesterCode = Ccheckin_Semesters_Semester::guessActiveSemester();
-
-            $importer = $app->moduleManager->getExtensionByName('at:ccheckin:courses/enrollments', 'classdata');
-            $importer->updateCourseEnrollments($semesterCode);
+            // $app = $this->getApplication();
+            // $semesterCode = Ccheckin_Semesters_Semester::guessActiveSemester();
+            // $importer = $app->moduleManager->getExtensionByName('at:ccheckin:courses/enrollments', 'classdata');
+            // $importer->updateCourseEnrollments($semesterCode);
+            // $importer->archiveCourses();
 
         $this->setPageTitle('Courses Queue');
         $courseRequests = $this->schema('Ccheckin_Courses_Request');

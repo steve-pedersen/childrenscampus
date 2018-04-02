@@ -3,12 +3,12 @@
 /**
  * Interface for extensions that wish to execute periodic code.
  * 
- * @author	Steve Pedersen (pedersen@sfsu.edu)
- * @copyright	Copyright &copy; San Francisco State University.
+ * @author  Steve Pedersen (pedersen@sfsu.edu)
+ * @copyright   Copyright &copy; San Francisco State University.
  */
 class Ccheckin_Courses_CronJob extends Bss_Cron_Job
 {
-	const PROCESS_ACTIVE_JOBS_EVERY = 0; // 2 minutes
+    const PROCESS_ACTIVE_JOBS_EVERY = 0; // 2 minutes
 
     public function run ($startTime, $lastRun, $timeDelta)
     {
@@ -21,6 +21,8 @@ class Ccheckin_Courses_CronJob extends Bss_Cron_Job
 
             $importer = $app->moduleManager->getExtensionByName('at:ccheckin:courses/enrollments', 'classdata');
             $importer->updateCourseEnrollments($semesterCode);
+
+            $importer->archiveCourses();
 
             return true;
         }
@@ -37,5 +39,5 @@ class Ccheckin_Courses_CronJob extends Bss_Cron_Job
         }
         return false;
     }
-	
+    
 }
