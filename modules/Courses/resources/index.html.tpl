@@ -1,4 +1,14 @@
-<h1>My Courses</h1>
+<h1>My Courses
+{if $pAdmin}
+<div class="pull-right">
+    {if $viewall}
+        <a class="btn btn-default" href="courses" role="button">View My Courses</a>
+    {else}
+        <a class="btn btn-default" href="courses?viewall=true" role="button">View All Courses</a>
+    {/if}
+</div>
+{/if}
+</h1>
 {foreach item='course' from=$courses}
 <div class="panel panel-default">
   <div class="panel-heading">

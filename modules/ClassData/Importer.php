@@ -219,6 +219,7 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
                 $account->emailAddress = $user['mail'];
                 $account->roles->add($role);
                 $account->save();
+                $account->roles->save();
             }
 
             if (!$course->enrollments->has($account))

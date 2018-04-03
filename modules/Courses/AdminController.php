@@ -153,25 +153,13 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
 
     public function queue ()
     {
-        // $app = $this->getApplication();
-        // $semesterCode = Ccheckin_Semesters_Semester::guessActiveSemester();
-        // $importer = $app->moduleManager->getExtensionByName('at:ccheckin:courses/enrollments', 'classdata');
-        // $importer->updateCourseEnrollments($semesterCode);
-        // $importer->archiveCourses();
-
-        // $this->sendReservationReminders();
-        // $this->sendReservationMissedNotification();
-
-        $res = $this->schema('Ccheckin_Rooms_Reservation')->get(1);
-        $st = $res->startTime;
-        $et = (clone ($res->startTime))->modify('+1 hours');
-        echo "<pre>"; var_dump($st, $et); die;
-
         $this->setPageTitle('Courses Queue');
         $courseRequests = $this->schema('Ccheckin_Courses_Request');
         $courseSchema = $this->schema('Ccheckin_Courses_Course');
         $facets = $this->schema('Ccheckin_Courses_Facet');
         $purposes = $this->schema('Ccheckin_Purposes_Purpose');
+        $accounts = $this->schema('Bss_AuthN_Account');
+        $semesters = $this->schema('Ccheckin_Semesters_Semester');
 
         $allowed = array();
         $denied = array();
@@ -209,19 +197,46 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                             foreach ($allow as $id => $nothing)
                             {                           
                                 if ($cr = $courseRequests->get($id))
-                                {
+                                {                                   
                                     $cr->course->active = true;
                                     $cr->course->save();
-                                    
+
+                                    $roles = $this->schema('Ccheckin_AuthN_Role');
+                                    $teacherRole = $roles->findOne($roles->name->equals('Teacher'));
+                                  
+                                    $semester = $semesters->findOne($semesters->startDate->equals($cr->course->startDate));
                                     $authZ = $this->getAuthorizationManager();
                                     $authZ->grantPermission($cr->requestedBy, 'course view', $cr->course);
-                                  
-                                    $facet = $cr->course->facets->index(0); // lazy approach
-                                    // $facet = $facets->findOne(
-                                    //     $facets->typeId->equals($cr->course->facetType->id)->andIf(
-                                    //         $facets->courseId->equals($cr->course->id)
-                                    //     )
-                                    // );  // fail-safe approach                                   
+                                    $courseData = $this->getCourse($cr->course->externalCourseKey);
+                                    
+                                    foreach ($courseData['instructors'] as $teacher)
+                                    {
+                                        if ($teacher['id'] != $cr->requestedBy->username)
+                                        {   // this is a teacher other than the one who requested the course
+                                            $account = $accounts->findOne($accounts->username->equals($teacher['id']));
+                                            if (!$account)
+                                            {
+                                                $account = $accounts->createInstance();
+                                                $account->username = $teacher['id'];
+                                                $account->firstName = $teacher['first'];
+                                                $account->lastName = $teacher['last'];
+                                                $account->emailAddress = $teacher['mail'];
+                                                $account->roles->add($teacherRole);
+                                                $account->save();
+                                            }
+
+                                            $authZ->grantPermission($account, 'course view', $cr->course);
+
+                                            $cr->course->enrollments->add($account);
+                                            $cr->course->enrollments->setProperty($account, 'term', $semester->internal);
+                                            $cr->course->enrollments->setProperty($account, 'role', 'Teacher');
+                                            $cr->course->enrollments->setProperty($account, 'enrollment_method', 'Class Data');
+                                            $cr->course->enrollments->setProperty($account, 'drop_date', null);
+                                        }
+                                    }
+                                    $cr->course->enrollments->save();
+
+                                    $facet = $cr->course->facets->index(0);                           
                                     $type = strtolower($facet->type->name);
 
                                     if (!$facet->purpose)
@@ -627,6 +642,18 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
         }
         
         return $message;
+    }
+
+    protected function getCourse ($id)
+    {
+        $service = new Ccheckin_ClassData_Service($this->getApplication());
+        list($status, $course) = $service->getCourse($id);
+        
+        if ($status < 400)
+        {
+            return $course;
+        }
+        return false;
     }
 
 }

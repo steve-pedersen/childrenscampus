@@ -20,7 +20,8 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         $viewer = $this->getAccount();
         $authZ = $this->getAuthorizationManager();
         $azids = $authZ->getObjectsForWhich($viewer, 'course view');
-        $courses = $this->schema('Ccheckin_Courses_Course')->getByAzids($azids);
+        $courseSchema = $this->schema('Ccheckin_Courses_Course');
+        $courses = $courseSchema->getByAzids($azids);
         
         if (!empty($courses))
         {
@@ -48,8 +49,19 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                 $cs[] = $course;
             }
         }
+
+        $viewall = $this->request->getQueryParameter('viewall', false);
+        if ($viewall !== false)
+        {
+            if ($this->hasPermission('admin'))
+            {
+                $cs = $courseSchema->find($courseSchema->active->isTrue());
+            }
+        }
+        
         
         $this->template->canRequest = $this->hasPermission('course request');
+        $this->template->viewall = $viewall;
         $this->template->courses = $cs;
     }
     
@@ -64,8 +76,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         // Student viewing one of their inactive courses
         if (!$this->hasPermission('course view', $course) || (!$this->hasPermission('admin') && !$course->active))
         {
-            // if ($course->students->inList($account)) // TODO: Check this...... *******************
-            if (in_array($account, $course->students))  // This might be the replacement
+            if (in_array($account, $course->students))
             {
                 $facetids = array();
                 foreach ($course->facets as $facet)
@@ -77,12 +88,11 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                 {
                     $obs = $this->schema('Ccheckin_Rooms_Observation');
                     // TODO: Check if this should be OR or AND ************************************
-                    $cond =
-                        $obs->allTrue(
-                            $obs->accountId->equals($account->id),
-                            $obs->purposeId->inList($facetids),
-                            $obs->endTime->afterOrEquals(new DateTime)                          
-                        );
+                    $cond = $obs->allTrue(
+                        $obs->accountId->equals($account->id),
+                        $obs->purposeId->inList($facetids),
+                        $obs->endTime->afterOrEquals(new DateTime)                          
+                    );
                     $observations = $obs->find($cond);
 
                     $totalTime = 0;
@@ -98,7 +108,8 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
             }
             else
             {
-                $this->triggerError('Ccheckin_Master_PermissionErrorHandler');
+                if (!$this->hasPermission('admin')) $this->requirePermission('course view', $course);
+                // $this->triggerError('Ccheckin_Master_PermissionErrorHandler');
                 exit;
             }
         }
@@ -122,7 +133,8 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         
         if (!$this->hasPermission('course view', $course) || (!$this->hasPermission('admin') && !$course->active))
         {
-            $this->triggerError('Ccheckin_Master_PermissionErrorHandler');
+            if (!$this->hasPermission('admin')) $this->requirePermission('course view', $course);
+            // $this->triggerError('Ccheckin_Master_PermissionErrorHandler');
             exit;
         }
         
@@ -277,6 +289,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                             $account->emailAddress = $student['mail'];
                             $account->roles->add($studentRole);
                             $account->save();
+                            $account->roles->save();
                         }
 
                         $course->enrollments->add($account);
@@ -297,6 +310,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                             $account->emailAddress = $teacher['mail'];
                             $account->roles->add($teacherRole);
                             $account->save();
+                            $account->roles->save();
                         }
 
                         $course->enrollments->add($account);

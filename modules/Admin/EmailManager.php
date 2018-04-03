@@ -318,7 +318,7 @@ class Ccheckin_Admin_EmailManager
 			$messageTitle = $params['message_title'];
 			$preppedText = strtr($templateText, $params);			
 			$templateFileName = $templateFile ?? 'emailBody.email.tpl';
-			$mail = ($this->templateInstance ? $this->createEmailMessage($templateFileName) : $this->app->createEmailMessage($templateFileName));
+			$mail = ($this->templateInstance ? $this->createEmailMessage($templateFileName) : $this->ctrl->createEmailMessage($templateFileName));
 			$mail->Subject = $this->subjectLine;
 
 			$mail->set('From', $this->fromEmail);
