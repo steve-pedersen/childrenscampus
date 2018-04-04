@@ -73,10 +73,15 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         $course = $this->requireExists($this->schema('Ccheckin_Courses_Course')->get($id));
         
         // If don't have permission to view course or not admin viewing an inactive course
-        // Student viewing one of their inactive courses
+        // Student or non-admin viewing an inactive course
         if (!$this->hasPermission('course view', $course) || (!$this->hasPermission('admin') && !$course->active))
-        {
-            if (in_array($account, $course->students))
+        {          
+            $courseSIds = array();
+            foreach ($course->students as $user)
+            {
+                $courseSIds[] = $user->username;
+            }
+            if (in_array($account->username, $courseSIds))
             {
                 $facetids = array();
                 foreach ($course->facets as $facet)
@@ -87,7 +92,6 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                 if (!empty($facetids))
                 {
                     $obs = $this->schema('Ccheckin_Rooms_Observation');
-                    // TODO: Check if this should be OR or AND ************************************
                     $cond = $obs->allTrue(
                         $obs->accountId->equals($account->id),
                         $obs->purposeId->inList($facetids),

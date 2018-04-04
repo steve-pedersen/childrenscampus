@@ -16,7 +16,8 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
     {
         parent::initController();
         $this->template->userContext = $this->getUserContext();
-        $this->template->viewer = $this->getAccount();
+        $viewer = $this->getAccount();
+        $this->template->viewer = $viewer;
         
         
         $authZ = $this->getAuthorizationManager();
@@ -26,25 +27,166 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
             ))
         );
 
-		if (($locator = $this->getRouteVariable('_locator')))
-		{
-			$this->addTemplateFileLocator($locator);
-
-            // if has admin permission load master
-			$this->template->setMasterTemplate($locator->getPathToTemplate('master'));
-            // else load kiosk mode
-            // $this->template->setMasterTemplate($locator->getPathToTemplate('kiosk'));
-		}
-        // if ($this->isKiosk())
-        // {
-        //     $diva = Diva::GetInstance();
-            
-        //     if (!$diva->user->hasPermission('admin'))
-        //     {
-        //         $this->template->setTemplateFile('kiosk.tpl');
-        //     }
-        // }		
+        if ($this->isKiosk())
+        {
+            if (!$this->hasPermission('admin'))
+            {
+                $this->template->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'kiosk.html.tpl'));
+                $this->template->kioskMode = true;
+                if ($viewer)
+                {
+                    $this->runKiosk();
+                }
+            }
+            else
+            {
+                $this->template->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'master.html.tpl'));
+            }
+        }
+        else
+        {
+            $this->template->kioskMode = false;
+        }        	
 		$this->template->controller = $this;
+
+    }
+
+    protected function isKiosk ()
+    {
+        $cookieName = 'cc-kiosk';
+        $cookieValue = 'kiosk';
+        return (isset($_COOKIE[$cookieName]) && $_COOKIE[$cookieName] == $cookieValue);
+    }
+
+    public function runKiosk ()
+    {
+        $viewer = $this->getAccount();
+        if (!$viewer)
+        {
+            // Display an error page.
+            $this->template->loginError = true;
+            return;
+        }
+        if ($this->hasPermission('admin'))
+        {
+            $this->response->redirect('admin');
+        }
+        
+        $accounts = $this->schema('Bss_AuthN_Account');
+        $resSchema = $this->schema('Ccheckin_Rooms_Reservation');     
+        $now = new DateTime;
+
+        // Find any reservations where the user has checked in
+        $cond = $resSchema->allTrue(
+            $resSchema->accountId->equals($viewer->id),
+            $resSchema->checkedIn->isTrue()
+        );
+        $reservations = $resSchema->find($cond, array('orderBy' => 'id'));
+        
+        if (!empty($reservations))
+        {
+            $reservation = is_array($reservations) ? $reservations[0] : $reservations;
+            $observation = $reservation->observation;
+            $observation->endTime = $now;
+            $st = $observation->startTime;
+
+            $sameDay = false;
+            if ($now->format('m')===$st->format('m') && $now->format('d')===$st->format('d'))
+            {
+                $sameDay = true;
+            }
+
+            if ($sameDay && ($now->format('G') === $st->format('G')))
+            {
+                $duration = intval($now->format('i') - $st->format('i'));
+            }
+            elseif ($sameDay && ($now->format('G') > $st->format('G')))
+            {
+                $duration = intval($now->format('i') - $st->format('i') + 60);
+            }
+            else
+            {   // default the duration length to when reservation was set to end minus when they actually checked in
+                $duration = ($reservation->endTime->format('G')-$st->format('G') - ($st->format('i')/60)) * 60;
+            }
+
+            if ($sameDay && $duration < 5)  // mins
+            {
+                $this->template->earlycheckout = 'earlycheckout';
+            }
+            else
+            {
+                $observation->duration = $duration;
+                $observation->save();
+                $reservation->delete();              
+                $this->template->checkedOut = 'checkedOut';
+            }
+        }
+        else
+        {
+            $startWindow = new DateTime('now - 30 minutes');
+            $endWindow = new DateTime('now + 30 minutes');
+            
+            // Find all reservations for the user within a thirty minute window.           
+            $cond = $resSchema->allTrue(
+                $resSchema->startTime->afterOrEquals($startWindow),
+                $resSchema->startTime->beforeOrEquals($endWindow),
+                $resSchema->accountId->equals($viewer->id),
+                $resSchema->checkedIn->isFalse()
+            );
+            $reservations = $resSchema->find($cond, array('orderBy' => 'id'));
+
+            if (!empty($reservations))
+            {
+                $reservation = $reservations[0];
+                $observation = $reservation->observation;
+                $observation->startTime = $now;
+                $observation->save();
+                $reservation->checkedIn = true;
+                $reservation->save();
+                $this->template->reservation = $reservation;
+            }
+            else
+            {
+                $lateCondition = $resSchema->allTrue(
+                    $resSchema->startTime->before($startWindow),
+                    $resSchema->missed->isFalse(),
+                    $resSchema->accountId->equals($viewer->id)
+                );
+                $late = $resSchema->find($lateCondition);
+
+                $earlyCondition = $resSchema->allTrue(
+                    $resSchema->startTime->after($endWindow),
+                    $resSchema->accountId->equals($viewer->id)
+                );
+                $early = $resSchema->find($earlyCondition);
+
+                if (!empty($late))
+                {
+                    $reservation = $late[0];
+                    $late['room'] = $reservation->room->name;
+                    $late['time'] = $reservation->startTime;
+                    $reservation->missed = true;
+                    $reservation->save();
+                    $this->template->late = $late;
+                }
+                
+                if (!empty($early))
+                {
+                    $reservation = $early[0];
+                    $early['room'] = $reservation->room->name;
+                    $early['time'] = $reservation->startTime;
+                    $this->template->early = $early;
+                }
+                
+                if (empty($late) && empty($early))
+                {
+                    $this->template->empty = 'empty';
+                }
+            }
+        }
+
+        $this->template->metaRedirect = '<meta http-equiv="refresh" content="15;URL=' . $this->baseUrl('logout') . '">';
+
     }
 
     protected function flash ($content) {
@@ -319,10 +461,4 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         return $message;
     }
 
-    protected function isKiosk ()
-    {
-        $cookieName = 'cc-kiosk';
-        $cookieValue = 'kiosk';
-        return (isset($_COOKIE[$cookieName]) && $_COOKIE[$cookieName] == $cookieValue);
-    }
 }

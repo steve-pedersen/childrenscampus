@@ -293,6 +293,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                     $reservations->endTime->beforeOrEquals(new DateTime('now - 30 minutes'))
                 )
             ));
+            // $reservations = $reservations->find($reservations->missed->isTrue());
         }
         
 		$this->template->pAdmin = $this->hasPermission('admin');

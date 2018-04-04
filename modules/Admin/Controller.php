@@ -14,6 +14,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
             '/admin/settings/siteNotice' => array('callback' => 'siteNotice'),
             '/admin/settings/blockDates' => array('callback' => 'blockDates'),
             '/admin/settings/email' => array('callback' => 'emailSettings'),
+            '/admin/kiosk' => array('callback' => 'kioskMode')
         );
     }
     
@@ -49,6 +50,40 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
         );
 
         $this->template->crs = $crs;
+    }
+
+    public function kioskMode ()
+    {
+        $cookieName = 'cc-kiosk';
+        $cookieValue = 'kiosk';
+        $isKiosk = false;
+        
+        if (isset($_COOKIE[$cookieName]) && $_COOKIE[$cookieName] == $cookieValue)
+        {
+            $isKiosk = true;
+        }
+        
+        if ($command = $this->request->getPostParameter('command'))
+        {
+            $temp = array_keys($command);
+            $action = array_shift($temp);
+
+            switch ($action)
+            {
+                case 'set':
+                    if (!$isKiosk) setCookie($cookieName, $cookieValue, time()+60*60*24*30*12, '/');
+                    $this->response->redirect('admin/kiosk?message=set');
+                    break;
+                case 'unset':
+                    if ($isKiosk) setCookie($cookieName, false, time()+60*60*24*30*12, '/');
+                    $this->response->redirect('admin/kiosk?message=unset');
+                    break;
+            }
+        }
+        
+        $this->setPageTitle('Manage Kiosk Mode');
+        $this->template->message = $this->request->getQueryParameter('message');
+        $this->template->isKiosk = $isKiosk;
     }
 
     public function emailSettings ()

@@ -223,6 +223,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                                                 $account->emailAddress = $teacher['mail'];
                                                 $account->roles->add($teacherRole);
                                                 $account->save();
+                                                $account->roles->save();
                                             }
 
                                             $authZ->grantPermission($account, 'course view', $cr->course);

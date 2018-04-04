@@ -32,7 +32,7 @@ class Ccheckin_Rooms_CronJob extends Bss_Cron_Job
     	$timeDelta = $app->siteSettings->getProperty('email-reservation-reminder-time', '1 day');
 
         $cond = $reservations->allTrue(
-            $reservations->startTime->before((new DateTime)->modify('+' . $timeDelta)),
+            $reservations->startTime->before(new DateTime('+' . $timeDelta)),
             $reservations->reminderSent->isFalse()->orIf($reservations->reminderSent->isNull()),
             $reservations->checkedIn->isFalse()->orIf($reservations->checkedIn->isNull()),
             $reservations->missed->isFalse()->orIf($reservations->missed->isNull())
@@ -57,7 +57,7 @@ class Ccheckin_Rooms_CronJob extends Bss_Cron_Job
         $reservations = $schemaManager->getSchema('Ccheckin_Rooms_Reservation');
 
         $cond = $reservations->allTrue(
-            $reservations->startTime->before((new DateTime)->modify('-4 hours')),
+            $reservations->startTime->before(new DateTime('-4 hours')),
             $reservations->missed->isNull()->orIf($reservations->missed->isFalse()),
             $reservations->checkedIn->isNull()->orIf($reservations->checkedIn->isFalse())
 
@@ -109,7 +109,7 @@ class Ccheckin_Rooms_CronJob extends Bss_Cron_Job
         // Get the observations which were never checked out and close them.
         $cond = $reservations->allTrue(
         	$reservations->checkedIn->isTrue(),
-        	$reservations->startTime->before((new DateTime)->modify('-12 hours'))
+        	$reservations->startTime->before(new DateTime('-12 hours'))
         );        
         $results = $reservations->find($cond);
 
@@ -124,7 +124,7 @@ class Ccheckin_Rooms_CronJob extends Bss_Cron_Job
         }       
 
         // Get the reservations which are more than a week old and delete them.
-        $cond = $reservations->startTime->before((new DateTime)->modify('- 1 month'));       
+        $cond = $reservations->startTime->before(new DateTime('- 1 month'));       
         $results = $reservations->find($cond);
         
         foreach ($results as $reservation)

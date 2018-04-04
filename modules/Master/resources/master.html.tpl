@@ -139,7 +139,8 @@
             <!--/sidebar-nav-fixed -->
         </div>
 		{/if}
-
+	
+	
 		<!-- MIDDLE - MAIN CONTENT -->
 		{if $viewer}
 			{if $adminPage}
@@ -154,7 +155,9 @@
 		{/if}
 		{include file=$contentTemplate}
 		</div>
-		
+	
+	
+
 		{if ($viewer && !$adminPage) || (!$viewer && $homePage)}
 		<!-- RIGHT SIDEBAR - Contact -->
         <div class="col-md-2 col-sm-4 col-xs-12">
