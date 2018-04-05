@@ -21,101 +21,78 @@
 
 
 
-	<body id="kiosk-page">
-		<a href="{$smarty.server.REQUEST_URI}#content" class="sr-only sr-only-focusable">Skip Navigation</a>
-		<header class="at">
-	        <nav class="navbar navbar-default navbar-static-top" role="navigation">
-	          <div class="container-fluid">
+<body id="kiosk-page">
+	<a href="{$smarty.server.REQUEST_URI}#content" class="sr-only sr-only-focusable">Skip Navigation</a>
+	<header class="at">
+        <nav class="navbar navbar-default navbar-static-top" role="navigation">
+          <div class="container-fluid">
 
-	            <!-- Brand and toggle get grouped for better mobile display -->
-	            <div class="navbar-header">
-<!-- 	              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-	                <span class="sr-only">Toggle navigation</span>
-	                <span class="icon-bar"></span>
-	                <span class="icon-bar"></span>
-	                <span class="icon-bar"></span>
-	              </button> -->
-	              <a class="navbar-brand" href="{$baseUrl}">Children's Campus at SF State:</a>
-	              <p class="navbar-text" id="navbar-subheading">Check-In Application</p>
-	            </div> 
-	            {if $viewer}
-	            <div class="navbar-collapse collapse">	
-		            <ul class="nav navbar-nav navbar-right">
-						{if $viewer}
-						<li>
-							<div class="navbar-text text-capitalize text-center">Hello, {$userContext->account->firstName|escape}</div>
-						</li>
-						{if $pAdmin}
-						<li>
-							<a class="manage-link btn btn-link" href="admin"><i class="halflings-icon white cog" aria-hidden="true"></i> Administrate</a>
-						</li>
-						{/if}
-						<li style="text-align:center;">
-							<form method="post" action="logout">
-								<button class="btn btn-link logout navbar-btn" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
-							</form>
-						</li>
-						{else}
-						<li class="{if $activeTab=='login'} active{/if}">
-							<a class="btn btn-link login-button" data-toggle="modal" href="login">Login</a>
-						</li> 
-						{/if} 
-		            </ul>
-		        </div>
-		        {/if}
-	            <!-- Collect the nav links, forms, and other content for toggling -->
-	          </div><!-- /.container-fluid -->
-	        </nav>
-	        <div id="filmstrip"><img class="img-responsive" src="assets/images/imagebox.jpg" alt="Children's Campus Banner"></div>
-	        <div class="bc">
-				{if $breadcrumbList}
-				<div class="container">
-					<ol class="at breadcrumb">
-						{foreach name="breadcrumbs" item="crumb" from=$breadcrumbList}
-						<li{if $smarty.foreach.breadcrumbs.last} class="active"{elseif $smarty.foreach.breadcrumbs.first} class="first"{/if}>
-						{l text=$crumb.text href=$crumb.href}
-						{if !$smarty.foreach.breadcrumbs.last}{/if}
-						</li>
-						{/foreach}
-					</ol>
-				</div>
-				{/if}
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+              <a class="navbar-brand" href="{$baseUrl}">Children's Campus at SF State:</a>
+              <p class="navbar-text" id="navbar-subheading">Check-In Application</p>
+            </div> 
+            {if $viewer}
+            <div class="navbar-collapse collapse">	
+	            <ul class="nav navbar-nav navbar-right">
+					{if $viewer}
+					<li>
+						<div class="navbar-text text-capitalize text-center">Hello, {$userContext->account->firstName|escape}</div>
+					</li>
+					{if $pAdmin}
+					<li>
+						<a class="manage-link btn btn-link" href="admin"><i class="halflings-icon white cog" aria-hidden="true"></i> Administrate</a>
+					</li>
+					{/if}
+					<li style="text-align:center;">
+						<form method="post" action="logout">
+							<button class="btn btn-link logout navbar-btn" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
+						</form>
+					</li>
+					{else}
+					<li class="{if $activeTab=='login'} active{/if}">
+						<a class="btn btn-link login-button" data-toggle="modal" href="login">Login</a>
+					</li> 
+					{/if} 
+	            </ul>
 	        </div>
-	    </header>
-		{if $app->siteSettings->siteNotice}
-		<div class="site-notice action notice">
-			{$app->siteSettings->siteNotice}
-		</div> 
-		{/if}
+	        {/if}
+            <!-- Collect the nav links, forms, and other content for toggling -->
+          </div><!-- /.container-fluid -->
+        </nav>
+        <div id="filmstrip"><img class="img-responsive" src="assets/images/imagebox.jpg" alt="Children's Campus Banner"></div>
+    </header>
+	{if $app->siteSettings->siteNotice}
+	<div class="site-notice action notice">
+		{$app->siteSettings->siteNotice}
+	</div> 
+	{/if}
 
-		{if $flashContent}
-		<div id="user-message" class="alert alert-success alert-dismissable">
-			<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-			<div class="primary">{$flashContent}</div>
-		</div> 
-		{/if}
+	{if $flashContent}
+	<div id="user-message" class="alert alert-success alert-dismissable">
+		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+		<div class="primary">{$flashContent}</div>
+	</div> 
+	{/if}
 
-		{if $userMessageList}
-		<div id="user-message" class="alert alert-success alert-dismissable">
-			<button type="button" class="btn btn-primary btn-sm" data-dismiss="alert" aria-hidden="true">&times;</button>
-			{foreach item="msg" from=$userMessageList}
-			<div class="primary">{$msg.primary}</div>
-			{foreach item="detail" from=$msg.details}<div class="detail">{$detail}</div>{/foreach}
-			{/foreach}
-		</div> 
-		{/if}
+	{if $userMessageList}
+	<div id="user-message" class="alert alert-success alert-dismissable">
+		<button type="button" class="btn btn-primary btn-sm" data-dismiss="alert" aria-hidden="true">&times;</button>
+		{foreach item="msg" from=$userMessageList}
+		<div class="primary">{$msg.primary}</div>
+		{foreach item="detail" from=$msg.details}<div class="detail">{$detail}</div>{/foreach}
+		{/foreach}
+	</div> 
+	{/if}
 
 
 <div id="container" class="container">
-
 <div id="row" class="row">
-
 <div id="content kiosk-content" class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
-
 <div class="callOutBox kiosk text-center">
 
 {if $reservation}
-	<h2>You have checked in for your observation in room:</h2>
+	<h2 class="">You have checked in for your observation in room:</h2>
 	<p>{$reservation->room->name|escape}</p>
 	<p>On {$reservation->observation->startTime|date_format:"%b %e, %Y at %I:%M %p"}</p>
 	<div class="kiosk-link">
@@ -125,7 +102,7 @@
 	</div>
 
 {elseif $checkedOut}
-	<h2>You have successfully checked out</h2>
+	<h2 class="">You have successfully checked out</h2>
 	<div class="kiosk-link">
 		<form method="post" action="logout">
 			<button class="btn btn-default" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
@@ -137,7 +114,7 @@
 		<div class="flash"><div class="message error"><p>You are late for your appointment at <strong>{$late.time|date_format:"%b %e, %Y at %I:%M %p"}</strong>.  You must sign up again to reserve time for observations.</p></div></div>
 	{/if}
 	{if $early}
-		<p>You are early for your appointment at {$early.time|date_format:"%b %e, %Y at %I:%M %p"}. Please come back at time closer to your appointment.</p>
+		<p class="">You are early for your appointment at {$early.time|date_format:"%b %e, %Y at %I:%M %p"}. Please come back at time closer to your appointment.</p>
 	{/if}
 	<div class="kiosk-link">
 		<form method="post" action="logout">
@@ -185,36 +162,12 @@
             </div>
 		</div>
 	</form>
-<!-- 	<form method="post" action="login/password?c=%2Flogin%2Fcomplete%2Fsfsu-pw">
-		<div id="loginForm">
-			{if $loginError}
-				<div class="flash"><div class="message error"><p>We could not find any accounts which match the ID and password.</p></div></div>
-			{/if}
-			<input type="hidden" name="returnTo" value="{$smarty.server.REQUEST_URI|escape}" />
-			<dl>
-				<dt><label for="login_email">SF State ID: </label></dt>
-				<div class="row">
-				<dd class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1"><input type="text" class="form-control" name="email" id="login_email" value="{$email|escape}" /></dd>
-				</div>
-				<dt><label for="login_password">Password: </label></dt>
-				<div class="row">
-				<dd class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1"><input type="password" name="password" class="form-control" id="login_password" /></dd>
-				</div>
-			</dl>
-			<div class="kiosk-link">
-				<input class="btn btn-default" type="submit" name="login_submit" value="Login" />
-			</div>
-		</div>
-	</form> -->
 {/if}
-</div>
+</div> <!-- end the callOut div -->
 </div> <!-- end the content div -->
-
-
-<br style="clear: both;" /></div> <!-- end page div -->
+<br style="clear: both;" />
+</div> <!-- end row div -->
 </div> <!-- end container div -->
-
-
 
     <footer class="sticky-footer">
       <div class="at-footer">

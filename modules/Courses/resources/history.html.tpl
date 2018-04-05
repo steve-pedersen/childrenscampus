@@ -13,7 +13,7 @@
         <tr>
             <th>Student</th>
             <th>Number of Observations</th>
-            <th>Total Time Spent</th>
+            <th>Total Time Spent <small>&nbsp;(minutes)</small></th>
         </tr>
     </thead>
     <tbody>
@@ -23,7 +23,7 @@
                 {$user.user->firstName|escape} {$user.user->lastName|escape} ({$user.user->emailAddress|escape})
             </td>
             <td>{$user.num}</td>
-            <td>{$user.time}</td>
+            <td class="duration">{$user.time}</td>
         </tr>
     {foreachelse}
         <tr>

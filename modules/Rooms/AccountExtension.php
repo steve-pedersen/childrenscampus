@@ -70,8 +70,8 @@ class Ccheckin_Rooms_AccountExtension extends Bss_AuthN_AccountExtension //imple
     {
         return array();
         // $accounts = $handler->getSchema('Bss_AuthN_Account');
-        // $missedReservations = $accounts->find($accounts->missedReservation->equals(true), array('orderBy' => '+username'));
-        
+        // $missedReservations = $accounts->find($accounts->missedReservation->isTrue(), array('orderBy' => '+username'));
+
         // return array('missedReservations' => $missedReservations);
     }
     

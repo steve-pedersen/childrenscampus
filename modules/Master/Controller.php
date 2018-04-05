@@ -31,7 +31,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         {
             if (!$this->hasPermission('admin'))
             {
-                $this->template->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'kiosk.html.tpl'));
+                // $this->template->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'kiosk.html.tpl'));
                 $this->template->kioskMode = true;
                 if ($viewer)
                 {
@@ -40,7 +40,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
             }
             else
             {
-                $this->template->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'master.html.tpl'));
+                // $this->template->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'master.html.tpl'));
             }
         }
         else
@@ -75,6 +75,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         $accounts = $this->schema('Bss_AuthN_Account');
         $resSchema = $this->schema('Ccheckin_Rooms_Reservation');     
         $now = new DateTime;
+        $redirectTime = 15;
 
         // Find any reservations where the user has checked in
         $cond = $resSchema->allTrue(
@@ -143,6 +144,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
                 $observation->save();
                 $reservation->checkedIn = true;
                 $reservation->save();
+                $redirectTime = 20;
                 $this->template->reservation = $reservation;
             }
             else
@@ -167,6 +169,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
                     $late['time'] = $reservation->startTime;
                     $reservation->missed = true;
                     $reservation->save();
+                    $redirectTime = 30;
                     $this->template->late = $late;
                 }
                 
@@ -175,6 +178,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
                     $reservation = $early[0];
                     $early['room'] = $reservation->room->name;
                     $early['time'] = $reservation->startTime;
+                    $redirectTime = 20;
                     $this->template->early = $early;
                 }
                 
@@ -185,7 +189,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
             }
         }
 
-        $this->template->metaRedirect = '<meta http-equiv="refresh" content="15;URL=' . $this->baseUrl('logout') . '">';
+        $this->template->metaRedirect = '<meta http-equiv="refresh" content="'.$redirectTime.';URL=' . $this->baseUrl('logout') . '">';
 
     }
 

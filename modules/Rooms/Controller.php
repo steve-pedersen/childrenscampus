@@ -518,13 +518,13 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     public function observations ()
     {
         $viewer = $this->requireLogin();
-               
-        $proto = $this->schema('Ccheckin_Rooms_Observation');
-        $cond = $proto->allTrue(
-            $proto->accountId->equals($viewer->id),
-            $proto->startTime->after(new DateTime)
+        
+        $obsSchema = $this->schema('Ccheckin_Rooms_Observation');
+        $cond = $obsSchema->allTrue(
+            $obsSchema->accountId->equals($viewer->id),
+            $obsSchema->startTime->before(new DateTime)
         );
-        $observations = $proto->find($cond);
+        $observations = $obsSchema->find($cond);
 
         $purposes = array();
                   

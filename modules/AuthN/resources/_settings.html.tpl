@@ -59,3 +59,17 @@
 
 </fieldset>
 {/if}
+{if ($authZ->hasPermission($viewer, 'admin') || $authZ->hasPermission($viewer, 'account manage'))}
+<fieldset class="field">
+	<legend>Missed Reservation</legend>
+	<ul class="list-group">
+		<li>
+			<label for="missed-reservation">
+			<input type="checkbox" name="missedreservation" id="missed-reservation" 
+			{if $account->missedReservation}checked aria-checked="true"{else}aria-checked="false"{/if} />
+			Missed</label>
+		</li>
+		<li>Checked automatically for students that have missed a reservation. If left checked and the student misses another reservation, all of their future reservations will be cancelled and they will be notified via email.</li>
+	</ul>
+</fieldset>
+{/if}

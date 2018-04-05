@@ -120,10 +120,12 @@ class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension impleme
 
             // save active status
             $account->isActive = $request->getPostParameter('status', false);
+            $account->missedReservation = $request->getPostParameter('missedreservation', false);
             if ($authZ->hasPermission($account, 'admin') || $authZ->hasPermission($account, 'receive system notifications'))
             {
                 $account->receiveAdminNotifications = $request->getPostParameter('receiveAdminNotifications', false);
             }
+
             $account->save();
 		}
         
@@ -135,15 +137,17 @@ class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension impleme
         $roles = $handler->schema('Ccheckin_AuthN_Role');
 		$roleList = $roles->find($roles->isSystemRole->equals(true), array('orderBy' => '+name'));
         $accounts = $handler->schema('Bss_AuthN_Account');
-        $canEditNotifications = $handler->hasPermission('admin') || $handler->hasPermission('edit system notifications');
-        $newAccount = $handler->getRouteVariable('id') === 'new';
+        $canEditNotifications = $handler->hasPermission('admin') || $handler->hasPermission('edit system notifications');       
+        $accId = $handler->getRouteVariable('id');
         $adminPage = $handler->hasPermission('admin') && (strpos($handler->getRequest()->getFullRequestedUri(), 'admin') !== false);
         $authZ = $handler->getAuthorizationManager();
+        $missedReservation = $accounts->findOne($accounts->missedReservation->isTrue()->andIf($accounts->id->equals($accId)), array('orderBy' => '+username'));
 
         return array(
             'roleList' => $roleList,
             'canEditNotifications' => $canEditNotifications,
-            'newAccount' => $newAccount, 
+            'missedReservation' => $missedReservation,
+            'newAccount' => ($accId === 'new'), 
             'adminPage' => $adminPage,
             'authZ' => $authZ
         );

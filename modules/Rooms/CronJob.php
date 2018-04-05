@@ -94,7 +94,7 @@ class Ccheckin_Rooms_CronJob extends Bss_Cron_Job
             $emailData = array();        
             $emailData['reservation'] = $reservation;
             $emailData['user'] = $user;
-            $emailManager->processEmail('sendReservationReminder', $emailData);
+            $emailManager->processEmail('sendReservationMissed', $emailData);
         }
     }
 
