@@ -158,6 +158,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                     
                     $facetArray['users'][$observation->accountId]['num']++;
                     $facetArray['users'][$observation->accountId]['time'] += $observation->duration;
+                    $facetArray['users'][$observation->accountId]['observationId'] = $observation->id;
                 }
             }
             

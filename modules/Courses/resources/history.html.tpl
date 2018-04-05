@@ -17,13 +17,13 @@
         </tr>
     </thead>
     <tbody>
-    {foreach item='user' from=$facet.users}
+    {foreach item='user' key=accId from=$facet.users}
         <tr>
             <td>
                 {$user.user->firstName|escape} {$user.user->lastName|escape} ({$user.user->emailAddress|escape})
             </td>
             <td>{$user.num}</td>
-            <td class="duration">{$user.time}</td>
+            <td class="duration">{$user.time}{if $pAdmin}<a class="pull-right btn btn-xs btn-default" href="admin/observations/{$accId}/{$user.observationId}">edit time</a>{/if}</td>
         </tr>
     {foreachelse}
         <tr>

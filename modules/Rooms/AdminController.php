@@ -14,6 +14,7 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
         return array(
             'admin/rooms' => array('callback' => 'rooms'),
             'admin/rooms/:id' => array('callback' => 'editRoom', ':id' => '([0-9]+|new)'),
+            'admin/observations/:userid/:id/' => array('callback' => 'editObservation', ':userid' => '[0-9]+', ':id' => '[0-9]+|all'),
             'admin/observations/current' => array('callback' => 'currentObservations'),
             'admin/observations/reservations' => array('callback' => 'currentReservations'),
             'admin/observations/missed' => array('callback' => 'missedObservations'),
@@ -130,6 +131,56 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
         $this->template->new = $new;
         $this->template->observationTypes = $room->getTypes(); // $room::$types or Ccheckin_Rooms_Room::$types
         $this->template->errors = $errors;
+    }
+
+
+    public function editObservation () 
+    {
+        $observations = $this->schema('Ccheckin_Rooms_Observation');
+        $reservations = $this->schema('Ccheckin_Rooms_Reservation');
+        $userid = $this->getRouteVariable('userid');
+        $user = $this->requireExists($this->schema('Bss_AuthN_Account')->get($userid));
+        $id = $this->getRouteVariable('id');
+
+        if (is_numeric($id))
+        {
+            $observation = $this->requireExists($observations->get($id));
+            $this->template->observation = $observation;
+        }
+       
+        if ($this->request->wasPostedByUser())
+        {
+            if ($this->getPostCommand() === 'save')
+            {   
+                $duration = $this->request->getPostParameter('duration');
+
+                if ($observation)
+                {
+                    if ($res = $reservations->findOne($reservations->observationId->equals($observation->id)))
+                    {
+                        $res->delete();
+                    }
+                    if (!$observation->endTime)
+                    {
+                        $observation->endTime = (clone $observation->startTime)->modify('+'.$duration.'minutes');
+                    }
+                    $observation->duration = $duration;
+                    $observation->save();
+                }
+
+                $this->flash('Duration time has been updated for this user observation.');
+                $this->response->redirect('admin/observations/'. $user->id . '/all');
+            }
+        }
+        
+        $userObservations = $observations->find(
+            $observations->accountId->equals($user->id)->andIf(
+                $observations->startTime->isNotNull()), 
+            array('orderBy' => 'startTime')
+        );
+
+        $this->template->user = $user;
+        $this->template->userObservations = $userObservations;
     }
 
     public function currentObservations () 
