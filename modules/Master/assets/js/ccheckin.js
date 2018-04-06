@@ -33,7 +33,7 @@
 	  });
 	  $( '#checkinTime' ).timepicker({
 		timeFormat: 'h:mm p',
-		interval: 60,
+		interval: 15,
 		minTime: '8',
 		maxTime: '6:00pm',
 		// defaultTime: '11',

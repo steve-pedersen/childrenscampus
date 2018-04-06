@@ -1,16 +1,20 @@
 {if $observation}
 <h1>View & Edit Observations<br><small>for {$user->fullName} ({$user->emailAddress})</small></h1>
 
-<h2>Edit duration<br><small>{$observation->purpose->object->shortDescription}</small></h2>
+<h2>Edit duration<br>
+    <small>
+        {$observation->purpose->object->shortDescription}<br>
+        Check-in date: {$observation->startTime->format('M j, h:ia')}
+    </small>
+</h2>
+<br>
 <form action="{$smarty.server.REQUEST_URI}" method="post" class="form-inline">
-
     <div class="row">
         <div class="form-group col-xs-12">
             <label for="duration">Duration (minutes): &nbsp;</label> 
             <input class="textfield form-control" type="text" name="duration" id="duration" value="{$observation->duration}" />
         </div>
     </div>
-
     <div class="form-group commands">
         <input class="btn btn-info" type="submit" name="command[save]" value="Save" />
     </div>

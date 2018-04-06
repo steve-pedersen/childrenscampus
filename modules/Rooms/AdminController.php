@@ -187,14 +187,62 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
     {
         $reservations = $this->schema('Ccheckin_Rooms_Reservation');
         $observations = $reservations->find($reservations->checkedIn->isTrue());
+        $checkout = $this->request->getQueryParameter('checkout', null);
+
+        if ($checkout)
+        {
+            $res = $reservations->get($checkout);
+            
+            if ($res)
+            {
+                $now = new DateTime;
+                $st = $res->observation->startTime;
+                
+                if ($now->format('Y')!==$st->format('Y') || $now->format('m')!==$st->format('m') || $now->format('d')!==$st->format('d'))
+                {
+                    $now = $res->endTime;
+                }
+                if ($st > $now)
+                {
+                    $temp = $res->endTime->format('G') - $res->startTime->format('G');
+                    $st = (clone $now)->modify('-'.$temp.'hours');
+                }
+
+                $res->observation->endTime = $now;
+                $duration = abs(($now->format('G') - $st->format('G'))*60 + ($now->format('i') - $st->format('i')));
+                $res->observation->duration = $duration;
+                $res->observation->save();
+                $obs = $res->observation;
+                $res->delete();
+
+                $editUrl = '<a href="'. $this->baseUrl('admin/observations/' . $obs->accountId . '/' . $obs->id) .'">Edit Observation</a>';
+                $this->flash('User was manually checked out of an observation lasting ' . $duration .
+                    ' minutes. Should you need to edit the duration of this observation, you can find it here: ' . $editUrl
+                );
+
+                $observations = $reservations->find($reservations->checkedIn->isTrue());
+            }
+        }
 
         $this->template->reservations = $observations;
     }
 
     public function currentReservations () 
     {
-        $reservations = $this->schema('Ccheckin_Rooms_Reservation')->getAll();
+        $resSchema = $this->schema('Ccheckin_Rooms_Reservation');
+        $view = $this->request->getQueryParameter('view', 'all');
 
+        if ($view === 'upcoming')
+        {
+            $now = new DateTime;
+            $reservations = $resSchema->find($resSchema->startTime->afterOrEquals($now), array('orderBy' => 'startTime'));
+        }
+        else
+        {
+            $reservations = $resSchema->getAll(array('orderBy' => 'startTime'));
+        }
+        
+        $this->template->view = $view;
         $this->template->reservations = $reservations;
     }
 

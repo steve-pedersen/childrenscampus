@@ -53,7 +53,6 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
             $from = $this->request->getPostParameter('from', 0);
             $until = $this->request->getPostParameter('until', $tomorrow);
 
-            // Department, Semester, Class shortname, fname, lname, id, email, obs duration
             $observations = $obsSchema->find(
                 $obsSchema->startTime->afterOrEquals($from)->andIf(
                 $obsSchema->startTime->beforeOrEquals($until)),

@@ -216,7 +216,9 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         {
             if ($course->semester->id === $activeSemester->id)
             {
-                $withinSemesterRange = ($activeSemester->openDate < $currDate && $currDate < $activeSemester->closeDate);
+                $openDate = ($activeSemester->openDate === null) ? $activeSemester->startDate : $activeSemester->openDate;
+                $closeDate = ($activeSemester->closeDate === null) ? $activeSemester->endDate : $activeSemester->closeDate;
+                $withinSemesterRange = ($openDate < $currDate && $currDate < $closeDate);
             }
             // elseif ($course->semester->internal[3] == 1)     // account for possible overlap with winter and spring....
             // {
@@ -253,19 +255,24 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     {
         $viewer = $this->requireLogin();
         $reservations = $this->schema('Ccheckin_Rooms_Reservation');
+        $now = new DateTime;
         
         if (!$this->hasPermission('admin'))
         {
 			$cond = $reservations->allTrue(
                 $reservations->accountId->equals($viewer->id),
                 $reservations->checkedIn->isFalse(),
-                $reservations->missed->isFalse()
+                $reservations->missed->isFalse(),
+                $reservations->startTime->afterOrEquals($now)
             );
             $upcomingReservations = $reservations->find($cond);
         }
         else
         {
-            $upcomingReservations = $reservations->find($reservations->checkedIn->isFalse());
+            $upcomingReservations = $reservations->find(
+                $reservations->checkedIn->isFalse()->andIf(
+                $reservations->startTime->afterOrEquals($now))
+            );
         }
         
 		$this->template->pAdmin = $this->hasPermission('admin');

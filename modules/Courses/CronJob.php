@@ -54,17 +54,5 @@ class Ccheckin_Courses_CronJob extends Bss_Cron_Job
             $course->save();
         }
     }
-
-    protected function getCourse ($id)
-    {
-        $service = new Ccheckin_ClassData_Service($this->getApplication());
-        list($status, $course) = $service->getCourse($id);
-        
-        if ($status < 400)
-        {
-            return $course;
-        }
-        return false;
-    }
     
 }

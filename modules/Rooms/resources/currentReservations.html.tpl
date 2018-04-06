@@ -1,4 +1,14 @@
-<h1>Current Reservations</h1>
+<h1>Current Reservations
+{if $pAdmin}
+<div class="pull-right">
+    {if $view != 'upcoming'}
+        <a class="btn btn-default" href="admin/observations/reservations?view=upcoming" role="button">View Upcoming</a>
+    {else}
+        <a class="btn btn-default" href="admin/observations/reservations?view=all" role="button">View All</a>
+    {/if}
+</div>
+{/if}
+</h1>
 <p> 
     These are the current reservations for Children's Campus.  
 </p>
