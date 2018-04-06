@@ -21,6 +21,12 @@
 	  $( '#blockeddatenew' ).datepicker({
 		formatDate: 'yy-mm-dd'
 	  });
+	  $( '#datepickerFrom' ).datepicker({
+		formatDate: 'yy-mm-dd'
+	  });
+	  $( '#datepickerUntil' ).datepicker({
+		formatDate: 'yy-mm-dd'
+	  });
 	  $( '#checkinDate' ).datepicker({
 		formatDate: 'yy-mm-dd',
 		showAnim: ''

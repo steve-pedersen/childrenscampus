@@ -118,7 +118,7 @@
                         <li><a href="reservations">Sign Up For a Visit</a></li>
                         <li><a href="reservations/upcoming">My Reservations</a></li>
                         {if $pAdmin}
-                        <li><a href="reports/generator">Create Reports</a></li>
+                        <li><a href="admin/reports/generate">Create Reports</a></li>
                         {/if}
                         {if $isCCTeacher || $pAdmin}
                         <li><a href="reservations/schedule">Room Schedules</a></li>

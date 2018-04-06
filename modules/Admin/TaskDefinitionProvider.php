@@ -9,6 +9,7 @@ class Ccheckin_Admin_TaskDefinitionProvider extends Bss_AuthZ_TaskDefinitionProv
         return array(
             'file download' => 'download the file',
             'file upload' => 'upload the file',
+            'reports generate' => 'generate & download reports',
         );
     }
 }

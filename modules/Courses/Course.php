@@ -5,6 +5,8 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization //i
     private $_teachers;
     private $_students;
     private $_droppedStudents;
+    private $_department;
+    private $_college;
 
     public static function SchemaInfo ()
     {
@@ -42,11 +44,22 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization //i
         // $this->addEventHandler('before-insert', array($this, 'beforeInsert'));
     }
 
-    public function getCollege ()
+    public function getCollege ($reload=false)
     {
-        list($dept, $college) = $this->convertShortNameToDept($this->shortName, true);
+        if ($reload || $this->_college === null)
+        {
+            list($this->_department, $this->_college) = $this->convertShortNameToDept($this->shortName, true); 
+        }
+        return $this->_college;
+    }
 
-        return $college;
+    public function getDepartment ($reload=false)
+    {
+        if ($reload || $this->_department === null)
+        {
+            list($this->_department, $this->_college) = $this->convertShortNameToDept($this->shortName, true); 
+        }
+        return $this->_department;
     }
 
     public function convertShortNameToDept ($shortName, $includeCollege=false)

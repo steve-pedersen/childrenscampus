@@ -14,7 +14,8 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
             '/admin/settings/siteNotice' => array('callback' => 'siteNotice'),
             '/admin/settings/blockDates' => array('callback' => 'blockDates'),
             '/admin/settings/email' => array('callback' => 'emailSettings'),
-            '/admin/kiosk' => array('callback' => 'kioskMode')
+            '/admin/kiosk' => array('callback' => 'kioskMode'),
+            '/admin/reports/generate' => array('callback' => 'reports'),
         );
     }
     
@@ -28,7 +29,102 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
         // if admin and on admin page, don't display 'Contact' sidebar
         $this->template->adminPage = $this->hasPermission('admin') && (strpos($this->request->getFullRequestedUri(), 'admin') !== false);
     }
-    
+
+    public function reports ()
+    {
+        $viewer = $this->requireLogin();
+        $this->requirePermission('reports generate');
+
+        $courseSchema = $this->schema('Ccheckin_Courses_Course');
+        $obsSchema = $this->schema('Ccheckin_Rooms_Observation');
+        $resSchema = $this->schema('Ccheckin_Rooms_Reservation');
+        $roomSchema = $this->schema('Ccheckin_Rooms_Room');
+        $semSchema = $this->schema('Ccheckin_Semesters_Semester');
+        $userSchema = $this->schema('Bss_AuthN_Account');
+        $roleSchema = $this->schema('Ccheckin_AuthN_Role');
+
+        $tomorrow = new DateTime('+1 day');
+        $filename = 'CC-Observation-Report-' . date('Y-m-d') . '.csv';
+        $obsData = array();
+        $orgs = array();
+
+        if ($this->request->wasPostedByUser())
+        {
+            $from = $this->request->getPostParameter('from', 0);
+            $until = $this->request->getPostParameter('until', $tomorrow);
+
+            // Department, Semester, Class shortname, fname, lname, id, email, obs duration
+            $observations = $obsSchema->find(
+                $obsSchema->startTime->afterOrEquals($from)->andIf(
+                $obsSchema->startTime->beforeOrEquals($until)),
+                array('orderBy' => 'startTime')
+            );
+
+            foreach ($observations as $obs)
+            {
+                $course = $obs->purpose->object->course;
+                if (!in_array($course->shortName, array_keys($orgs)))
+                {   // cache API results
+                    $orgs[$course->shortName] = array();
+                    $orgs[$course->shortName]['college'] = $course->college;
+                    $orgs[$course->shortName]['department'] = $course->department;
+                }
+
+                $semester = $semSchema->findOne($semSchema->startDate->equals($course->startDate));
+
+                $obsData[$obs->id] = array();
+                $obsData[$obs->id]['obsId'] = $obs->id;
+                $obsData[$obs->id]['course'] = $course->shortName;
+                $obsData[$obs->id]['semester'] = $semester->display;
+                $obsData[$obs->id]['college'] = $orgs[$course->shortName]['college'];
+                $obsData[$obs->id]['department'] = $orgs[$course->shortName]['department'];
+                $obsData[$obs->id]['firstName'] = $obs->account->firstName;
+                $obsData[$obs->id]['lastName'] = $obs->account->lastName;
+                $obsData[$obs->id]['username'] = $obs->account->username;
+                $obsData[$obs->id]['email'] = $obs->account->emailAddress;
+                $obsData[$obs->id]['duration'] = $obs->duration;
+            }
+
+            header("Content-Type: application/download\n");
+            header('Content-Disposition: attachment; filename="' .$filename. '"' . "\n");
+            $handle = fopen('php://output', 'w+');
+
+            if ($handle)
+            {
+                $headers = array(
+                    'Semester',
+                    'Department',
+                    'Course Short Name',
+                    'First Name',
+                    'Last Name',
+                    'Student ID',
+                    'Email',
+                    'Duration'
+                );
+                fputcsv($handle, $headers);
+
+                foreach ($obsData as $obs)
+                {
+                    $row = array(
+                        $obs['semester'],
+                        $obs['department'],
+                        $obs['course'],
+                        $obs['firstName'],
+                        $obs['lastName'],
+                        $obs['username'],
+                        $obs['email'],
+                        $obs['duration'],
+                    );
+                    fputcsv($handle, $row);
+                }
+            }
+            
+            exit;
+        }
+
+        $this->template->tomorrow = $tomorrow;
+    }
+  
     /**
      * Dashboard.
      */
