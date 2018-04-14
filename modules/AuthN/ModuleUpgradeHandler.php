@@ -19,7 +19,7 @@ class Ccheckin_AuthN_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUpg
                 */
                 $def = $this->alterEntityType('bss_authn_accounts', $this->getDataSource('Bss_AuthN_Account'));
                 $def->addProperty('user_alias', 'string');               
-                $def->addProperty('ldap_user', 'string');   // maybe not this one...
+                // $def->addProperty('ldap_user', 'string');   // maybe not this one...
                 $def->addProperty('is_active', 'bool');
                 $def->addProperty('receive_admin_notifications', 'bool');
                 $def->save();

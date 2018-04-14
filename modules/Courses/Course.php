@@ -112,6 +112,7 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization //i
         if ($this->_teachers === null || $reload)
         {
             $enrollments = array();
+            $enrollments['teachers'] = array();
 
             foreach ($this->enrollments as $enrollment)
             {
@@ -131,6 +132,7 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization //i
         if ($this->_students === null || $reload)
         {
             $enrollments = array();
+            $enrollments['students'] = array();
 
             foreach ($this->enrollments as $enrollment)
             {

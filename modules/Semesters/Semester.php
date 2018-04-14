@@ -76,11 +76,48 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
         return $term . ' ' . $year;
     }
 
-    public static function guessActiveSemester ($returnTermCode = true)
+    public static function ConvertToCode ($display)
     {
-        $y = date('Y');
-        $m = date('n');
-        $d = date('d');
+        $space = strpos($display, ' ');
+        $term = substr($display, 0, $space);
+        $year = substr($display, $space + 1);
+
+        switch ($term) {
+            case 'Winter':
+                $term = 1;
+                break;
+            
+            case 'Spring':
+                $term = 3;
+                break;
+
+            case 'Summer':
+                $term = 5;
+                break;
+
+            case 'Fall':
+                $term = 7;
+                break;
+        }
+
+        return $year[0] . $year[2] . $year[3] . $term;
+    }
+
+    public static function guessActiveSemester ($returnTermCode = true, $fromDate = null)
+    {
+        if ($fromDate)
+        {
+            $y = $fromDate->format('Y');
+            $m = $fromDate->format('n');
+            $d = $fromDate->format('d');
+        }
+        else
+        {
+            $y = date('Y');
+            $m = date('n');
+            $d = date('d');            
+        }
+
         $earlyWinter = false;
 
         // Winter session ~ Dec 20 to Jan 18

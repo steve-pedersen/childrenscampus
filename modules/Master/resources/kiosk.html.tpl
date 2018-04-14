@@ -142,18 +142,18 @@
 
 {else}
 	<h2>Sign-In Here</h2>
-	<form method="post" action="login/complete/sfsu-pw">
+	<form method="post" action="login/complete/sfsu-pw" autocomplete="false">
 		<div id="loginForm">
 			{if $loginError}
 				<div class="flash"><div class="message error"><p>We could not find any accounts which match the ID and password.</p></div></div>
 			{/if}
 			<input type="hidden" name="returnTo" value="{$smarty.server.REQUEST_URI|escape}" />
             <div class="form-group">
-                <input type="text" class="form-control" id="password-username" name="username" placeholder="SF State ID or Email" alt="SF State ID or Email">
+                <input type="text" autocomplete="off" class="form-control" id="password-username" name="username" placeholder="SF State ID or Email" alt="SF State ID or Email">
             </div>
 
             <div class="form-group">
-                <input type="password" class="form-control" id="password-password" name="password" placeholder="Password" alt="password">
+                <input type="password" autocomplete="off" class="form-control" id="password-password" name="password" placeholder="Password" alt="password">
             </div>
                
             <div class="form-group">

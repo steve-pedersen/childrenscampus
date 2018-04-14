@@ -59,7 +59,7 @@
 
 </fieldset>
 {/if}
-{if ($authZ->hasPermission($viewer, 'admin') || $authZ->hasPermission($viewer, 'account manage'))}
+{if (!$newAccount && $account->roles->has($studentRole)) && ($authZ->hasPermission($viewer, 'admin') || $authZ->hasPermission($viewer, 'account manage'))}
 <fieldset class="field">
 	<legend>Missed Reservation</legend>
 	<ul class="list-group">
@@ -73,7 +73,7 @@
 	</ul>
 </fieldset>
 {/if}
-{if $pAdmin}
+{if $pAdmin && (!$newAccount && $account->roles->has($studentRole))}
 <div class="">
 	<h2>Edit observation time</h2>
 	<a class="btn btn-info" href="admin/observations/{$account->id}/all">Edit this users observation times</a>

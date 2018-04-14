@@ -16,6 +16,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
             '/admin/settings/email' => array('callback' => 'emailSettings'),
             '/admin/kiosk' => array('callback' => 'kioskMode'),
             '/admin/reports/generate' => array('callback' => 'reports'),
+            '/admin/migrate' => array('callback' => 'migrate'),
         );
     }
     
@@ -28,6 +29,86 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
         $this->addBreadcrumb('admin', 'Admin');
         // if admin and on admin page, don't display 'Contact' sidebar
         $this->template->adminPage = $this->hasPermission('admin') && (strpos($this->request->getFullRequestedUri(), 'admin') !== false);
+    }
+
+    public function migrate ()
+    {
+        $this->requirePermission('admin');
+        $semSchema = $this->schema('Ccheckin_Semesters_Semester');
+        $courseSchema = $this->schema('Ccheckin_Courses_Course');
+        $facetSchema = $this->schema('Ccheckin_Courses_Facet');
+
+        // Generate Semester 'internal'
+        foreach ($semSchema->find($semSchema->internal->isNull()) as $semester)
+        {
+            $semester->internal = Ccheckin_Semesters_Semester::ConvertToCode($semester->display);
+            $semester->save();
+        }
+
+        // Convert Facets 'tasks' from serialized to JSON
+        foreach ($facetSchema->getAll() as $facet)
+        {
+            $tasks = ($facet->tasks ? $facet->tasks : array());
+            $serialTasks = $facet->getTasks(true);                  // TODO: LEFT OFF HERE **************************** 
+            // need to iterate through serialized tasks and make them into JSON
+            if ($facet->getTasks(true))
+            {
+                $task = unserialize($facet->getTasks(true));
+                $tasks[] = array_shift($task);
+                
+
+                // $json = json_encode($facet->getTasks(true));
+                echo "<pre>"; var_dump($arr); die;
+            }
+        }
+
+        // Generate Course_Enroll_Map 'term' from Semester->internal
+
+
+        // // Generate Courses 'external_course_key'      
+        // $service = new Ccheckin_ClassData_Service($this->getApplication());
+        // foreach ($courseSchema->find($courseSchema->externalCourseKey->isNull()) as $course)
+        // {
+        //     $sem = $semSchema->findOne($semSchema->startDate->equals($course->startDate));
+        //     if (!$sem)
+        //     {
+        //         $term = Ccheckin_Semesters_Semester::guessActiveSemester(true, $course->startDate);
+        //     }
+        //     else
+        //     {
+        //         $term = $sem->internal;
+        //     }
+
+        //     $teachers = $course->teachers;
+        //     if (count($teachers) === 1)
+        //     {
+        //         $teacher = $course->teachers[0];            
+        //     }
+        //     elseif (count($teachers) > 1)
+        //     {   // might need to iterate through these teachers to find the correct one...
+        //         $teacher = $course->teachers[0];
+        //     }
+        //     else
+        //     {
+        //         continue;
+        //     }
+
+        //     list($status, $courses) = $service->getUserEnrollments($teacher->username, $term);
+
+        //     if ($status < 400)
+        //     {
+        //         echo "<pre>"; var_dump('status < 400!', $courses); die;
+        //         foreach ($courses as $c)
+        //         {
+        //             if ($c['shortName'] === $course->shortName)
+        //             {
+        //                 echo "<pre>"; var_dump('success',$c['id']); die;
+        //                 $course->externalCourseKey = $c['id'];
+        //             }
+        //         }
+        //     }
+        // }
+        
     }
 
     public function reports ()

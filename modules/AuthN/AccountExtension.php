@@ -18,7 +18,7 @@ class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension impleme
     {
         return array(
             'userAlias' => array('string', 'nativeName' => 'user_alias'),
-            'ldap_user' => 'string',    // old data simply used underscores ***
+            // 'ldap_user' => 'string',    // old data simply used underscores ***
             'isActive' => array('bool', 'nativeName' => 'is_active'),
             'receiveAdminNotifications' => array('bool', 'nativeName' => 'receive_admin_notifications'),
             'roles' => array('N:M', 'to' => 'Ccheckin_AuthN_Role', 'via' => 'ccheckin_authn_account_roles', 'fromPrefix' => 'account', 'toPrefix' => 'role'),          
@@ -141,10 +141,19 @@ class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension impleme
         $accId = $handler->getRouteVariable('id');
         $adminPage = $handler->hasPermission('admin') && (strpos($handler->getRequest()->getFullRequestedUri(), 'admin') !== false);
         $authZ = $handler->getAuthorizationManager();
-        $missedReservation = $accounts->findOne($accounts->missedReservation->isTrue()->andIf($accounts->id->equals($accId)), array('orderBy' => '+username'));
+        if ($accId === 'new')
+        {
+            $missedReservation = false;
+        }
+        else
+        {
+            $missedReservation = $accounts->findOne($accounts->missedReservation->isTrue()->andIf($accounts->id->equals($accId)), array('orderBy' => '+username'));
+        }
+        $studentRole = $roles->findOne($roles->name->equals('Student'));
 
         return array(
             'roleList' => $roleList,
+            'studentRole' => $studentRole,
             'canEditNotifications' => $canEditNotifications,
             'missedReservation' => $missedReservation,
             'newAccount' => ($accId === 'new'), 

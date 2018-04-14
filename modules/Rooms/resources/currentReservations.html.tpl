@@ -26,7 +26,7 @@
         {assign var='courseArr' value=explode('-',$reservation->observation->purpose->object->course->shortName,3)}
         <tr>
             <td>{$reservation->startTime->format("M j, Y h:ia")}</td>
-            <td><a href="admin/accounts/{$reservation->account->id}?returnTo={$smarty.server.REQUEST_URI}">{$reservation->account->firstName} {$reservation->account->lastName}</a> ({if $reservation->account->ldap_user}{$reservation->account->ldap_user}{else}{$reservation->account->emailAddress}{/if})</td>
+            <td><a href="admin/accounts/{$reservation->account->id}?returnTo={$smarty.server.REQUEST_URI}">{$reservation->account->firstName} {$reservation->account->lastName}</a> ({$reservation->account->emailAddress})</td>
             <td><a href="reservations/schedule/{$reservation->room->id}">{$reservation->room->name}</a></td>
             <td><!-- <a href="admin/courses/edit/{$reservation->observation->purpose->object->course->id}"> -->{$reservation->observation->purpose->shortDescription|escape}. <!-- </a> -->
                 <a href="reservations/view/{$reservation->id}">View reservation details</a>

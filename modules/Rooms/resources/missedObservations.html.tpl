@@ -15,7 +15,7 @@
     {foreach item='reservation' from=$reservations}
         <tr>
             <td>{$reservation->startTime->format('M j, Y g:ia')}</td>
-            <td>{$reservation->account->firstName} {$reservation->account->lastName} ({if $reservation->account->ldap_user}{$reservation->account->ldap_user}{else}{$reservation->account->emailAddress}{/if})</td>
+            <td>{$reservation->account->firstName} {$reservation->account->lastName} ({$reservation->account->emailAddress})</td>
             <td>{$reservation->room->name}</td>
             <td>{$reservation->observation->purpose->shortDescription|escape}</td>
 			<td class="actions">

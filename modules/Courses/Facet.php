@@ -48,9 +48,13 @@ class Ccheckin_Courses_Facet extends Ccheckin_Purposes_AbstractPurpose // NOT? e
         );
     }
 
-	public function getTasks ()
+	public function getTasks ($asIs=false)
 	{
-		$tasks = $this->_fetch('tasks');
+		if ($asIs)
+        {
+            return $this->_fetch('tasks');
+        }
+        $tasks = $this->_fetch('tasks');
 		$tasks = json_decode($tasks, true);
 
 		return ($tasks ? $tasks : array());

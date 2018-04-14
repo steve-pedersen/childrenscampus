@@ -21,7 +21,7 @@
 {foreach item='student' from=$students}
         <tr>
             <td>{$student->displayName}</td>
-            <td>{$student->ldap_user}</td>
+            <td>{$student->emailAddress}</td>
             <td>{if $course->studentCanParticipate($student)}participate{else}observe{/if}</td>
             <td><a href="courses/drop/{$course->id}/{$student->id}">drop</a></td>
         </tr>
