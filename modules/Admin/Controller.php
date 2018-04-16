@@ -33,6 +33,8 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
 
     public function migrate ()
     {
+        set_time_limit(0);
+        
         $this->requirePermission('admin');
         $semSchema = $this->schema('Ccheckin_Semesters_Semester');
         $courseSchema = $this->schema('Ccheckin_Courses_Course');
@@ -46,23 +48,39 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
         }
 
         // Convert Facets 'tasks' from serialized to JSON
-        foreach ($facetSchema->getAll() as $facet)
-        {
-            $tasks = ($facet->tasks ? $facet->tasks : array());
-            $serialTasks = $facet->getTasks(true);                  // TODO: LEFT OFF HERE **************************** 
-            // need to iterate through serialized tasks and make them into JSON
-            if ($facet->getTasks(true))
-            {
-                $task = unserialize($facet->getTasks(true));
-                $tasks[] = array_shift($task);
-                
+        $facets = $facetSchema->getAll();
+        $allTasks = (isset($facets[0]) ? $facets[0]->GetAllTasks() : array());
 
-                // $json = json_encode($facet->getTasks(true));
-                echo "<pre>"; var_dump($arr); die;
+        foreach ($facets as $facet)
+        {
+            $tasks = array();
+            $serialTasks = $facet->getTasks(true);
+            
+            if ($arrTasks = @unserialize($serialTasks))
+            {
+                foreach ($arrTasks as $task)
+                {
+                    $key = array_search($task, $allTasks);
+                    $tasks[$key] = $task;
+                }
+                $facet->tasks = $tasks;
+                $facet->save();
             }
         }
 
         // Generate Course_Enroll_Map 'term' from Semester->internal
+        foreach ($courseSchema->getAll() as $course)
+        {
+            $semester = $semSchema->findOne($semSchema->startDate->equals($course->startDate));
+            $semCode = (!$semester ? Ccheckin_Semesters_Semester::guessActiveSemester(true, $course->startDate) : $semester->internal);
+
+            foreach ($course->enrollments as $enrollee)
+            {
+                $course->enrollments->setProperty($enrollee, 'term', $semCode);
+            }
+            $course->enrollments->save();
+        }
+
 
 
         // // Generate Courses 'external_course_key'      

@@ -62,7 +62,11 @@ class Ccheckin_Courses_Facet extends Ccheckin_Purposes_AbstractPurpose // NOT? e
 
     public function setTasks($tasks)
     {
-        $this->_assign('tasks', json_encode($tasks));
+        if (is_array($tasks))
+        {
+            $tasks = json_encode($tasks);
+        }
+        $this->_assign('tasks', $tasks);  
     }  
 
     public function getShortDescription ()

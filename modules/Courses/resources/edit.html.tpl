@@ -74,7 +74,7 @@
         {foreach item='student' from=$course->students}
             <tr>
                 <td><a class="" href="admin/accounts/{$student->id}?returnTo={$smarty.server.REQUEST_URI}">{$student->fullName}</a></td>
-                <td>{if !$student->lastLoginDate}--{else}{$student->lastLoginDate->format('M j, d h:ia')}{/if}</td>
+                <td>{if !$student->lastLoginDate}--{else}{$student->lastLoginDate->format('M j, Y h:ia')}{/if}</td>
             </tr>
         {foreachelse}
         There are no students in this course.
