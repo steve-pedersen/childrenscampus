@@ -13,15 +13,8 @@ class Ccheckin_Welcome_Controller extends Ccheckin_Master_Controller
 		return array(
 				'/' => array('callback' => 'index'),
 				'home' => array('callback' => 'index'),
-				'/kiosk/logout' => array('callback' => 'logout'),
 		);
 	}
-
-    public function logout ()
-    {
-        $viewer = $this->getUserContext();
-        $viewer->logout('/');
-    }
 	
 	public function index ()
 	{

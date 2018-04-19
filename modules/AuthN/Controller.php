@@ -8,7 +8,16 @@ class Ccheckin_AuthN_Controller extends Ccheckin_Master_Controller
     {
         return array(
             'profile' => array('callback' => 'editProfile'),
+            '/kiosk/logout' => array('callback' => 'logout'),
         );
+    }
+
+
+    public function logout ()
+    {
+        session_unset();
+        $viewer = $this->getUserContext();
+        $viewer->logout('/');
     }
 
     public function editProfile ()

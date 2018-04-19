@@ -124,7 +124,7 @@
                         {if $isCCTeacher || $pAdmin}
                         <li><a href="reservations/schedule">Room Schedules</a></li>
                         {/if}
-                        {if $isTeacher || $pAdmin}            
+                        {if $isTeacher || $pAdmin}
                         <li><a href="courses">View Courses</a></li>
                         <li><a href="courses/request">Request a Course</a></li>
                         {/if}

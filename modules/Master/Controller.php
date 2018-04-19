@@ -11,15 +11,15 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
     private $includeScriptList;
     private $userMessageList;
     private $pageTitle = array();
-    
+
     protected function initController ()
     {
         parent::initController();
         $this->template->userContext = $this->getUserContext();
         $viewer = $this->getAccount();
         $this->template->viewer = $viewer;
-        
-        
+
+
         $authZ = $this->getAuthorizationManager();
         $authZ->addSource('session',
             new Bss_AuthZ_SessionPermissionSource($authZ, array(
@@ -221,7 +221,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
             }
         }
 
-        $this->template->metaRedirect = '<meta http-equiv="refresh" content="'.$redirectTime.';URL=' . $this->baseUrl('logout') . '">';
+        $this->template->metaRedirect = '<meta http-equiv="refresh" content="'.$redirectTime.';URL=' . $this->baseUrl('kiosk/logout') . '">';
 
     }
 
