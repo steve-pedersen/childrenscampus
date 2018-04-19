@@ -1,7 +1,7 @@
 <h1>{if $new}Create a Course{else}Edit Course: <small>{$course->shortName|escape}</small>{/if}</h1>
 <form action="{$smarty.server.REQUEST_URI}" method="post">
     <div class="form-group">
-        <p><strong>Status: </strong> {if $course->deleted}Deleted, {/if}{if $course->active}Active{else}Archived{/if}</p>
+        <p><strong>Status: </strong> {if $course->deleted}Deleted, {/if}{if $course->active}Active{elseif $new}New/Active{else}Archived{/if}</p>
     </div>
     <hr>
     <div class="form-group">

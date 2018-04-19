@@ -122,7 +122,6 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                 $courses->active->isTrue(),
                 $courses->deleted->isNull()->orIf($courses->deleted->isFalse())
             );
-            $coursesFiltered = $courses->find($cond, array('orderBy' => 'shortName'));
         }
         else
         {
@@ -140,14 +139,14 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                 $courses->deleted->isNull()->orIf($courses->deleted->isFalse()),
                 $courses->id->notInList($notDeletedCourseIds)
             );
-            $coursesFiltered = $courses->find($cond, array('orderBy' => 'shortName'));
         }
 
+        $this->template->now = new DateTime;
         $this->template->requests = $requestSchema;
         $this->template->coursesIndexTabs = $coursesIndexTabs;
         $this->template->tab = $tab;
         $this->template->message = $message;
-        $this->template->courses = $coursesFiltered;
+        $this->template->courses = $courses->find($cond, array('orderBy' => '-startDate'));
     }
 
 

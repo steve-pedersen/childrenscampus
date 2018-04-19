@@ -1,6 +1,6 @@
 <h1>Upcoming Reservations</h1>
 {if $reservations}
-<table class="table table-bordered">
+<table class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>Time</th>

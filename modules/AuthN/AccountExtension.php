@@ -8,6 +8,8 @@
  */
 class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension implements Bss_AuthN_IAccountSettingsExtension
 {
+    private $request;
+    private $response;
     
     /**
      * Get all properties to add to an account.
@@ -127,6 +129,12 @@ class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension impleme
             }
 
             $account->save();
+
+            // notify user of new account?
+            if ($request->getPostParameter('notify') == true)
+            {
+                $this->sendNewAccountNotification($account, $request);
+            }
 		}
         
         return true;
@@ -141,9 +149,11 @@ class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension impleme
         $accId = $handler->getRouteVariable('id');
         $adminPage = $handler->hasPermission('admin') && (strpos($handler->getRequest()->getFullRequestedUri(), 'admin') !== false);
         $authZ = $handler->getAuthorizationManager();
+        $notify = false;
         if ($accId === 'new')
         {
             $missedReservation = false;
+            $notify = true;
         }
         else
         {
@@ -156,12 +166,13 @@ class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension impleme
             'studentRole' => $studentRole,
             'canEditNotifications' => $canEditNotifications,
             'missedReservation' => $missedReservation,
-            'newAccount' => ($accId === 'new'), 
+            'newAccount' => ($accId === 'new'),
+            'notify' => $notify,
             'adminPage' => $adminPage,
             'authZ' => $authZ
         );
     }
-    
+
     public function initializeRecord (Bss_ActiveRecord_Base $account)
     {
         $account->addEventHandler('before-delete', array($this, 'deleteAccount'));
@@ -174,4 +185,42 @@ class Ccheckin_AuthN_AccountExtension extends Bss_AuthN_AccountExtension impleme
         $account->enrollments->removeAll();
         $account->enrollments->save();
     }
+
+
+    public function sendNewAccountNotification ($user, $request)
+    {
+        $app = $this->getApplication();
+        $emailManager = new Ccheckin_Admin_EmailManager($app);
+        $emailManager->setTemplateInstance($this->createTemplateInstance($app, $request));
+
+        $emailData = array();        
+        $emailData['user'] = $user;
+        $emailManager->processEmail('sendNewAccount', $emailData);
+    }
+
+
+    public function createTemplateInstance ($app, $request)
+    {
+        $tplClass = $this->getTemplateClass();
+        $response = new Bss_Core_Response($request);
+        
+        $this->request = $request;
+        $this->response = $response;
+        $inst = new $tplClass ($this, $this->request, $this->response);
+
+        return $inst;
+    }
+
+    protected function getTemplateClass ()
+    {
+        return 'Ccheckin_Master_Template';
+    }
+
+    public function getUserContext ()
+    {
+        return new Ccheckin_Master_UserContext($this->request, $this->response);
+    }
+    
+
+
 }

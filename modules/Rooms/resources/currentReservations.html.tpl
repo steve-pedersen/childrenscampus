@@ -12,7 +12,7 @@
 <p> 
     These are the current reservations for Children's Campus.  
 </p>
-<table class="table table-bordered table-responsive">
+<table class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>Start Time</th>

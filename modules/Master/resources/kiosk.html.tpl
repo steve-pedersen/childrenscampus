@@ -36,18 +36,16 @@
             <div class="navbar-collapse collapse">	
 	            <ul class="nav navbar-nav navbar-right">
 					{if $viewer}
+					{if $pAdmin}
 					<li>
 						<div class="navbar-text text-capitalize text-center">Hello, {$userContext->account->firstName|escape}</div>
 					</li>
-					{if $pAdmin}
 					<li>
 						<a class="manage-link btn btn-link" href="admin"><i class="halflings-icon white cog" aria-hidden="true"></i> Administrate</a>
 					</li>
 					{/if}
 					<li style="text-align:center;">
-						<form method="post" action="logout">
-							<button class="btn btn-link logout navbar-btn" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
-						</form>
+						<a href="kiosk/logout" class="btn btn-default">Logout</a>
 					</li>
 					{else}
 					<li class="{if $activeTab=='login'} active{/if}">
@@ -96,17 +94,19 @@
 	<p>{$reservation->room->name|escape}</p>
 	<p>On {$reservation->observation->startTime|date_format:"%b %e, %Y at %I:%M %p"}</p>
 	<div class="kiosk-link">
-		<form method="post" action="logout">
+<!-- 		<form method="post" action="logout">
 			<button class="btn btn-default" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
-		</form>
+		</form> -->
+		<a href="kiosk/logout" class="btn btn-default">Logout</a>
 	</div>
 
 {elseif $checkedOut}
 	<h2 class="">You have successfully checked out</h2>
 	<div class="kiosk-link">
-		<form method="post" action="logout">
+<!-- 		<form method="post" action="logout">
 			<button class="btn btn-default" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
-		</form>
+		</form> -->
+		<a href="kiosk/logout" class="btn btn-default">Logout</a>
 	</div>
 
 {elseif $late || $early}
@@ -117,32 +117,26 @@
 		<p class="">You are early for your appointment at {$early.time|date_format:"%b %e, %Y at %I:%M %p"}. Please come back at time closer to your appointment.</p>
 	{/if}
 	<div class="kiosk-link">
-		<form method="post" action="logout">
-			<button class="btn btn-default" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
-		</form>
+		<a href="kiosk/logout" class="btn btn-default">Logout</a>
 	</div>
 
 {elseif $empty}
 	<h2>No reservations found</h2>
 	<p>We have not found any reservation for you.</p>
 	<div class="kiosk-link">
-		<form method="post" action="logout">
-			<button class="btn btn-default" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
-		</form>
+		<a href="kiosk/logout" class="btn btn-default">Logout</a>
 	</div>
 
 {elseif $earlycheckout}
 	<h2>Cannot checkout too early</h2>
 	<p>You must wait at least five minutes before you can checkout.</p>
 	<div class="kiosk-link">
-		<form method="post" action="logout">
-			<button class="btn btn-default" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
-		</form>
+		<a href="kiosk/logout" class="btn btn-default">Logout</a>
 	</div>
 
 {else}
 	<h2>Sign-In Here</h2>
-	<form method="post" action="login/complete/sfsu-pw" autocomplete="false">
+	<form method="post" action="login/complete/ad" autocomplete="false">
 		<div id="loginForm">
 			{if $loginError}
 				<div class="flash"><div class="message error"><p>We could not find any accounts which match the ID and password.</p></div></div>

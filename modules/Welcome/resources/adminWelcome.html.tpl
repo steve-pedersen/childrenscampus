@@ -69,7 +69,14 @@
             <textarea class="form-control text-field wysiwyg" name="location-message" id="location-message" rows="3">{$locationMessage}</textarea>
         </div>
     </div>
-      
+  
+    <div class="form-group">
+        <div class="col-xs-12">
+            <label for="contact-info">Contact Information (applies to right sidebar only)</label>
+            <textarea class="form-control text-field wysiwyg" name="contact-info" id="contact-info" rows="12">{$contactInfo}</textarea>
+        </div>
+    </div>   
+
     <div class="form-group">
         <div class="col-xs-12">
             <div class="controls">

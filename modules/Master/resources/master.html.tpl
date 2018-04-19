@@ -167,6 +167,9 @@
 					<div id="resources">	
 						<div class="res_box">
 							<h3>Contact</h3>
+							{if $contactInfo}
+							{$contactInfo}
+							{else}	
 							<strong>Children's Campus</strong><br>
 
 							San Francisco State University<br><br>
@@ -178,6 +181,7 @@
 							Email: <a href="mailto:children@sfsu.edu">children@sfsu.edu</a><br>
 							Phone: 415-405-4011<br>
 							Fax: 415-405-3832<br>
+							{/if}
 						</div>
 					</div>
                 </div>

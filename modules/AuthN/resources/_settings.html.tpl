@@ -78,7 +78,18 @@
 	<h2>Edit observation time</h2>
 	<a class="btn btn-info" href="admin/observations/{$account->id}/all">Edit this users observation times</a>
 </div>
-<hr>
+<!-- <hr> -->
 {/if}
+{if $notify && $newAccount}
+<div class="">
+	<h2>Notify user of new account</h2>
+	<label for="notify">
+		<input type="checkbox" name="notify" id="notify" checked aria-checked="true" value=true />
+		Notify user of account
+	</label>
+</div>
+{/if}
+<hr>
+
 
 

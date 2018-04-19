@@ -2,7 +2,7 @@
 <p> 
     These are the observations which were scheduled but the appointment was not kept.  
 </p>
-<table class="table table-bordered">
+<table class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>Start Time</th>

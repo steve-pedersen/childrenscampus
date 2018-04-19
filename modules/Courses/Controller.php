@@ -203,7 +203,8 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         $viewer = $this->requireLogin();
         $siteSettings = $this->getApplication()->siteSettings;
         $this->requirePermission('course request');
-       
+        // echo "<pre>"; var_dump($this->hasPermission('cheese')); die;
+
         $course = $this->schema('Ccheckin_Courses_Course')->createInstance();
         $facet = $this->schema('Ccheckin_Courses_Facet')->createInstance();
         $request = $this->schema('Ccheckin_Courses_Request')->createInstance();
@@ -219,7 +220,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
             $semesters[$sem->id] = $sem;
         }
         // sorry for such similar vars. needs refactor
-        $activeSemester = Ccheckin_Semesters_Semester::guessActiveSemester(true); // used for querying
+        $activeSemester = $this->requireExists(Ccheckin_Semesters_Semester::guessActiveSemester(true)); // used for querying
         $selectedSemester = $sems->findOne($sems->internal->equals($activeSemester));  // used for post data
 
         // Sets the default course display to current semester's courses

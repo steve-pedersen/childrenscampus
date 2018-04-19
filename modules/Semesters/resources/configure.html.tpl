@@ -4,7 +4,7 @@
 
     <h2 class="font-weight-light">Semesters</h2>
     <div class="form-group">
-        <table class="table table-bordered">
+        <table class="table table-bordered table-striped">
             <thead class="thead-dark">
                 <tr>
                     <th> </th>

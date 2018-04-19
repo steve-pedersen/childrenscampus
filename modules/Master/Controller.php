@@ -31,7 +31,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         {
             if (!$this->hasPermission('admin'))
             {
-                // $this->template->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'kiosk.html.tpl'));
+                $this->template->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'kiosk.html.tpl'));
                 $this->template->kioskMode = true;
                 if ($viewer)
                 {
@@ -40,7 +40,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
             }
             else
             {
-                // $this->template->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'master.html.tpl'));
+                $this->template->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'master.html.tpl'));
             }
         }
         else
@@ -49,6 +49,38 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         }        	
 		$this->template->controller = $this;
 
+
+        // if ($this->isKiosk())
+        // {
+        //     $app = $this->getApplication();
+        //     $viewer = $this->handler->getUserContext()->getAccount();
+        //     $authZ = $app->authorizationManager;
+        //     if (!$authZ->hasPermission($viewer, 'admin'))
+        //     {
+        //         $this->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'kiosk.html.tpl'));
+        //         $this->kioskMode = true;
+        //     }
+        //     // else
+        //     // {
+        //     //     $this->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'master.html.tpl'));
+        //     // }
+        // }
+
+
+        // $session = $this->request->getSession();
+        
+        // if (isset($session->quickList))
+        // {
+        //     unset($session->quickList);
+        // }
+        
+        // if (isset($session->wasAccountId))
+        // {
+        //     $this->account = null; // Force reload of account on getAccount().
+        //     $session->accountId = $session->wasAccountId;
+        //     unset($session->wasAccountId);
+        //     return true;
+        // }
     }
 
     protected function isKiosk ()

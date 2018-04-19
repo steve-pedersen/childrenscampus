@@ -3,7 +3,7 @@
     These are the current observation which are going on at Children's Campus.  
     You may use this feature to verify that people have successfully logged into the system.
 </p>
-<table class="table table-bordered">
+<table class="table table-bordered table-striped">
     <thead>
         <tr>
             <th>Start Time</th>

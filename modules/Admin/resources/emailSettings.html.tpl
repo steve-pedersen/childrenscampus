@@ -136,7 +136,44 @@
 		</div>
 	</div>	
 
+
 	<h2 class="email-header"><u>Content</u></h2>
+
+	<div class="row email-row">
+		<div class="col-xs-8">
+			<div class="form-group">
+				<label for="newAccount">New Account Notification: <span class="email-type-description">sent to newly created accounts when "Notify user of account" is checked.</span></label>
+				<textarea name="newAccount" id="newAccount" class="wysiwyg form-control" rows="{if $newAccount}{$newAccount|count_paragraphs*2}{else}8{/if}">{$newAccount}</textarea>
+				<span class="help-block">
+					You can use the following tokens for context replacements to fill out the template: 
+					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%SITE_LINK%|</code>
+				</span>
+			</div>
+		</div>
+
+		<div class="col-xs-4">
+			<label id="testnewaccount">Test New-Account Template</label>
+			<p class="lead">This will send an email to your account showing how the email will look to you.</p>
+			<button type="submit" name="command[sendtest][newAccount]" aria-describedby="testnewaccount" class="btn btn-default">Send Test</button>
+		</div>
+
+		<div class="col-xs-12 form-group">
+			<label id="attachmentNewAccount" class="">File attachment(s)</label>
+			<select multiple="multiple" class="form-control" name="attachment[newAccount][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentNewAccount">
+			{foreach item='attachment' from=$attachments}
+				{assign var='isAttached' value=false}
+				{foreach item='key' from=$attachment->attachedEmailKeys}
+					{if $key === 'newAccount'}{assign var='isAttached' value=true}{/if}
+				{/foreach}
+				<option value="{$attachment->id}" {if $isAttached}selected{/if}>
+				{if $attachment->title}{$attachment->title}{else}{$attachment->remoteName}{/if}
+				</option>
+			{/foreach}
+			</select>
+			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
+		</div>
+	</div>
+
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
@@ -351,7 +388,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
-				<label for="reservationReminderTime">Reservation Reminder Time: <span class="email-type-description">specify an amount of time to prior to a reservation to send a reminder email.</span></label>
+				<label for="reservationReminderTime">Reservation Reminder Time: <span class="email-type-description">specify an amount of time to prior to a reservation to send a reminder email. Values should be a <em>number</em> followed by a <em>unit of time</em> (e.g. 1 day, 3 hours, 1 week).</span></label>
 				<input type="text" class="form-control" name="reservationReminderTime" id="reservationReminderTime" value="{$reservationReminderTime}" placeholder="e.g. 1 day, 4 hours, or 8 hours" />
 			</div>
 		</div>

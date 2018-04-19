@@ -26,7 +26,7 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
     public function beforeCallback ($callback)
     {
         parent::beforeCallback($callback);
-        // $this->requirePermission('admin');
+        $this->requirePermission('admin');
         $this->template->clearBreadcrumbs();
         $this->addBreadcrumb('home', 'Home');
         $this->addBreadcrumb('admin', 'Admin');
@@ -105,6 +105,7 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
             {
                 $optionMap['offset'] = $offset;
             }
+            if ($limit == 99999) set_time_limit(0);
         }
         
         switch ($sortBy)
@@ -128,39 +129,76 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
    
         // Always places Student role at end of list, since there are far more Student accounts than any other account 
         // and therefore doesn't make it very useful to intersperse with others
-        // Does not currently work with pagination
+        // Does not currently work with pagination        
         if ($sortBy === 'role')
         {
             $accs = array();
-            $studentRole = $roles->findOne($roles->name->equals('Student'));
-            $allRoles = $roles->getAll(array('orderBy' => ($dirPrefix.'name')));
-            foreach ($allRoles as $role)
+            $foundIds = array();
+            $counter = 0;    
+            $page = $page ?? 1;
+            $offset = $page * $limit - $limit;
+            // $offset = $page > 1 ? $offset-1 : $offset;
+            $upperLimit = $limit * $page;
+            
+            // add application admin
+            if ($page == 1)
             {
-                if ($role->name !== 'Student')
+                $accs[] = $accounts->get(1);
+                $foundIds[] = 1;
+                $counter = 1;                
+            }
+
+            // add non student roles, e.g. Administrator, Teacher, CC Teacher
+            $roleOptionMap['orderBy'] = '+name';
+            $nonStudentRoles = $roles->find($roles->name->notEquals('Student')->andIf($roles->name->notEquals('Anonymous')), $roleOptionMap);
+            foreach ($nonStudentRoles as $role)
+            {
+                if (($counter + $offset) < $upperLimit)
                 {
-                    foreach ($role->accounts as $acc)
+                    foreach ($role->accounts as $i => $acc)
                     {
-                        $accs[] = $acc;
+                        if ($i < $offset) continue;
+                        if (!in_array($acc->id, $foundIds) && $counter < $limit)
+                        {
+                            $accs[] = $acc;
+                            $foundIds[] = $acc->id;
+                            $counter++;
+                        }
+                    }
+                }
+                // keep track of all non student accs so that we do not include them when finding students
+                foreach ($role->accounts as $acc)
+                {
+                    if (!in_array($acc->id, $foundIds))
+                    {
+                        $foundIds[] = $acc->id;
                     }
                 }
             }
-            // add accounts that may not have an assigned role
-            foreach ($accounts->getAll() as $acc)
+            // echo "<pre>"; var_dump($counter, $page, $limit, $offset, $upperLimit, ($upperLimit - ($counter + $offset))); die;
+            
+            // add remaining accounts, i.e. students and accs that may not have an assigned role
+            $roleOptionMap['orderBy'] = $dirPrefix . 'lastName';
+            $roleOptionMap['page'] = $page;
+            $roleOptionMap['limit'] = $upperLimit - ($counter + $offset);
+            if ($roleOptionMap['limit'] > 0)
             {
-                if (!count($acc->roles))
+                $remainingAccs = $accounts->find($accounts->id->notInList($foundIds), $roleOptionMap);
+                foreach ($remainingAccs as $acc)
                 {
-                    $accs[] = $acc;
+                    if (($counter + $offset) < $upperLimit)
+                    {
+                        if (!in_array($acc->id, $foundIds)  && $counter < $limit)
+                        {
+                            $accs[] = $acc;
+                            $foundIds[] = $acc->id;
+                            $counter++;
+                        }
+                    }
                 }
-            }
-            // add student roles to end
-            $sRoleAccs = $studentRole->accounts->sorted('+lastName');
-            foreach ($sRoleAccs as $acc)
-            {
-                $accs[] = $acc;
             }
 
             $accounts = $accs;
-            $limit = count($accounts);
         }
 
         $condition = null;
@@ -177,7 +215,7 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
                 );
         }
         
-        $totalAccounts = (is_array($accounts) ? count($accounts) : $accounts->count($condition));
+        $totalAccounts = (is_array($accounts) ? $this->schema('Bss_AuthN_Account')->count() : $accounts->count($condition));
         $pageCount = ceil($totalAccounts / $limit);
         
         $this->template->pagesAroundCurrent = $this->getPagesAroundCurrent($page, $pageCount);

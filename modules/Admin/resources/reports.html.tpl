@@ -1,6 +1,6 @@
 <h1>Children's Campus Report Generator</h1>
 <p class="alert alert-info">Select the date range for which to generate the observation data.</p>
-
+<p>For large date ranges, it may take a few minutes to generate the report. Please do not refresh your browser or hit back on the page during this process.</p>
 <form class="form-horizontal form-inline" method="post" action="{$smarty.server.REQUSET_URI}">
     <div class="data-form">
         <div class="form-group">

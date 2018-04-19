@@ -29,6 +29,7 @@ class Ccheckin_Welcome_AdminController extends At_Admin_Controller
             $siteSettings->setProperty('welcome-title', $this->request->getPostParameter('welcome-title'));
             $siteSettings->setProperty('welcome-text-extended', $this->request->getPostParameter('welcome-text-extended'));
             $siteSettings->setProperty('location-message', $this->request->getPostParameter('location-message'));
+            $siteSettings->setProperty('contact-info', $this->request->getPostParameter('contact-info'));
         }
 
         if ($this->request->wasPostedByUser())
@@ -68,5 +69,6 @@ class Ccheckin_Welcome_AdminController extends At_Admin_Controller
         $this->template->welcomeTextExtended = $siteSettings->getProperty('welcome-text-extended');
         $this->template->announcements = json_decode($siteSettings->getProperty('announcements'), true);
         $this->template->locationMessage = $siteSettings->getProperty('location-message');
+        $this->template->contactInfo = $siteSettings->getProperty('contact-info');
     }
 }

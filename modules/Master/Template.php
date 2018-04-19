@@ -16,22 +16,6 @@ class Ccheckin_Master_Template extends Bss_Master_Template
         $this->registerPlugin('modifier', 'formatted_date', array($this, 'formattedDate'));
         $this->registerPlugin('function', 'select', array($this, 'select'));
 
-        if ($this->isKiosk())
-        {
-            $app = $this->getApplication();
-            $viewer = $this->handler->getUserContext()->getAccount();
-            $authZ = $app->authorizationManager;
-            if (!$authZ->hasPermission($viewer, 'admin'))
-            {
-                $this->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'kiosk.html.tpl'));
-                $this->kioskMode = true;
-            }
-            else
-            {
-                $this->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'master.html.tpl'));
-            }
-        }
-
     }
 
     protected function isKiosk ()

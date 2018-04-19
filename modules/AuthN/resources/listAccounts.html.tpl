@@ -83,8 +83,8 @@
                         <td><a class="text-capitalize" href="admin/accounts/{$account->id}?returnTo={$smarty.server.REQUEST_URI|escape|escape}">{$account->lastName|escape}, {$account->firstName|escape} {$account->middleName|escape}</a></td>
                         <td>{$account->emailAddress|escape}</td>
                         <!-- <td>{$account->username|escape|default:'<span class="detail">n/a</a>'}</td> -->
-                        <td>{if $account->lastLoginDate}{$account->lastLoginDate->format('M j, Y')}{else}<span class="detail">never</span>{/if}</td>
-                        <td>
+                        <td style="font-size:9pt;">{if $account->lastLoginDate}{$account->lastLoginDate->format('M j, Y')}{else}<span class="detail">never</span>{/if}</td>
+                        <td style="font-size:9pt;">
                         {foreach item="role" from=$account->roles}
                             {if $role->name == 'Student'}&mdash;
                             {else}
@@ -94,7 +94,7 @@
                         {/foreach}
                         </td>
                         <td>{if $account->isActive}Active{else}Inactive{/if}</td>
-                        <td>
+                        <td style="padding:2px;">
                             <a class="btn btn-info btn-xs" href="admin/accounts/{$account->id}?returnTo={$smarty.server.REQUEST_URI|escape|escape}">Edit</a>
                             <input class="btn btn-primary btn-xs" type="submit" name="command[become][{$account->id}]" value="Become" title="Switch to account {$account->displayName}">
                         </td>

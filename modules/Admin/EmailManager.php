@@ -32,6 +32,7 @@ class Ccheckin_Admin_EmailManager
 	public function validEmailTypes ()
 	{
 		$types = array(
+			'sendNewAccount',
 			'sendCourseRequestedAdmin',
 			'sendCourseRequestedTeacher',
 			'sendCourseAllowedTeacher',
@@ -93,9 +94,29 @@ class Ccheckin_Admin_EmailManager
         return $attachments;
     }
 
+	public function sendNewAccount ($data, $test)
+	{
+		$this->subjectLine = "Children's Campus Check-in: An account has been created for you";
+
+		$params = array(
+			'|%FIRST_NAME%|' => $data['user']->firstName,
+			'|%LAST_NAME%|' => $data['user']->lastName,
+			'|%SITE_LINK%|' => $this->generateLink('', true, "The Children's Campus"),
+			'message_title' => 'An account has been created for you.'
+		);
+
+		$body = $this->app->siteSettings->getProperty('email-new-account');
+		if (!$this->hasContent($body))
+		{
+			$body = $this->defaultEmails[__FUNCTION__];
+		}
+		
+		$this->sendEmail($data['user'], $params, $body);
+	}
+
 	public function sendCourseRequestedAdmin ($data, $test)
 	{
-		$this->subjectLine = "Children's Campus: Course Requested";
+		$this->subjectLine = "Children's Campus Check-in: Course Requested";
 
 		if (!$test)
 		{
@@ -123,7 +144,7 @@ class Ccheckin_Admin_EmailManager
 
 	public function sendCourseRequestedTeacher ($data, $test)
 	{
-		$this->subjectLine = "Children's Campus: Course Requested";
+		$this->subjectLine = "Children's Campus Check-in: Course Requested";
 		if (!$test)
 		{
 			$courseReq = $this->getSchema('Ccheckin_Courses_Request')->get($data['courseRequest']->id);
@@ -149,7 +170,7 @@ class Ccheckin_Admin_EmailManager
 
 	public function sendCourseAllowedTeacher ($data, $test)
 	{
-		$this->subjectLine = "Children's Campus: Course Request Approved";
+		$this->subjectLine = "Children's Campus Check-in: Course Request Approved";
 		if (!$test)
 		{
 			$course = $this->getSchema('Ccheckin_Courses_Course')->get($data['course']->id);
@@ -178,7 +199,7 @@ class Ccheckin_Admin_EmailManager
 
 	public function sendCourseAllowedStudents ($data, $test)
 	{
-		$this->subjectLine = "Children's Campus: New Course Available";
+		$this->subjectLine = "Children's Campus Check-in: New Course Available";
 		if (!$test)
 		{
 			$course = $this->getSchema('Ccheckin_Courses_Course')->get($data['course']->id);
@@ -205,7 +226,7 @@ class Ccheckin_Admin_EmailManager
 
 	public function sendCourseDenied ($data, $test)
 	{
-		$this->subjectLine = "Children's Campus: Course Request Denied";
+		$this->subjectLine = "Children's Campus Check-in: Course Request Denied";
 		if (!$test)
 		{
 			$course = $this->getSchema('Ccheckin_Courses_Course')->get($data['course']->id);
@@ -231,7 +252,7 @@ class Ccheckin_Admin_EmailManager
 
 	public function sendReservationDetails ($data, $test)
 	{
-		$this->subjectLine = "Children's Campus: Reservation Details";
+		$this->subjectLine = "Children's Campus Check-in: Reservation Details";
 		if (!$test)
 		{
 			$reservation = $this->getSchema('Ccheckin_Rooms_Reservation')->get($data['reservation']->id);
@@ -259,7 +280,7 @@ class Ccheckin_Admin_EmailManager
 
 	public function sendReservationReminder ($data, $test)
 	{
-		$this->subjectLine = "Children's Campus: Reservation Reminder";
+		$this->subjectLine = "Children's Campus Check-in: Reservation Reminder";
 		if (!$test)
 		{
 			$reservation = $this->getSchema('Ccheckin_Rooms_Reservation')->get($data['reservation']->id);
@@ -287,7 +308,7 @@ class Ccheckin_Admin_EmailManager
 
 	public function sendReservationMissed ($data, $test)
 	{
-		$this->subjectLine = "Children's Campus: Reservation Missed";
+		$this->subjectLine = "Children's Campus Check-in: Reservation Missed";
 		if (!$test)
 		{
 			$reservation = $this->getSchema('Ccheckin_Rooms_Reservation')->get($data['reservation']->id);
@@ -394,7 +415,15 @@ class Ccheckin_Admin_EmailManager
         if ($contentTemplate)
         {
             $tpl = $this->createEmailTemplate();
-            $message->setTemplate($tpl, $this->getModule()->getResource($contentTemplate));
+            if ($this->ctrl)
+            {
+            	$message->setTemplate($tpl, $this->ctrl->getModule()->getResource($contentTemplate));
+            }
+            else
+            {
+            	$message->setTemplate($tpl, $this->app->moduleManager->getModule('at:ccheckin:master')->getResource($contentTemplate));
+            }
+
         }
         
         return $message;
@@ -428,11 +457,22 @@ class Ccheckin_Admin_EmailManager
 		return $this->schemas[$schemaName];
 	}
 
+
 	public $defaultEmails = array(
+
+		'sendNewAccount' => '
+<p>|%FIRST_NAME%| |%LAST_NAME%|,</p><br>
+<p>Children\'s Campus has created an account for you in our Check-In web application.
+You can access it at |%SITE_LINK%| using your SFSU ID and password.</p>
+<p>If you need any further help, feel free to contact us by responding to this email address.</p>',
+
+
 		'sendCourseRequestedAdmin' => '
 <p>A new course has been requested by |%FIRST_NAME%| |%LAST_NAME%|.</p>
 <p>Click here to view your requested course: |%REQUEST_LINK%|</p>
 <p>You can go to the manage course requests page by clicking the provided link or copying the above URL into your browser.</p>',
+
+
 		'sendCourseRequestedTeacher' => '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
 <br>
@@ -444,6 +484,8 @@ class Ccheckin_Admin_EmailManager
 </ul>
 <br>
 <p>Your request will be reviewed and you will be notified of our decision.</p>',
+
+
 		'sendCourseAllowedTeacher' => '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
 <br>
@@ -458,6 +500,8 @@ class Ccheckin_Admin_EmailManager
 <p>You can access it here |%COURSE_VIEW_LINK%|, using your SFSU ID and password.</p>
 <br>
 <p>Your students have already been automatically enrolled and will be able to make reservations from |%OPEN_DATE%| to |%CLOSE_DATE%|.</p>',
+
+
 		'sendCourseAllowedStudents' => '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
 <br>
@@ -470,6 +514,8 @@ class Ccheckin_Admin_EmailManager
 <p>Attached to this email you’ll find our guidelines for student observers, both in the classroom and the observation rooms. Please see that you read this documentation prior to your first observation at the center. If you have any questions about your observations they should contact me.</p>
 <br>
 <p>You can begin making reservations from |%OPEN_DATE%| until |%CLOSE_DATE%|, which can be done here |%SITE_LINK%|, using your SFSU ID and password to login.</p>',
+
+
 		'sendCourseDenied' => '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
 <br>
@@ -481,6 +527,8 @@ class Ccheckin_Admin_EmailManager
 </ul>
 <br>
 <p>If you need any further help, feel free to contact us by responding to this email address.</p>',
+
+
 		'sendReservationDetails' => '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
 <br>
@@ -493,6 +541,8 @@ class Ccheckin_Admin_EmailManager
 </ul>
 <br>
 <p>If you made this reservation by mistake, please cancel your reservation here |%RESERVE_CANCEL_LINK%|. Observation at the Children’s Campus is a privilege and should not be taken for granted. Thank you for understanding.</p>',
+
+
 		'sendReservationReminder' => '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
 <br>
@@ -505,6 +555,8 @@ class Ccheckin_Admin_EmailManager
 </ul>
 <br>
 <p>If you need to cancel this reservation, please do so immediately here |%RESERVE_CANCEL_LINK%|. Observation at the Children’s Campus is a privilege and should not be taken for granted. Thank you for understanding.</p>',
+
+
 		'sendReservationMissed' => '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
 <br>
@@ -519,4 +571,5 @@ class Ccheckin_Admin_EmailManager
 <p>In the future if you’re going to miss your observation appointment, you should cancel your reservation in advance.  Many students want to observe at the CC but cannot due to our full reservation system.</p>
 <p>Observation at the Children’s Campus is a privilege and should not be taken for granted.  Thank you for understanding.</p>'
 	);
+
 }

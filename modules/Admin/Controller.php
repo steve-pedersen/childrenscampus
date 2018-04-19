@@ -6,7 +6,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
 {
     public static function getRouteMap ()
     {
-        return array(
+        return array(        
             '/admin' => array('callback' => 'index'),
             '/admin/colophon' => array('callback' => 'colophon'),
 			'/admin/apc' => array('callback' => 'clearMemoryCache'),
@@ -131,8 +131,10 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
 
     public function reports ()
     {
+        set_time_limit(0);
         $viewer = $this->requireLogin();
         $this->requirePermission('reports generate');
+        $migrationDate = new DateTime('2018-05-01');
 
         $courseSchema = $this->schema('Ccheckin_Courses_Course');
         $obsSchema = $this->schema('Ccheckin_Rooms_Observation');
@@ -158,14 +160,15 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                 array('orderBy' => 'startTime')
             );
 
+            // NOTE: college & department fields will only be fetched post-migration
             foreach ($observations as $obs)
             {
                 $course = $obs->purpose->object->course;
                 if (!in_array($course->shortName, array_keys($orgs)))
                 {   // cache API results
                     $orgs[$course->shortName] = array();
-                    $orgs[$course->shortName]['college'] = $course->college;
-                    $orgs[$course->shortName]['department'] = $course->department;
+                    $orgs[$course->shortName]['college'] = ($obs->startTime > $migrationDate) ? $course->college : '';
+                    $orgs[$course->shortName]['department'] = ($obs->startTime > $migrationDate) ? $course->department : '';
                 }
 
                 $semester = $semSchema->findOne($semSchema->startDate->equals($course->startDate));
@@ -180,7 +183,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                 $obsData[$obs->id]['lastName'] = $obs->account->lastName;
                 $obsData[$obs->id]['username'] = $obs->account->username;
                 $obsData[$obs->id]['email'] = $obs->account->emailAddress;
-                $obsData[$obs->id]['duration'] = $obs->duration;
+                $obsData[$obs->id]['duration'] = $obs->duration ?? 0;
             }
 
             header("Content-Type: application/download\n");
@@ -343,6 +346,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                     $siteSettings->setProperty('email-test-address', $this->request->getPostParameter('testAddress'));
                     $siteSettings->setProperty('email-default-address', $this->request->getPostParameter('defaultAddress'));
                     $siteSettings->setProperty('email-signature', $this->request->getPostParameter('signature'));
+                    $siteSettings->setProperty('email-new-account', $this->request->getPostParameter('newAccount'));
                     $siteSettings->setProperty('email-course-allowed-teacher', $this->request->getPostParameter('courseAllowedTeacher'));
                     $siteSettings->setProperty('email-course-allowed-students', $this->request->getPostParameter('courseAllowedStudents'));
                     $siteSettings->setProperty('email-course-denied', $this->request->getPostParameter('courseDenied'));
@@ -395,6 +399,12 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
 
                         switch ($which) 
                         {
+                            case 'newAccount':
+                                $emailManager->processEmail('send' . ucfirst($which), $emailData, true);
+                                
+                                $this->template->sendSuccess = 'You should receive a test email momentarily for New-Account template.';
+                                break;
+
                             case 'courseRequestedAdmin':
                                 $emailData['requestingUser'] = $viewer;
                                 $emailData['courseRequest'] = new stdClass();
@@ -494,6 +504,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
         $this->template->testAddress = $siteSettings->getProperty('email-test-address');
         $this->template->defaultAddress = $siteSettings->getProperty('email-default-address');
         $this->template->signature = $siteSettings->getProperty('email-signature');
+        $this->template->newAccount = $siteSettings->getProperty('email-new-account');
         $this->template->courseRequestedAdmin = $siteSettings->getProperty('email-course-requested-admin');
         $this->template->courseRequestedTeacher = $siteSettings->getProperty('email-course-requested-teacher');
         $this->template->courseAllowedTeacher = $siteSettings->getProperty('email-course-allowed-teacher');

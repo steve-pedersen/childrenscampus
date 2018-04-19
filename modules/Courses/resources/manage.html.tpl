@@ -20,13 +20,14 @@
 				<th>Instructor</th>
 				<th>Type</th>
                 <th>Students</th>
-				<th>Actions</th>
+                <th>Date</th>
+				<th> </th>
 			</tr>
 		</thead>
 		<tbody>
 		{foreach item='course' from=$courses}
 			{assign var=request value=false}
-			{if $tab == 'inactive'}
+			{if $tab == 'inactive' && (($now->format('Y')-$course->startDate->format('Y')) < 2)}
 				{assign var=request value=$requests->findOne($requests->courseId->equals($course->id))}
 			{/if}
 		{if !$course->deleted && !$request}
@@ -40,6 +41,7 @@
 				</td>
 				<td>{foreach item='facet' from=$course->facets}{$facet->type->name|escape}{/foreach}</td>
                 <td>{$course->students|@count}</td>
+                <td>{$course->startDate->format('n/Y')}</td>
 				<td>
                     <a href="admin/courses/edit/{$course->id}" class="btn btn-xs btn-default">edit</a>
                     <!-- <a href="admin/courses/dropstudents/{$course->id}" class="btn btn-xs btn-default">drop students</a> -->
