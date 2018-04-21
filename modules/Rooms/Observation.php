@@ -45,17 +45,6 @@ class Ccheckin_Rooms_Observation extends Bss_ActiveRecord_BaseWithAuthorization 
         );
 
         return $semester;
-
-
-        // Old Code
-        $table = Semester::GetTable();
-        $semProto = new Semester($this->_dataSource);
-        $query = $table->getSelectQuery(null);
-        $query->where($table->startDate->onOrBefore($this->startTime));
-        $query->where($table->endDate->onOrAfter($this->endTime));
-        $result = $semProto->fullCustomQuery($query);
-        
-        return (!empty($result) ? $result[0] : null);
     }
 
 }

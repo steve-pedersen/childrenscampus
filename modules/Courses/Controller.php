@@ -215,11 +215,11 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         $studentsObserve = '';
         $studentsParticipate = '';
         $semesters = array();        
-        foreach ($sems->getAll(array('orderBy' => 'startDate')) as $sem)
+        foreach ($sems->getAll(array('orderBy' => '-startDate')) as $sem)
         {
             $semesters[$sem->id] = $sem;
         }
-        // sorry for such similar vars. needs refactor
+        // sorry for such similar vars. this could be better
         $activeSemester = $this->requireExists(Ccheckin_Semesters_Semester::guessActiveSemester(true)); // used for querying
         $selectedSemester = $sems->findOne($sems->internal->equals($activeSemester));  // used for post data
 

@@ -14,7 +14,8 @@
     </div>
 	<hr>
     <div class="commands">
-        <input class="btn btn-primary" type="submit" name="command[override]" value="Check-in Reservation" /><a class="btn btn-default" href="reservations/upcoming">cancel</a>
+        <input class="btn btn-primary" type="submit" name="command[override]" value="Check-in Reservation" />
+        <a class="btn btn-default" href="reservations/upcoming"> Cancel</a>
     </div>
 {generate_form_post_key}
 </form>

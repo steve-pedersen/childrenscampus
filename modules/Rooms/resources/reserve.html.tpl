@@ -7,6 +7,7 @@
     </div>
 </div>
 {/if}
+{if $validDate}
 <form action="{$smarty.server.REQUEST_URI}" method="post">
     {if $purpose}<input type="hidden" name="purpose" value="{$purpose->id}" />{/if}
     {if !$purpose}
@@ -34,3 +35,6 @@
     </div>
 {generate_form_post_key}
 </form>
+{else}
+<a href="reservations" class="btn btn-primary">Back to Sign Up</a>
+{/if}

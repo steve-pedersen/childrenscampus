@@ -22,7 +22,7 @@
     <tbody>
         {foreach item='timeDisplay' key='time' from=$calendar.times}
         <tr class="schedule-table">
-            <th scope="row" class="time-display">{$timeDisplay}</th>
+            <th scope="row" class="time-display">{if $timeDisplay == '12 AM'}12 PM{else}{$timeDisplay}{/if}</th>
           {foreach from=$calendar.week item='day'}
             {if $day.dayOfWeek != 0 && $day.dayOfWeek != 6}
                         {assign var='blockedDate' value=false}

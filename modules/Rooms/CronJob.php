@@ -10,11 +10,14 @@ class Ccheckin_Rooms_CronJob extends Bss_Cron_Job
 {
 	const PROCESS_ACTIVE_JOBS_EVERY = 60 * 24; // once a day
 
+    private $userContext = null;
+
     public function run ($startTime, $lastRun, $timeDelta)
     {
         if ($timeDelta >= self::PROCESS_ACTIVE_JOBS_EVERY)
         {
-        	$this->sendReservationReminderNotifications();
+        	set_time_limit(0);
+            $this->sendReservationReminderNotifications();
         	$this->sendReservationMissedNotification();
         	$this->cleanupOldReservations();
 
@@ -129,15 +132,28 @@ class Ccheckin_Rooms_CronJob extends Bss_Cron_Job
         
         foreach ($results as $reservation)
         {
-            $reservation->observation->delete();
+            $observation = $reservation->observation;
 			$reservation->delete();
+            $observation->delete();
         }
+    }
+
+    public function getUserContext()
+    {
+        if ($this->userContext === null)
+        {
+            $request = new Bss_Core_Request($this->getApplication());
+            $response = new Bss_Core_Response($request);
+            $this->userContext = new Ccheckin_Master_UserContext($request, $response);
+        }
+
+        return $this->userContext;
     }
 
     public function createTemplateInstance ()
     {
         $tplClass = $this->getTemplateClass();
-        $request = new Bss_Core_request($this->app);
+        $request = new Bss_Core_Request($this->getApplication());
         $response = new Bss_Core_Response($request);
         
         $inst = new $tplClass ($this, $request, $response);

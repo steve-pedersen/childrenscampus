@@ -2,6 +2,7 @@
 
 <form action="{$smarty.server.REQUEST_URI}" method="post">
 <!--     <h2>Course Types</h2> -->
+    <p class="">NOTE: Please be sure to include the word <em>"Observation"</em> or <em>"Participation"</em> in your course type.</p>
     <table class="table table-responsive table-bordered">
         <thead>
             <tr>

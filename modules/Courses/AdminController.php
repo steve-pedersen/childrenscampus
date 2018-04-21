@@ -418,7 +418,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                         
                         if (empty($errors))
                         {
-                            $course->active = $course->active ? true : false;    // TODO: update to accept courseData value
+                            $course->active = ($course->active || $new) ? true : false;
                             $course->save();
 
                             if (!$facet->inDataSource)

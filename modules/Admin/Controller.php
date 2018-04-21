@@ -31,103 +31,6 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
         $this->template->adminPage = $this->hasPermission('admin') && (strpos($this->request->getFullRequestedUri(), 'admin') !== false);
     }
 
-    public function migrate ()
-    {
-        set_time_limit(0);
-        
-        $this->requirePermission('admin');
-        $semSchema = $this->schema('Ccheckin_Semesters_Semester');
-        $courseSchema = $this->schema('Ccheckin_Courses_Course');
-        $facetSchema = $this->schema('Ccheckin_Courses_Facet');
-
-        // Generate Semester 'internal'
-        foreach ($semSchema->find($semSchema->internal->isNull()) as $semester)
-        {
-            $semester->internal = Ccheckin_Semesters_Semester::ConvertToCode($semester->display);
-            $semester->save();
-        }
-
-        // Convert Facets 'tasks' from serialized to JSON
-        $facets = $facetSchema->getAll();
-        $allTasks = (isset($facets[0]) ? $facets[0]->GetAllTasks() : array());
-
-        foreach ($facets as $facet)
-        {
-            $tasks = array();
-            $serialTasks = $facet->getTasks(true);
-            
-            if ($arrTasks = @unserialize($serialTasks))
-            {
-                foreach ($arrTasks as $task)
-                {
-                    $key = array_search($task, $allTasks);
-                    $tasks[$key] = $task;
-                }
-                $facet->tasks = $tasks;
-                $facet->save();
-            }
-        }
-
-        // Generate Course_Enroll_Map 'term' from Semester->internal
-        foreach ($courseSchema->getAll() as $course)
-        {
-            $semester = $semSchema->findOne($semSchema->startDate->equals($course->startDate));
-            $semCode = (!$semester ? Ccheckin_Semesters_Semester::guessActiveSemester(true, $course->startDate) : $semester->internal);
-
-            foreach ($course->enrollments as $enrollee)
-            {
-                $course->enrollments->setProperty($enrollee, 'term', $semCode);
-            }
-            $course->enrollments->save();
-        }
-
-
-
-        // // Generate Courses 'external_course_key'      
-        // $service = new Ccheckin_ClassData_Service($this->getApplication());
-        // foreach ($courseSchema->find($courseSchema->externalCourseKey->isNull()) as $course)
-        // {
-        //     $sem = $semSchema->findOne($semSchema->startDate->equals($course->startDate));
-        //     if (!$sem)
-        //     {
-        //         $term = Ccheckin_Semesters_Semester::guessActiveSemester(true, $course->startDate);
-        //     }
-        //     else
-        //     {
-        //         $term = $sem->internal;
-        //     }
-
-        //     $teachers = $course->teachers;
-        //     if (count($teachers) === 1)
-        //     {
-        //         $teacher = $course->teachers[0];            
-        //     }
-        //     elseif (count($teachers) > 1)
-        //     {   // might need to iterate through these teachers to find the correct one...
-        //         $teacher = $course->teachers[0];
-        //     }
-        //     else
-        //     {
-        //         continue;
-        //     }
-
-        //     list($status, $courses) = $service->getUserEnrollments($teacher->username, $term);
-
-        //     if ($status < 400)
-        //     {
-        //         echo "<pre>"; var_dump('status < 400!', $courses); die;
-        //         foreach ($courses as $c)
-        //         {
-        //             if ($c['shortName'] === $course->shortName)
-        //             {
-        //                 echo "<pre>"; var_dump('success',$c['id']); die;
-        //                 $course->externalCourseKey = $c['id'];
-        //             }
-        //         }
-        //     }
-        // }
-        
-    }
 
     public function reports ()
     {
@@ -153,6 +56,15 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
         {
             $from = $this->request->getPostParameter('from', 0);
             $until = $this->request->getPostParameter('until', $tomorrow);
+
+            try {
+                $test = new DateTime($from);
+                $test = new DateTime($until);
+            } catch (Exception $e) {
+                $this->flash('Invalid Date/Time format. Please try again.');
+                $this->response->redirect('admin/reports/generate');
+                exit;
+            }
 
             $observations = $obsSchema->find(
                 $obsSchema->startTime->afterOrEquals($from)->andIf(
@@ -640,5 +552,102 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
         }
         
         $this->template->cronJobs = $cronJobMap;
+    }
+
+    public function migrate ()
+    {
+        set_time_limit(0);
+        
+        $this->requirePermission('admin');
+        $semSchema = $this->schema('Ccheckin_Semesters_Semester');
+        $courseSchema = $this->schema('Ccheckin_Courses_Course');
+        $facetSchema = $this->schema('Ccheckin_Courses_Facet');
+
+        // Generate Semester 'internal'
+        foreach ($semSchema->find($semSchema->internal->isNull()) as $semester)
+        {
+            $semester->internal = Ccheckin_Semesters_Semester::ConvertToCode($semester->display);
+            $semester->save();
+        }
+
+        // Convert Facets 'tasks' from serialized to JSON
+        $facets = $facetSchema->getAll();
+        $allTasks = (isset($facets[0]) ? $facets[0]->GetAllTasks() : array());
+
+        foreach ($facets as $facet)
+        {
+            $tasks = array();
+            $serialTasks = $facet->getTasks(true);
+            
+            if ($arrTasks = @unserialize($serialTasks))
+            {
+                foreach ($arrTasks as $task)
+                {
+                    $key = array_search($task, $allTasks);
+                    $tasks[$key] = $task;
+                }
+                $facet->tasks = $tasks;
+                $facet->save();
+            }
+        }
+
+        // Generate Course_Enroll_Map 'term' from Semester->internal
+        foreach ($courseSchema->getAll() as $course)
+        {
+            $semester = $semSchema->findOne($semSchema->startDate->equals($course->startDate));
+            $semCode = (!$semester ? Ccheckin_Semesters_Semester::guessActiveSemester(true, $course->startDate) : $semester->internal);
+
+            foreach ($course->enrollments as $enrollee)
+            {
+                $course->enrollments->setProperty($enrollee, 'term', $semCode);
+            }
+            $course->enrollments->save();
+        }
+
+
+        // // Generate Courses 'external_course_key'      
+        // $service = new Ccheckin_ClassData_Service($this->getApplication());
+        // foreach ($courseSchema->find($courseSchema->externalCourseKey->isNull()) as $course)
+        // {
+        //     $sem = $semSchema->findOne($semSchema->startDate->equals($course->startDate));
+        //     if (!$sem)
+        //     {
+        //         $term = Ccheckin_Semesters_Semester::guessActiveSemester(true, $course->startDate);
+        //     }
+        //     else
+        //     {
+        //         $term = $sem->internal;
+        //     }
+
+        //     $teachers = $course->teachers;
+        //     if (count($teachers) === 1)
+        //     {
+        //         $teacher = $course->teachers[0];            
+        //     }
+        //     elseif (count($teachers) > 1)
+        //     {   // might need to iterate through these teachers to find the correct one...
+        //         $teacher = $course->teachers[0];
+        //     }
+        //     else
+        //     {
+        //         continue;
+        //     }
+
+        //     list($status, $courses) = $service->getUserEnrollments($teacher->username, $term);
+
+        //     if ($status < 400)
+        //     {
+        //         echo "<pre>"; var_dump('status < 400!', $courses); die;
+        //         foreach ($courses as $c)
+        //         {
+        //             if ($c['shortName'] === $course->shortName)
+        //             {
+        //                 echo "<pre>"; var_dump('success',$c['id']); die;
+        //                 $course->externalCourseKey = $c['id'];
+        //             }
+        //         }
+        //     }
+        // }
+        
     }
 }

@@ -65,25 +65,28 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
             $end->setTime($endHour, 0);
             $tRoomReservation = $schema;
             
-            // TODO: Verify this query is doing what we want ********************************
             $cond = $tRoomReservation->find($tRoomReservation->anyTrue(
                 $tRoomReservation->allTrue(
                     $tRoomReservation->roomId->equals($room->id),
+                    // $tRoomReservation->deleted->isNull()->orIf($tRoomReservation->deleted->isFalse()),
                     $tRoomReservation->startTime->beforeOrEquals($start),
                     $tRoomReservation->endTime->after($start)
                 ),
                 $tRoomReservation->allTrue(
                     $tRoomReservation->roomId->equals($room->id),
+                    // $tRoomReservation->deleted->isNull()->orIf($tRoomReservation->deleted->isFalse()),
                     $tRoomReservation->startTime->before($end),
                     $tRoomReservation->endTime->afterOrEquals($end)
                 ),
                 $tRoomReservation->allTrue(
                     $tRoomReservation->roomId->equals($room->id),
+                    // $tRoomReservation->deleted->isNull()->orIf($tRoomReservation->deleted->isFalse()),
                     $tRoomReservation->startTime->beforeOrEquals($start),
                     $tRoomReservation->endTime->afterOrEquals($end)
                 ),
                 $tRoomReservation->allTrue(
                     $tRoomReservation->roomId->equals($room->id),
+                    // $tRoomReservation->deleted->isNull()->orIf($tRoomReservation->deleted->isFalse()),
                     $tRoomReservation->startTime->afterOrEquals($start),
                     $tRoomReservation->endTime->beforeOrEquals($end)
                 )

@@ -1,5 +1,5 @@
 
-<h1>{if $welcomeTitle}{$welcomeTitle}{else}Welcome to Children's Campus{/if}</h1>
+{if $welcomeTitle}{$welcomeTitle}{else}<h1>Welcome to Children's Campus</h1>{/if}
 
 <!-- NOTE: Place divs inside of conditionals, or else within isLoggedIn check -->
 

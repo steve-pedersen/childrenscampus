@@ -8,16 +8,33 @@ class Ccheckin_AuthN_Controller extends Ccheckin_Master_Controller
     {
         return array(
             'profile' => array('callback' => 'editProfile'),
-            '/kiosk/logout' => array('callback' => 'logout'),
+            'logout' => array('callback' => 'logout'),
+            '/kiosk/logout' => array('callback' => 'kioskLogout'),
         );
     }
 
 
-    public function logout ()
+    public function kioskLogout ()
     {
         session_unset();
         $viewer = $this->getUserContext();
         $viewer->logout('/');
+    }
+
+    /**
+     * Logout a user account and return them to the login page.
+     */
+    public function logout ()
+    {
+        $this->template->clearBreadcrumbs();
+        $context = $this->getUserContext();
+
+        if ($context->unbecome())
+        {
+            $this->response->redirect('admin');
+        }
+
+        $context->logout('/');
     }
 
     public function editProfile ()

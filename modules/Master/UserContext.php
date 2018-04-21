@@ -114,6 +114,7 @@ class Ccheckin_Master_UserContext extends Bss_Master_UserContext
             // was an unbecome operation, so the user has just switched back to
             // their real account.
             $session->delete();
+            $returnTo = '/';
         }
         
         if ($returnTo !== null)

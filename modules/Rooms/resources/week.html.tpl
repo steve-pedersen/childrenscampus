@@ -21,7 +21,7 @@
     <tbody>
         {foreach item='timeDisplay' key='time' from=$calendar.times}
         <tr class="reservation-table">
-            <th scope="row" class="time-display">{$timeDisplay}</th>
+            <th scope="row" class="time-display">{if $timeDisplay == '12 AM'}12 PM{else}{$timeDisplay}{/if}</th>
             {foreach from=$calendar.week item='day'}
                 {assign var='result' value=$day.times[$time]}
             {if $day.dayOfWeek != 0 && $day.dayOfWeek != 6}

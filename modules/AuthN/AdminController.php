@@ -11,7 +11,6 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
     public static function getRouteMap ()
     {
         return array(
-            'logout' => array('callback' => 'logout'),
             'admin/accounts' => array('callback' => 'listAccounts'),
             'admin/accounts/:id' => array('callback' => 'editAccount', ':id' => '([0-9]+|new)'),
             'admin/roles' => array('callback' => 'listRoles'),
@@ -34,21 +33,6 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
         $this->template->adminPage = $this->hasPermission('admin') && (strpos($this->request->getFullRequestedUri(), 'admin') !== false); 
     }
 
-    /**
-     * Logout a user account and return them to the login page.
-     */
-    public function logout ()
-    {
-        $this->template->clearBreadcrumbs();
-        $context = $this->getUserContext();
-
-        if ($context->unbecome())
-        {
-            $this->response->redirect('admin');
-        }
-        
-        $context->logout('/');
-    }
 
     /**
      * Show a paginated list of accounts.

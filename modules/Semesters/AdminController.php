@@ -96,7 +96,7 @@ class Ccheckin_Semesters_AdminController extends At_Admin_Controller
         }
         
         // Get the remaining queued records
-        $semesters = $semesters->getAll(array('orderBy' => 'startDate'));
+        $semesters = $semesters->getAll(array('orderBy' => '-startDate'));
         
         $this->template->semesters = $semesters;
         $this->template->terms = Ccheckin_Semesters_Semester::GetTerms();

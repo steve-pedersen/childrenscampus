@@ -9,14 +9,22 @@
 --	MIGRATION PREPARATION:
 -- 		- backup new db, if needed:
 pg_dump ccheckin > ~/dbdumps/2018-04-12-ccheckin.sql
+-- create old ccheckin db
+createdb --encoding=UNICODE --owner=apps oldccheckin
+psql oldccheckin < /home/administrator/2017-12-12-childrenscampus.sql
 -- 		- dump old tables into new db, there shouldn't be any overwrites
 pg_dump oldccheckin | psql ccheckin
+
+
 
 --	NOTES:
 -- 		- table alias "o" is for "old"
 --		- debug statements at bottom... don't run these unless needed
 --
 -- *************************************************************************
+
+
+
 
 
 -- set application admin
@@ -83,7 +91,6 @@ INSERT INTO bss_authz_permissions (subject_azid, task, object_azid)
 SELECT ('bss:core:authN/Account/' || o.subject_entity_id), o.task, ('at:ccheckin:purposes/Purpose/' || o.object_entity_id)
 FROM auth_entity_permissions o
 WHERE o.task = 'purpose have' OR o.task = 'purpose observe' OR o.task = 'purpose participate';
--- bss:core:authN/Account/5453 | course view                  | at:ccheckin:courses/Course/1
 -- courses
 INSERT INTO bss_authz_permissions (subject_azid, task, object_azid)
 SELECT ('bss:core:authN/Account/' || o.subject_entity_id), o.task, ('at:ccheckin:courses/Course/' || o.object_entity_id)
@@ -183,8 +190,8 @@ COMMIT;
 
 -- rooms => ccheckin_rooms
 BEGIN;
-INSERT INTO ccheckin_rooms (id, name, description, observation_type, max_observers, schedule)
-SELECT o.id, o.name, o.description, o.observation_type, o.max_observers, '{"0":{"9":"true","10":"true","11":"true","12":"true","13":"true","14":"true","15":"true","16":"true","17":"true"},"1":{"9":"true","10":"true","11":"true","12":"true","13":"true","14":"true","15":"true","16":"true","17":"true"},"2":{"9":"true","10":"true","11":"true","12":"true","13":"true","14":"true","15":"true","16":"true","17":"true"},"3":{"9":"true","10":"true","11":"true","12":"true","13":"true","14":"true","15":"true","16":"true","17":"true"},"4":{"9":"true","10":"true","11":"true","12":"true","13":"true","14":"true","15":"true","16":"true","17":"true"}}'
+INSERT INTO ccheckin_rooms (id, name, description, observation_type, max_observers, deleted, schedule)
+SELECT o.id, o.name, o.description, o.observation_type, o.max_observers, false, '{"0":{"9":"true","10":"true","11":"true","12":"true","13":"true","14":"true","15":"true","16":"true","17":"true"},"1":{"9":"true","10":"true","11":"true","12":"true","13":"true","14":"true","15":"true","16":"true","17":"true"},"2":{"9":"true","10":"true","11":"true","12":"true","13":"true","14":"true","15":"true","16":"true","17":"true"},"3":{"9":"true","10":"true","11":"true","12":"true","13":"true","14":"true","15":"true","16":"true","17":"true"},"4":{"9":"true","10":"true","11":"true","12":"true","13":"true","14":"true","15":"true","16":"true","17":"true"}}'
 FROM rooms o;
 -- id_seq
 SELECT setval('ccheckin_rooms_id_seq', COALESCE((SELECT MAX(id) FROM ccheckin_rooms), 1), true);
@@ -431,12 +438,12 @@ SET value = '
 </ul>'
 WHERE key = 'welcome-text-extended';
 
-UPDATE at_config_settings
-SET value = '
-["Observation and participation times are reserved on a&nbsp;<b>\"First Come\u2014First Serve\"<\/b>&nbsp;basis. Please plan your reservations accordingly.",
-"To view your past observations, click the&nbsp;<a href=\"http:\/\/childrenscampus.dev.at.sfsu.edu\/reservations\/observations\" target=\"\" rel=\"\">Past Observations<\/a>
-&nbsp;link and choose the course you want to view."]'
-WHERE key = 'welcome-title';
+-- UPDATE at_config_settings
+-- SET value = '
+-- ["Observation and participation times are reserved on a <b>\"First Come\u2013First Serve\"<\/b> basis.&nbsp;Please plan your reservations accordingly.",
+-- "To view your past observations, click the <b><a href=\"http:\/\/childrenscampus.dev.at.sfsu.edu\/reservations\/observations\" target=\"_self\" rel=\"\">
+-- Past Observations<\/a><\/b> link and choose the course you want to view."]'
+-- WHERE key = 'announcements';
 
 UPDATE at_config_settings
 SET value = '
@@ -536,43 +543,3 @@ COMMIT;
 -- ******************** Now go to /admin/migrate ************************
 -- **********************************************************************
 -- **********************************************************************
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
---	DEBUG QUERIES BELOW   --
-
-
--- revert tasks
-BEGIN;
-UPDATE ccheckin_course_facets new
-SET tasks = old.tasks
-FROM course_facets old
-WHERE new.id = old.id;
-COMMIT;
-
-

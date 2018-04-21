@@ -142,7 +142,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
-				<label for="newAccount">New Account Notification: <span class="email-type-description">sent to newly created accounts when "Notify user of account" is checked.</span></label>
+				<label class="lead" for="newAccount">New Account Notification: <span class="email-type-description">sent to newly created accounts when "Notify user of account" is checked.</span></label>
 				<textarea name="newAccount" id="newAccount" class="wysiwyg form-control" rows="{if $newAccount}{$newAccount|count_paragraphs*2}{else}8{/if}">{$newAccount}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
@@ -158,7 +158,7 @@
 		</div>
 
 		<div class="col-xs-12 form-group">
-			<label id="attachmentNewAccount" class="">File attachment(s)</label>
+			<label id="attachmentNewAccount" class="">File attachment(s) <span class="email-type-description"> - Select to attach</label>
 			<select multiple="multiple" class="form-control" name="attachment[newAccount][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentNewAccount">
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
@@ -177,7 +177,8 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
-				<label for="courseRequestedAdmin">Course Requested Admin: <span class="email-type-description">sent to Administrator as a notification of a course request.</span></label>
+				<label class="lead" for="courseRequestedAdmin" class="lead">Course Requested Admin: <span class="email-type-description">sent to Administrator as a notification of a course request.</span></label>
+				<p><u>Note:</u> This email notification can be turned off and on by selecting the option on a person's Edit Account page. Also, the ability to edit this setting can be assigned to particular roles. Admins have this turned on by default.</p>
 				<textarea name="courseRequestedAdmin" id="courseRequestedAdmin" class="wysiwyg form-control" rows="{if $courseRequestedAdmin}{$courseRequestedAdmin|count_paragraphs*2}{else}8{/if}">{$courseRequestedAdmin}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
@@ -193,7 +194,7 @@
 		</div>
 
 		<div class="col-xs-12 form-group">
-			<label id="attachmentCourseRequestedAdmin" class="">File attachment(s)</label>
+			<label id="attachmentCourseRequestedAdmin" class="">File attachment(s) <span class="email-type-description"> - Select to attach</label>
 			<select multiple="multiple" class="form-control" name="attachment[courseRequestedAdmin][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentCourseRequestedAdmin">
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
@@ -212,7 +213,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
-				<label for="courseRequestedTeacher">Course Requested Teacher: <span class="email-type-description">sent as a receipt to Teacher who requested the course, once request is submitted.</span></label>
+				<label class="lead" for="courseRequestedTeacher">Course Requested Teacher: <span class="email-type-description">sent as a receipt to Teacher who requested the course, once request is submitted.</span></label>
 				<textarea name="courseRequestedTeacher" id="courseRequestedTeacher" class="wysiwyg form-control" rows="{if $courseRequestedTeacher}{$courseRequestedTeacher|count_paragraphs*2}{else}8{/if}">{$courseRequestedTeacher}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
@@ -228,7 +229,7 @@
 		</div>
 
 		<div class="col-xs-12 form-group">
-			<label id="attachmentCourseRequestedTeacher">File Attachment(s)</label>
+			<label id="attachmentCourseRequestedTeacher">File Attachment(s) <span class="email-type-description"> - Select to attach</label>
 			<select multiple="multiple" class="form-control" name="attachment[courseRequestedTeacher][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentCourseRequestedTeacher">
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
@@ -247,7 +248,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
-				<label for="courseAllowedTeacher">Course Allowed Teacher: <span class="email-type-description">sent to Teacher who requested the course, once approved.</span></label>
+				<label class="lead" for="courseAllowedTeacher">Course Allowed Teacher: <span class="email-type-description">sent to Teacher who requested the course, once approved.</span></label>
 				<textarea name="courseAllowedTeacher" id="courseAllowedTeacher" class="wysiwyg form-control" rows="{if $courseAllowedTeacher}{$courseAllowedTeacher|count_paragraphs*2}{else}8{/if}">{$courseAllowedTeacher}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
@@ -263,7 +264,7 @@
 		</div>
 
 		<div class="col-xs-12 form-group">
-			<label id="attachmentCourseAllowedTeacher">File Attachment(s)</label>
+			<label id="attachmentCourseAllowedTeacher">File Attachment(s) <span class="email-type-description"> - Select to attach</label>
 			<select multiple="multiple" class="form-control" name="attachment[courseAllowedTeacher][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentCourseAllowedTeacher">
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
@@ -282,7 +283,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
-				<label for="courseAllowedStudents">Course Allowed Students: <span class="email-type-description">sent to all enrolled Students in a course, once approved.</span></label>
+				<label class="lead" for="courseAllowedStudents">Course Allowed Students: <span class="email-type-description">sent to all enrolled Students in a course, once approved.</span></label>
 				<textarea name="courseAllowedStudents" id="courseAllowedStudents" class="wysiwyg form-control" rows="{if $courseAllowedStudents}{$courseAllowedStudents|count_paragraphs*2}{else}8{/if}">{$courseAllowedStudents}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
@@ -298,7 +299,7 @@
 		</div>
 
 		<div class="col-xs-12 form-group">
-			<label id="attachmentCourseAllowedStudents">File Attachment(s)</label>
+			<label id="attachmentCourseAllowedStudents">File Attachment(s) <span class="email-type-description"> - Select to attach</label>
 			<select multiple="multiple" class="form-control" name="attachment[courseAllowedStudents][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentCourseAllowedStudents">
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
@@ -317,7 +318,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
-				<label for="courseDenied">Course Denied: <span class="email-type-description">sent to Teacher who requested the course, once denied.</span></label>
+				<label class="lead" for="courseDenied">Course Denied: <span class="email-type-description">sent to Teacher who requested the course, once denied.</span></label>
 				<textarea name="courseDenied" id="courseDenied" class="wysiwyg form-control" rows="{if $courseDenied}{$courseDenied|count_paragraphs*2}{else}8{/if}">{$courseDenied}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
@@ -333,7 +334,7 @@
 		</div>
 
 		<div class="col-xs-12 form-group">
-			<label id="attachmentCourseDenied">File Attachment(s)</label>
+			<label id="attachmentCourseDenied">File Attachment(s) <span class="email-type-description"> - Select to attach</label>
 			<select multiple="multiple" class="form-control" name="attachment[courseDenied][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentCourseDenied">
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
@@ -353,7 +354,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
-				<label for="reservationDetails">Reservation Details: <span class="email-type-description">sent as a receipt with pertinent info to Student who made a reservation, once one is made.</span></label>
+				<label class="lead" for="reservationDetails">Reservation Details: <span class="email-type-description">sent as a receipt with pertinent info to Student who made a reservation, once one is made.</span></label>
 				<textarea name="reservationDetails" id="reservationDetails" class="wysiwyg form-control" rows="{if $reservationDetails}{$reservationDetails|count_paragraphs*2}{else}8{/if}">{$reservationDetails}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
@@ -369,7 +370,7 @@
 		</div>
 
 		<div class="col-xs-12 form-group">
-			<label id="attachmentReservationDetails">File Attachment(s)</label>
+			<label id="attachmentReservationDetails">File Attachment(s) <span class="email-type-description"> - Select to attach</label>
 			<select multiple="multiple" class="form-control" name="attachment[reservationDetails][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentReservationDetails">
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
@@ -388,14 +389,14 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
-				<label for="reservationReminderTime">Reservation Reminder Time: <span class="email-type-description">specify an amount of time to prior to a reservation to send a reminder email. Values should be a <em>number</em> followed by a <em>unit of time</em> (e.g. 1 day, 3 hours, 1 week).</span></label>
+				<label class="lead" for="reservationReminderTime">Reservation Reminder Time: <span class="email-type-description">specify an amount of time to prior to a reservation to send a reminder email. Values should be a <em>number</em> followed by a <em>unit of time</em> (e.g. 1 day, 3 hours, 1 week).</span></label>
 				<input type="text" class="form-control" name="reservationReminderTime" id="reservationReminderTime" value="{$reservationReminderTime}" placeholder="e.g. 1 day, 4 hours, or 8 hours" />
 			</div>
 		</div>
 
 		<div class="col-xs-8">
 			<div class="form-group">
-				<label for="reservationReminder">Reservation Reminder: <span class="email-type-description">send reservation details to Student prior to start of reservation.</span></label>
+				<label class="lead" for="reservationReminder">Reservation Reminder: <span class="email-type-description">send reservation details to Student prior to start of reservation.</span></label>
 				<textarea name="reservationReminder" id="reservationReminder" class="wysiwyg form-control" rows="{if $reservationReminder}{$reservationReminder|count_paragraphs*2}{else}8{/if}">{$reservationReminder}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
@@ -411,7 +412,7 @@
 		</div>
 
 		<div class="col-xs-12 form-group">
-			<label id="attachmentReservationReminder">File Attachment(s)</label>
+			<label id="attachmentReservationReminder">File Attachment(s) <span class="email-type-description"> - Select to attach</label>
 			<select multiple="multiple" class="form-control" name="attachment[reservationReminder][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentReservationReminder">
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
@@ -430,7 +431,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
-				<label for="reservationMissed">Reservation Missed: <span class="email-type-description">sent to Student when they miss a reservation.</span></label>
+				<label class="lead" for="reservationMissed">Reservation Missed: <span class="email-type-description">sent to Student when they miss a reservation.</span></label>
 				<textarea name="reservationMissed" id="reservationMissed" class="wysiwyg form-control" rows="{if $reservationMissed}{$reservationMissed|count_paragraphs*2}{else}8{/if}">{$reservationMissed}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
@@ -446,7 +447,7 @@
 		</div>
 
 		<div class="col-xs-12 form-group">
-			<label id="attachmentReservationMissed">File Attachment(s)</label>
+			<label id="attachmentReservationMissed">File Attachment(s) <span class="email-type-description"> - Select to attach</label>
 			<select multiple="multiple" class="form-control" name="attachment[reservationMissed][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentReservationMissed">
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}

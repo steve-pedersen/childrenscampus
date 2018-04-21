@@ -90,3 +90,13 @@
         <a class="btn btn-default" href="admin/courses">Cancel</a>
     </div>
 </form>
+<!-- <br> -->
+<form method="post" action="admin/courses">
+    <div class="form-group pull-right">
+    {if !$new}
+        <input type="hidden" name="courses[{$course->id}]" value="{$course->id}" />
+        <input class="btn btn-info" type="submit" name="command[active]" value="{if !$course->active && !$new}Activate{elseif !$new}Archive{/if} Course" />
+    {generate_form_post_key}
+    {/if}
+    </div>
+</form>

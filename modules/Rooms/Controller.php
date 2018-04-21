@@ -74,12 +74,14 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
 
                 if ($observe)
                 {
-                    $availableRooms['observe'] = $rooms->find($rooms->observationType->equals('observe'));
+                    $availableRooms['observe'] = $rooms->find($rooms->observationType->equals('observe')->andIf(
+                        $rooms->deleted->isNull()->orIf($rooms->deleted->isFalse())));
                 }
                 
                 if ($participate)
                 {
-                    $availableRooms['participate'] = $rooms->find($rooms->observationType->equals('participate'));
+                    $availableRooms['participate'] = $rooms->find($rooms->observationType->equals('participate')->andIf(
+                        $rooms->deleted->isNull()->orIf($rooms->deleted->isFalse())));
                 }
                 
                 $this->template->rooms = $availableRooms;
@@ -94,6 +96,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     public function schedule ()
     {
         $this->requirePermission('room view schedule');
+        $rooms = $this->schema('Ccheckin_Rooms_Room');
         
         $roomId = $this->getRouteVariable('id');
         $year = $this->getRouteVariable('year');
@@ -102,7 +105,10 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         
         if ($roomId)
         {
-            $room = $this->requireExists($this->schema('Ccheckin_Rooms_Room')->get($roomId));
+            $room = $this->requireExists(
+                $rooms->findOne($rooms->id->equals($roomId)->andIf(
+                    $rooms->deleted->isNull()->orIf($rooms->deleted->isFalse())))
+            );
             
             if ($year)
             {
@@ -152,7 +158,8 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         }
         else
         {
-            $this->template->rooms = $this->schema('Ccheckin_Rooms_Room')->getAll(array('orderBy' => 'name'));
+            $this->template->rooms = $rooms->find(
+                $rooms->deleted->isNull()->orIf($rooms->deleted->isFalse()), array('orderBy' => 'name'));
         }
     }
     
@@ -174,8 +181,12 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         $month = $this->getRouteVariable('month');
         $day = $this->getRouteVariable('day');
         
-        $room = $this->requireExists($this->schema('Ccheckin_Rooms_Room')->get($roomId));
-        
+        $rooms = $this->schema('Ccheckin_Rooms_Room');
+        $room = $this->requireExists(
+            $rooms->findOne($rooms->id->equals($roomId)->andIf(
+                $rooms->deleted->isNull()->orIf($rooms->deleted->isFalse())))
+        );
+    
         if ($year)
         {
             $date = new DateTime($year .'-'. $month  .'-'. $day);
@@ -265,13 +276,14 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                 $reservations->missed->isFalse(),
                 $reservations->startTime->afterOrEquals($now)
             );
-            $upcomingReservations = $reservations->find($cond);
+            $upcomingReservations = $reservations->find($cond, array('orderBy' => '-startTime'));
         }
         else
         {
             $upcomingReservations = $reservations->find(
                 $reservations->checkedIn->isFalse()->andIf(
-                $reservations->startTime->afterOrEquals($now))
+                $reservations->startTime->afterOrEquals($now)),
+                array('orderBy' => '-startTime')
             );
         }
         
@@ -297,9 +309,9 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             $reservations = $reservations->find(
                 $reservations->missed->isTrue()->orIf(
                     $reservations->checkedIn->isFalse()->andIf(
-                    $reservations->endTime->beforeOrEquals(new DateTime('now - 30 minutes'))
-                )
-            ));
+                    $reservations->endTime->beforeOrEquals(new DateTime('now - 30 minutes')))
+                ), array('orderBy' => '-startTime')
+            );
             // $reservations = $reservations->find($reservations->missed->isTrue());
         }
         
@@ -328,8 +340,15 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                     case 'override':
                         $checkinDate = $this->request->getPostParameter('checkinDate');
                         $checkinTime = $this->request->getPostParameter('checkinTime');
-                        $checkin = new DateTime($checkinDate . ' ' . $checkinTime);
-
+                        
+                        try {
+                            $checkin = new DateTime($checkinDate . ' ' . $checkinTime);
+                        } catch (Exception $e) {
+                            $this->flash('Invalid Date/Time format. Please try again.');
+                            $this->response->redirect('reservations/override/' . $reservation->id);
+                            exit;
+                        }
+                        
 						$observation = $reservation->observation;
 						$observation->startTime = $checkin;
 						$observation->save();
@@ -340,7 +359,6 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                         
                         $this->flash('The person has been checked-in.');
                         $this->response->redirect('reservations/upcoming');
-                        exit;
                 }
             }
         }
@@ -383,7 +401,20 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         }
     }
     
-    // TODO: Verify this route
+
+    public function withinSemesterRange ($date)
+    {
+        $sems = $this->schema('Ccheckin_Semesters_Semester');
+        $activeSemesterCode = Ccheckin_Semesters_Semester::guessActiveSemester(true);
+        $activeSemester = $sems->findOne($sems->internal->equals($activeSemesterCode));
+        $openDate = ($activeSemester->openDate === null) ? $activeSemester->startDate : $activeSemester->openDate;
+        $closeDate = ($activeSemester->closeDate === null) ? $activeSemester->endDate : $activeSemester->closeDate;
+        $withinSemesterRange = ($openDate < $date && $date < $closeDate);
+
+        return $withinSemesterRange;
+    }
+
+
     public function reserve ()
     {
         $roomId = $this->getRouteVariable('id');
@@ -394,14 +425,35 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
 
         $reservations = $this->schema('Ccheckin_Rooms_Reservation');
         
-        $room = $this->requireExists($this->schema('Ccheckin_Rooms_Room')->get($roomId));
+        $rooms = $this->schema('Ccheckin_Rooms_Room');
+        $room = $this->requireExists(
+            $rooms->findOne($rooms->id->equals($roomId)->andIf(
+                $rooms->deleted->isNull()->orIf($rooms->deleted->isFalse())))
+        );
         $viewer = $this->getAccount();
         $authZ = $this->getAuthorizationManager();
-        
-        $date = new DateTime($year .'-'. $month  .'-'. $day .' '. $hour .':00');
+
         $now = new DateTime;
         $message = '';
         $existing = null;
+        $validDate = true;
+
+        try {
+            $date = new DateTime($year .'-'. $month  .'-'. $day .' '. $hour .':00');
+            if (!$this->withinSemesterRange($date))
+            {
+                $continue = false;
+                $validDate = false;
+                $message = 'Reservation date must be within the current semester.';
+            }
+
+            $this->setPageTitle('Create Reservation for ' . $room->name . ' on ' . $date->format("%b %e, %Y at %I %p"));
+
+        } catch (Exception $e) {
+            $continue = false;
+            $validDate = false;
+            $message = 'Invalid Date format';
+        }
         		
         if ($this->request->wasPostedByUser())
         {
@@ -513,13 +565,13 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             $purpose = $purposes[0];
         }
         
-        $this->setPageTitle('Create Reservation for ' . $room->name . ' on ' . $date->format("%b %e, %Y at %I %p"));
         $this->template->room = $room;
         $this->template->purposes = $purposes;
         $this->template->message = $message;
         $this->template->purpose = $purpose;
-        $this->template->date = $date;
+        $this->template->date = $date ?? null;
         $this->template->dateFormat = "%b %e, %Y at %l %p";
+        $this->template->validDate = $validDate;
     }
 
     public function observations ()
@@ -531,7 +583,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             $obsSchema->accountId->equals($viewer->id),
             $obsSchema->startTime->before(new DateTime)
         );
-        $observations = $obsSchema->find($cond);
+        $observations = $obsSchema->find($cond, array('orderBy' => '-startTime'));
 
         $purposes = array();
                   

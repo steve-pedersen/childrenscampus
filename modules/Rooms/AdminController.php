@@ -53,7 +53,8 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
                             {                               
                                 if ($room = $roomSchema->get($roomId))
                                 {
-                                    $room->delete();
+                                    $room->deleted = true;
+                                    $room->save();
                                 }
                             }
                             
@@ -64,7 +65,8 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
             }
         }
 
-        $this->template->rooms = $roomSchema->getAll(array('orderBy' => 'name'));
+        $this->template->rooms = $roomSchema->find(
+            $roomSchema->deleted->isNull()->orIf($roomSchema->deleted->isFalse()), array('orderBy' => 'name'));
         $this->template->message = $message;
     }
 
@@ -86,7 +88,8 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
         
         if (is_numeric($id))
         {
-            $room = $this->requireExists($rooms->get($id));
+            $room = $this->requireExists($rooms->findOne($rooms->id->equals($id)->andIf(
+                $rooms->deleted->isNull()->orIf($rooms->deleted->isFalse()))));
             $this->setPageTitle('Edit Room: ' . $room->name);
             $this->template->schedule = $room->schedule;
         }
@@ -129,7 +132,7 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
         $this->template->days = $days;
         $this->template->room = $room;
         $this->template->new = $new;
-        $this->template->observationTypes = $room->getTypes(); // $room::$types or Ccheckin_Rooms_Room::$types
+        $this->template->observationTypes = $room->getTypes();
         $this->template->errors = $errors;
     }
 
@@ -176,7 +179,7 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
         $userObservations = $observations->find(
             $observations->accountId->equals($user->id)->andIf(
                 $observations->startTime->isNotNull()), 
-            array('orderBy' => 'startTime')
+            array('orderBy' => '-startTime')
         );
 
         $this->template->user = $user;
@@ -186,7 +189,7 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
     public function currentObservations () 
     {
         $reservations = $this->schema('Ccheckin_Rooms_Reservation');
-        $observations = $reservations->find($reservations->checkedIn->isTrue());
+        $observations = $reservations->find($reservations->checkedIn->isTrue(), array('orderBy' => '-startTime'));
         $checkout = $this->request->getQueryParameter('checkout', null);
 
         if ($checkout)
@@ -220,7 +223,7 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
                     ' minutes. Should you need to edit the duration of this observation, you can find it here: ' . $editUrl
                 );
 
-                $observations = $reservations->find($reservations->checkedIn->isTrue());
+                $observations = $reservations->find($reservations->checkedIn->isTrue(), array('orderBy' => '-startTime'));
             }
         }
 
@@ -235,11 +238,11 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
         if ($view === 'upcoming')
         {
             $now = new DateTime;
-            $reservations = $resSchema->find($resSchema->startTime->afterOrEquals($now), array('orderBy' => 'startTime'));
+            $reservations = $resSchema->find($resSchema->startTime->afterOrEquals($now), array('orderBy' => '-startTime'));
         }
         else
         {
-            $reservations = $resSchema->getAll(array('orderBy' => 'startTime'));
+            $reservations = $resSchema->getAll(array('orderBy' => '-startTime'));
         }
         
         $this->template->view = $view;
@@ -254,7 +257,7 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
             $reservations->startTime->before(new DateTime('now - 30 minutes')),
             $reservations->checkedIn->isFalse()
         );
-        $missed = $reservations->find($condition);
+        $missed = $reservations->find($condition, array('orderBy' => '-startTime'));
 
         $this->template->reservations = $missed;
     }
