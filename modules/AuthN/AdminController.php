@@ -110,10 +110,12 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
                 $optionMap['orderBy'] = array($dirPrefix . 'lastLoginDate', $dirPrefix . 'lastName', $dirPrefix . 'firstName', $dirPrefix . 'id');
                 break;
         }
-   
-        // Always places Student role at end of list, since there are far more Student accounts than any other account 
-        // and therefore doesn't make it very useful to intersperse with others
-        // Does not currently work with pagination        
+
+        // $nonStudentRoles = $roles->find($roles->name->notEquals('Student')->andIf($roles->name->notEquals('Anonymous')), $roleOptionMap);       
+    
+        // Always places Student role at end of list
+        $total = 0;
+
         if ($sortBy === 'role')
         {
             $accs = array();
@@ -134,7 +136,7 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
 
             // add non student roles, e.g. Administrator, Teacher, CC Teacher
             $roleOptionMap['orderBy'] = '+name';
-            $nonStudentRoles = $roles->find($roles->name->notEquals('Student')->andIf($roles->name->notEquals('Anonymous')), $roleOptionMap);
+            $nonStudentRoles = $roles->find($roles->name->notEquals('Student'), $roleOptionMap);
             foreach ($nonStudentRoles as $role)
             {
                 if (($counter + $offset) < $upperLimit)
@@ -160,11 +162,13 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
                 }
             }
             // echo "<pre>"; var_dump($counter, $page, $limit, $offset, $upperLimit, ($upperLimit - ($counter + $offset))); die;
+            $total = $accounts->count($accounts->id->notInList($foundIds));
             
             // add remaining accounts, i.e. students and accs that may not have an assigned role
             $roleOptionMap['orderBy'] = $dirPrefix . 'lastName';
             $roleOptionMap['page'] = $page;
             $roleOptionMap['limit'] = $upperLimit - ($counter + $offset);
+            if (count($accs) === 0) $roleOptionMap['offset'] = ($page-1) * $limit;
             if ($roleOptionMap['limit'] > 0)
             {
                 $remainingAccs = $accounts->find($accounts->id->notInList($foundIds), $roleOptionMap);
@@ -181,7 +185,7 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
                     }
                 }
             }
-
+            
             $accounts = $accs;
         }
 
@@ -199,7 +203,7 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
                 );
         }
         
-        $totalAccounts = (is_array($accounts) ? $this->schema('Bss_AuthN_Account')->count() : $accounts->count($condition));
+        $totalAccounts = (is_array($accounts) ? $total : $accounts->count($condition));
         $pageCount = ceil($totalAccounts / $limit);
         
         $this->template->pagesAroundCurrent = $this->getPagesAroundCurrent($page, $pageCount);

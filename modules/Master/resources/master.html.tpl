@@ -161,8 +161,8 @@
 
 		{if ($viewer && !$adminPage) || (!$viewer && $homePage)}
 		<!-- RIGHT SIDEBAR - Contact -->
-        <div class="col-md-2 col-sm-4 col-xs-12">
-            <div class="right-sidebar pull-right">
+        <div class="col-md-2 col-md-offset-0 col-sm-12 col-sm-offset-0 col-xs-8 col-xs-offset-2"> <!--  col-md-2 col-sm-4 col-xs-12"> -->
+            <div class="right-sidebar "><!-- pull-right"> -->
                 <div class="well">
 					<div id="resources">	
 						<div class="res_box">

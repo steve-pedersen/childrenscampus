@@ -1,4 +1,4 @@
-<h1>My Courses
+<h1>{if $viewall}All{else}My{/if} Courses
 {if $pAdmin}
 <div class="pull-right">
     {if $viewall}

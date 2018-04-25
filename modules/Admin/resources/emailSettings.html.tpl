@@ -109,7 +109,7 @@
 	<h2 class="email-header"><u>Users</u></h2>
 	<div class="row email-row users-row">
 		<div class="col-xs-12">
-			<h3 class="">System Notification Recipients</h3>
+			<h3 id="systemNotificationRecipients">System Notification Recipients</h3>
 			<p>Users that receive 'Admin' emails</p>
             <table class="table table-bordered table-striped table-condensed">
                 <thead>
@@ -178,7 +178,7 @@
 		<div class="col-xs-8">
 			<div class="form-group">
 				<label class="lead" for="courseRequestedAdmin" class="lead">Course Requested Admin: <span class="email-type-description">sent to Administrator as a notification of a course request.</span></label>
-				<p><u>Note:</u> This email notification can be turned off and on by selecting the option on a person's Edit Account page. Also, the ability to edit this setting can be assigned to particular roles. Admins have this turned on by default.</p>
+				<p><u>Note:</u> This email notification can be turned off and on by selecting the option on a person's Edit Account page. See the <a href="admin/settings/email#systemNotificationRecipients">System Notification Recipients</a> section of this page for more details.</p>
 				<textarea name="courseRequestedAdmin" id="courseRequestedAdmin" class="wysiwyg form-control" rows="{if $courseRequestedAdmin}{$courseRequestedAdmin|count_paragraphs*2}{else}8{/if}">{$courseRequestedAdmin}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 

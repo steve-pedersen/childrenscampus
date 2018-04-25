@@ -313,7 +313,7 @@ WHERE key = 'email-course-allowed-teacher';
 
 UPDATE at_config_settings
 SET value = '
-<p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
+<p>Dear Student,</p>
 <br>
 <p>You have been invited to conduct observations at Children''s Campus –- SF State’s quality Early Care and Education Center. Here are the details of the course:</p>
 <ul>

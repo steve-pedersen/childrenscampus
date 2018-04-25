@@ -82,7 +82,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                     $orgs[$course->shortName]['college'] = ($obs->startTime > $migrationDate) ? $course->college : '';
                     $orgs[$course->shortName]['department'] = ($obs->startTime > $migrationDate) ? $course->department : '';
                 }
-
+                
                 $semester = $semSchema->findOne($semSchema->startDate->equals($course->startDate));
 
                 $obsData[$obs->id] = array();
@@ -464,11 +464,17 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                         break;
 
                     case 'add':
-                        $newDate = $this->request->getPostParameter('blockeddatenew');                       
-                        $storedDates[] = $newDate;
-                        $blockDates[] = new DateTime($newDate);
-                        $siteSettings->setProperty('blocked-dates', json_encode($storedDates));
-                        $this->flash('Blocked off date created.');
+                        $newDate = $this->request->getPostParameter('blockeddatenew');  
+                        try {
+                            $blockDates[] = new DateTime($newDate);
+                            $storedDates[] = $newDate;
+                            $siteSettings->setProperty('blocked-dates', json_encode($storedDates));
+                            $this->flash('Blocked off date added.');
+
+                        } catch (Exception $e) {
+                            $this->flash('Error: Invalid date format.');
+                        }                     
+
                         break;
                 }
             }

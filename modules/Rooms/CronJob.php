@@ -20,7 +20,7 @@ class Ccheckin_Rooms_CronJob extends Bss_Cron_Job
             $this->sendReservationReminderNotifications();
         	$this->sendReservationMissedNotification();
         	$this->cleanupOldReservations();
-
+            
             return true;
         }
     }
@@ -142,7 +142,7 @@ class Ccheckin_Rooms_CronJob extends Bss_Cron_Job
     {
         if ($this->userContext === null)
         {
-            $request = new Bss_Core_Request($this->getApplication());
+            $request = @(new Bss_Core_Request($this->getApplication()));
             $response = new Bss_Core_Response($request);
             $this->userContext = new Ccheckin_Master_UserContext($request, $response);
         }
@@ -153,9 +153,9 @@ class Ccheckin_Rooms_CronJob extends Bss_Cron_Job
     public function createTemplateInstance ()
     {
         $tplClass = $this->getTemplateClass();
-        $request = new Bss_Core_Request($this->getApplication());
+        $request = @(new Bss_Core_Request($this->getApplication()));
         $response = new Bss_Core_Response($request);
-        
+
         $inst = new $tplClass ($this, $request, $response);
 
         return $inst;

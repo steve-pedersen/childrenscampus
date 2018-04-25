@@ -25,6 +25,16 @@
 		</li>
 	</ul>
 </fieldset>
+{if $notify && $newAccount}
+<fieldset class="field">
+	<legend>Notify user</legend>
+	<label for="notify">
+		<input type="checkbox" name="notify" id="notify" checked aria-checked="true" value=true />
+		Notify user of account
+	</label>
+</fieldset>
+<br>
+{/if}
 {if $canEditNotifications}
 	{if ($authZ->hasPermission($account, 'admin') || $authZ->hasPermission($account, 'receive system notifications'))}
 		{assign var=canReceiveNotifications value=true}
@@ -32,7 +42,7 @@
 		{assign var=canReceiveNotifications value=false}
 	{/if}
 <fieldset class="field">
-	<legend>Admin Email Notifications</legend>
+	<legend>Admin email notifications</legend>
 	
 	<ul class="list-group">
 		<li>
@@ -49,8 +59,8 @@
 				/>
 			{/if} 	
 			
-			Receive Admin Notifications</label>
-			{if !$canReceiveNotifications}<p class="alert alert-info"> -- Note: This user is unable to receive system notifications. Contact an admin if this is incorrect or upgrade this user's role to one that can receive system notifications. If this is a new Admin user, save it with Administrator role and then edit it again.</p>{/if}
+			Receive admin notifications</label>
+			{if !$canReceiveNotifications}<p class="">Note: This user is unable to receive system notifications. Contact an admin if this is incorrect or upgrade this user's role to one that can receive system notifications. If this is a new Admin user, save it with Administrator role and then edit it again.</p>{/if}
 		</li>
 		{if $canReceiveNotifications}
 		<li><p><em> E.g. "course requested" emails.</em></p></li>
@@ -61,7 +71,7 @@
 {/if}
 {if (!$newAccount && $account->roles->has($studentRole)) && ($authZ->hasPermission($viewer, 'admin') || $authZ->hasPermission($viewer, 'account manage'))}
 <fieldset class="field">
-	<legend>Missed Reservation</legend>
+	<legend>Missed reservation</legend>
 	<ul class="list-group">
 		<li>
 			<label for="missed-reservation">
@@ -80,16 +90,7 @@
 </div>
 <!-- <hr> -->
 {/if}
-{if $notify && $newAccount}
-<div class="">
-	<h2>Notify user of new account</h2>
-	<label for="notify">
-		<input type="checkbox" name="notify" id="notify" checked aria-checked="true" value=true />
-		Notify user of account
-	</label>
-</div>
-{/if}
-<hr>
+
 
 
 

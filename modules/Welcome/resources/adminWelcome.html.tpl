@@ -35,7 +35,7 @@
         <div class="form-group">
             <div class="col-xs-12">
                 <label for="announcement-new">New announcement</label>
-                <textarea class="form-control text-field wysiwyg" name="announcement" id="announcement-new" rows="2"></textarea>
+                <textarea class="form-control text-field wysiwyg" name="announcement" id="announcement-new" rows="3"></textarea>
             </div>
         </div>
 
@@ -48,32 +48,32 @@
     <div class="form-group">
         <div class="col-xs-12">
             <label for="welcome-title">Welcome Title</label>
-            <textarea class="form-control text-field wysiwyg" name="welcome-title" id="welcome-title" rows="2">{$welcomeTitle}</textarea>
+            <textarea class="form-control text-field wysiwyg" name="welcome-title" id="welcome-title" rows="3">{$welcomeTitle}</textarea>
         </div>
     </div>        
     <div class="form-group">
         <div class="col-xs-12">
             <label for="welcome-text">Welcome Text</label>
-            <textarea class="form-control text-field wysiwyg" name="welcome-text" id="welcome-text" rows="4">{$welcomeText}</textarea>
+            <textarea class="form-control text-field wysiwyg" name="welcome-text" id="welcome-text" rows="{if $welcomeText}{$welcomeText|count_paragraphs*2}{else}6{/if}">{$welcomeText}</textarea>
         </div>
     </div>
     <div class="form-group">
         <div class="col-xs-12">
             <label for="welcome-text-extended">Welcome Text Extended (Bullet List)</label>
-            <textarea class="form-control text-field wysiwyg" name="welcome-text-extended" id="welcome-text-extended" rows="4">{$welcomeTextExtended}</textarea>
+            <textarea class="form-control text-field wysiwyg" name="welcome-text-extended" id="welcome-text-extended" rows="{if $welcomeTextExtended}{$welcomeTextExtended|count_sentences*2}{else}6{/if}">{$welcomeTextExtended}</textarea>
         </div>
     </div>
     <div class="form-group">
         <div class="col-xs-12">
             <label for="location-message">Location Text to display underneath image of Children's Campus</label>
-            <textarea class="form-control text-field wysiwyg" name="location-message" id="location-message" rows="3">{$locationMessage}</textarea>
+            <textarea class="form-control text-field wysiwyg" name="location-message" id="location-message" rows="{if $locationMessage}{$locationMessage|count_paragraphs*2}{else}6{/if}">{$locationMessage}</textarea>
         </div>
     </div>
   
     <div class="form-group">
         <div class="col-xs-12">
             <label for="contact-info">Contact Information (applies to right sidebar only)</label>
-            <textarea class="form-control text-field wysiwyg" name="contact-info" id="contact-info" rows="12">{$contactInfo}</textarea>
+            <textarea class="form-control text-field wysiwyg" name="contact-info" id="contact-info" rows="{if $contactInfo}{$contactInfo|count_paragraphs*2}{else}8{/if}">{$contactInfo}</textarea>
         </div>
     </div>   
 

@@ -368,9 +368,26 @@ class Ccheckin_Admin_EmailManager
 			else
 			{
 				// send to a single specified recipient
-				$user = is_array($user) ? array_shift($user) : $user;
-				$mail->AddAddress($user->emailAddress, $user->fullName);
-				$recipients[] = $user->id;
+				if (is_array($user) && array_shift($user))
+				{
+					$user = array_shift($user);
+				}
+				
+				if ($user)
+				{
+					$email = $user->emailAddress ?? '';
+					$name = ($user->fullName ?? $user->displayName) ?? (($user->firstName . ' ' . $user->lastName) ?? '');
+					$id = $user->id;				
+				}
+				else
+				{
+					$email = '';
+					$name = '';
+					$id = -1;				
+				}
+
+				$mail->AddAddress($email, $name);
+				$recipients[] = $id;
 			}
 
 			foreach ($this->attachments as $attachment)
@@ -503,7 +520,7 @@ You can access it at |%SITE_LINK%| using your SFSU ID and password.</p>
 
 
 		'sendCourseAllowedStudents' => '
-<p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
+<p>Dear Student,</p>
 <br>
 <p>You have been invited to conduct observations at Children’s Campus –- SF State’s quality Early Care and Education Center. Here are the details of the course:</p>
 <ul>
