@@ -56,7 +56,7 @@
 
     <div class="form-group row">  
         <div class="col-xs-12">
-            <label for="files-title" class="field-linked inline">Optional title</label>
+            <label for="files-title" class="field-linked inline">Preferred filename (include extension)</label>
             <input class="form-control" type="text" name="file[title]" id="files-title" class="inline" />
         </div>
     </div>

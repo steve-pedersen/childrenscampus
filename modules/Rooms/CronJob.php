@@ -8,7 +8,7 @@
  */
 class Ccheckin_Rooms_CronJob extends Bss_Cron_Job
 {
-	const PROCESS_ACTIVE_JOBS_EVERY = 60 * 24; // once a day
+	const PROCESS_ACTIVE_JOBS_EVERY = 60; // once an hour
 
     private $userContext = null;
 
