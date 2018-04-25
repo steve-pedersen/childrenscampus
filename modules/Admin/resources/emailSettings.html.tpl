@@ -63,7 +63,7 @@
 
     <div class="form-group commands file-submit row email-row">
         <div class="col-xs-12">
-            <input type="submit" name="command[upload]" id="fileSubmit" value="Upload File" class="btn btn-info hide" onclick="this.form.submit();" />
+            <input type="submit" name="command[upload]" id="fileSubmit" value="Upload File" class="btn btn-info hide" />  <!-- onclick="this.form.submit();" /> -->
         </div>
     </div>    
 </form>
