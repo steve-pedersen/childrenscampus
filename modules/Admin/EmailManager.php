@@ -20,10 +20,10 @@ class Ccheckin_Admin_EmailManager
 	{
 		$this->app = $app;
 		$this->ctrl = $ctrl;	// phasing this out...
-		$this->fromEmail = $app->getConfiguration()->getProperty('email-default-address', 'children@sfsu.edu');
+		$this->fromEmail = $app->siteSettings->getProperty('email-default-address', 'children@sfsu.edu');
 		$this->fromName = "The Children's Campus";
-		$this->testingOnly = $app->getConfiguration()->getProperty('email-testing-only', false);
-		$this->testEmail = $app->getConfiguration()->getProperty('email-test-address');
+		$this->testingOnly = $app->siteSettings->getProperty('email-testing-only');
+		$this->testEmail = $app->siteSettings->getProperty('email-test-address');
 		$this->subjectLine = "The Children's Campus";
 		$this->attachments = array();
 		$this->ccRequest = false;
@@ -67,7 +67,7 @@ class Ccheckin_Admin_EmailManager
 
 		$fileType = lcfirst(str_replace('send', '', $type));
 		$this->attachments = $this->getEmailAttachments($fileType);	
-		$this->ccRequest = ($type === 'sendCourseRequestedAdmin');
+		$this->ccRequest = (!$this->testingOnly) ? ($type === 'sendCourseRequestedAdmin') : false;
 
 		$emailLog = $this->getSchema('Ccheckin_Admin_EmailLog')->createInstance();
 		$emailLog->type = ($test ? 'TEST: ' : '') . $type;
@@ -355,7 +355,7 @@ class Ccheckin_Admin_EmailManager
 				$mail->AddAddress($this->testEmail, "Testing Children's Campus");
 				$recipients[] = -1;
 			}
-			elseif (count($user) > 1)
+			elseif (is_array($user) && (count($user) > 1))
 			{
 				// send to multiple recipients
 				foreach ($user as $recipient)
@@ -395,7 +395,7 @@ class Ccheckin_Admin_EmailManager
 				$title = isset($attachment->title) ? $attachment->title : $attachment->remoteName;
 				$mail->AddAttachment($attachment->getLocalFilename(true), $title);
 			}
-			if ($this->ccRequest && !($this->testingOnly && $this->testEmail))
+			if ($this->ccRequest && !$this->testingOnly && !$this->testEmail)
 			{
 				$mail->AddAddress($this->fromEmail, $this->fromName);
 			}

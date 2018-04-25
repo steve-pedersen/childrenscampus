@@ -11,7 +11,6 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
             'courses/history/:id'   => array('callback' => 'history', ':id' => '[0-9]+'),
             'courses/request'       => array('callback' => 'request'),
             'courses/students/:id'  => array('callback' => 'students', ':id' => '[0-9]+'),
-            // 'courses/drop/:cid/:aid'=> array('callback' => 'drop', ':cid' => '[0-9]+', ':aid' => '[0-9]+'),  // Obselete endpoint
         );
     }
 
