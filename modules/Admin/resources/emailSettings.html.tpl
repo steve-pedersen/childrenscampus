@@ -389,8 +389,12 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
-				<label class="lead" for="reservationReminderTime">Reservation Reminder Time: <span class="email-type-description">specify an amount of time to prior to a reservation to send a reminder email. Values should be a <em>number</em> followed by a <em>unit of time</em> (e.g. 1 day, 3 hours, 1 week).</span></label>
-				<input type="text" class="form-control" name="reservationReminderTime" id="reservationReminderTime" value="{$reservationReminderTime}" placeholder="e.g. 1 day, 4 hours, or 8 hours" />
+				<label class="lead" for="reservationReminderTime">Reservation Reminder Time: <span class="email-type-description">choose an amount of time prior to a reservation to send a reminder email.</span></label>
+				<select class="form-control" name="reservationReminderTime" id="reservationReminderTime">
+				{foreach from=$reminderOptions item=opt}
+					<option value="{$opt}">{$opt}</option>
+				{/foreach}
+				</select>
 			</div>
 		</div>
 

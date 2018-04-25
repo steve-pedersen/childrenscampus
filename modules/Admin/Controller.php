@@ -200,6 +200,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
         $siteSettings = $this->getApplication()->siteSettings;
         $files = $this->schema('Ccheckin_Admin_File');
         $removedFiles = array();
+        $reminderOptions = array('1 day', '2 days', '12 hours', '6 hours', '2 hours', '1 hour');
 
         if ($this->request->wasPostedByUser())
         {
@@ -426,6 +427,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
         $this->template->reservationReminder = $siteSettings->getProperty('email-reservation-reminder');
         $this->template->reservationReminderTime = $siteSettings->getProperty('email-reservation-reminder-time');
         $this->template->reservationMissed = $siteSettings->getProperty('email-reservation-missed');
+        $this->template->reminderOptions = $reminderOptions;
     }
     
     /**
