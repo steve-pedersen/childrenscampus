@@ -18,6 +18,7 @@ class Ccheckin_Admin_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUpg
             case 0:
                 $settings->defineProperty('siteNotice', 'A highly-visible notice that gets displayed on every page.', 'textarea');
                 $settings->defineProperty('blocked-dates', 'A JSON encoded string of dates for when Childrens Campus is closed and reservations are unavailable', 'string');
+                $settings->defineProperty('migration-complete', 'If true, the endpoint /admin/migrate will no longer run.', 'bool');
 
                 // Email
                 $settings->defineProperty('email-testing-only', 'If set, email will only be sent to the test address. SHOULD ONLY TURNED ON FOR TESTING.', 'int');
