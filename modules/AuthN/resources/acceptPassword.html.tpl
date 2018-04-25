@@ -3,7 +3,7 @@
     <div class="panel-padding panel panel-default">
         <div class="panel-heading">Login</div>
         <div class="panel-body">
-                <form method="post" action="https://spedersen16.dev.at.sfsu.edu/ccheckin/login/complete/sfsu-pw" class="prominent data">
+                <form method="post" action="login/complete/sfsu-pw" class="prominent data">
                     <div class="form-group">
                         <input type="text" class="form-control" id="password-username" name="username" placeholder="Username/Email" alt="Username/Email">
                     </div>
