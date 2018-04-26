@@ -46,6 +46,8 @@ class Ccheckin_Rooms_ReservationReminderCronJob extends Bss_Cron_Job
             $emailData['reservation'] = $reservation;
             $emailData['user'] = $reservation->account;
             $emailManager->processEmail('sendReservationReminder', $emailData);
+            $reservation->reminderSent = true;
+            $reservation->save();
         }
     }
 
