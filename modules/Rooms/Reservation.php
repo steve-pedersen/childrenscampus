@@ -42,7 +42,7 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
         );
     }
 
-    public function GetRoomAvailable ($room, $start, $duration, $schema)
+    public function GetRoomAvailable ($room, $start, $duration, $resSchema)
     {
         $available = false;
         $continue = true;
@@ -63,7 +63,7 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
             $end = clone $start;
             
             $end->setTime($endHour, 0);
-            $tRoomReservation = $schema;
+            $tRoomReservation = $resSchema;
             
             $cond = $tRoomReservation->find($tRoomReservation->anyTrue(
                 $tRoomReservation->allTrue(

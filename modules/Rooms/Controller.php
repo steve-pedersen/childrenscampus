@@ -272,16 +272,16 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         {
 			$cond = $reservations->allTrue(
                 $reservations->accountId->equals($viewer->id),
-                $reservations->checkedIn->isFalse(),
-                $reservations->missed->isFalse(),
-                $reservations->startTime->afterOrEquals($now)
+                $reservations->checkedIn->isFalse()->orIf($reservations->checkedIn->isNull()),
+                $reservations->missed->isFalse()->orIf($reservations->missed->isNull()),
+                $reservations->startTime->afterOrEquals($now)        
             );
             $upcomingReservations = $reservations->find($cond, array('orderBy' => '-startTime'));
         }
         else
         {
             $upcomingReservations = $reservations->find(
-                $reservations->checkedIn->isFalse()->andIf(
+                ($reservations->checkedIn->isFalse()->orIf($reservations->checkedIn->isNull()))->andIf(
                 $reservations->startTime->afterOrEquals($now)),
                 array('orderBy' => '-startTime')
             );
@@ -308,7 +308,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         {
             $reservations = $reservations->find(
                 $reservations->missed->isTrue()->orIf(
-                    $reservations->checkedIn->isFalse()->andIf(
+                    ($reservations->checkedIn->isFalse()->orIf($reservations->checkedIn->isNull()))->andIf(
                     $reservations->endTime->beforeOrEquals(new DateTime('now - 30 minutes')))
                 ), array('orderBy' => '-startTime')
             );
