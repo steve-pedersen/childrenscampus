@@ -58,7 +58,7 @@ COMMIT;
 
 -- ClassData API
 BEGIN;
-UPDATE at_config_settings SET value = 'http://classdata.test.at.sfsu.edu/' WHERE key = 'classdata-api-url';
+UPDATE at_config_settings SET value = 'https://classdata.test.at.sfsu.edu/' WHERE key = 'classdata-api-url';
 UPDATE at_config_settings SET value = 'ca1a3f6f-7cac-4e52-9a0a-5cbf82b16bc9' WHERE key = 'classdata-api-key';
 UPDATE at_config_settings SET value = '4af2614e-142d-4db8-8512-b3ba13dd0143' WHERE key = 'classdata-api-secret';
 COMMIT;
