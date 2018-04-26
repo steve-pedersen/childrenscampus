@@ -54,7 +54,7 @@ class Ccheckin_ClassData_Service
         list($code, $data) = $this->request($url);
         $returnData = $data !== null ? array_shift($data) : $data;
 
-        return array($code, $returnData);     // TODO: Test if array_shift works for this function ***************
+        return array($code, $returnData);
     }
 
     public function getUserEnrollments ($userid, $semester, $role = null)
@@ -78,7 +78,7 @@ class Ccheckin_ClassData_Service
         list($code, $data) = $this->request($url);
         $returnData = $data !== null ? array_shift($data) : $data;
 
-        return array($code, $returnData);     // TODO: Test if array_shift works for this function ***************
+        return array($code, $returnData);
     }
 
     public function getCourse ($id)
@@ -147,6 +147,8 @@ class Ccheckin_ClassData_Service
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+
         if ($post) 
         { 
             curl_setopt($ch, CURLOPT_POST, true); 

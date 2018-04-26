@@ -84,11 +84,15 @@
 </fieldset>
 {/if}
 {if $pAdmin && (!$newAccount && $account->roles->has($studentRole))}
-<div class="">
-	<h2>Edit observation time</h2>
-	<a class="btn btn-info" href="admin/observations/{$account->id}/all">Edit this users observation times</a>
-</div>
-<!-- <hr> -->
+<fieldset class="field">
+	<legend>Edit observation time</legend>
+	<ul class="list-group">
+		<li>
+			<a class="" href="admin/observations/{$account->id}/all"><span class="
+glyphicon glyphicon-time"> </span> Edit this users observation times</a>
+		</li>
+	</ul>
+</fieldset>
 {/if}
 
 

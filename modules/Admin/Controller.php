@@ -112,7 +112,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                     'Last Name',
                     'Student ID',
                     'Email',
-                    'Duration'
+                    'Duration (minutes)'
                 );
                 fputcsv($handle, $headers);
 

@@ -172,14 +172,11 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
     {
         $service = new Ccheckin_ClassData_Service($this->getApplication());
 
-        if (!$this->hasPermission('admin'))
-        {
-            list($status, $courses) = $service->getUserEnrollments($user->username, $term);
+        list($status, $courses) = $service->getUserEnrollments($user->username, $term);
 
-            if ($status < 400)
-            {
-                $this->template->courses = $courses;
-            }
+        if ($status < 400)
+        {
+            $this->template->courses = $courses;
         }
     }
 
@@ -202,7 +199,6 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         $viewer = $this->requireLogin();
         $siteSettings = $this->getApplication()->siteSettings;
         $this->requirePermission('course request');
-        // echo "<pre>"; var_dump($this->hasPermission('cheese')); die;
 
         $course = $this->schema('Ccheckin_Courses_Course')->createInstance();
         $facet = $this->schema('Ccheckin_Courses_Facet')->createInstance();
