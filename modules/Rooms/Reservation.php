@@ -68,25 +68,21 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
             $cond = $tRoomReservation->find($tRoomReservation->anyTrue(
                 $tRoomReservation->allTrue(
                     $tRoomReservation->roomId->equals($room->id),
-                    // $tRoomReservation->deleted->isNull()->orIf($tRoomReservation->deleted->isFalse()),
                     $tRoomReservation->startTime->beforeOrEquals($start),
                     $tRoomReservation->endTime->after($start)
                 ),
                 $tRoomReservation->allTrue(
                     $tRoomReservation->roomId->equals($room->id),
-                    // $tRoomReservation->deleted->isNull()->orIf($tRoomReservation->deleted->isFalse()),
                     $tRoomReservation->startTime->before($end),
                     $tRoomReservation->endTime->afterOrEquals($end)
                 ),
                 $tRoomReservation->allTrue(
                     $tRoomReservation->roomId->equals($room->id),
-                    // $tRoomReservation->deleted->isNull()->orIf($tRoomReservation->deleted->isFalse()),
                     $tRoomReservation->startTime->beforeOrEquals($start),
                     $tRoomReservation->endTime->afterOrEquals($end)
                 ),
                 $tRoomReservation->allTrue(
                     $tRoomReservation->roomId->equals($room->id),
-                    // $tRoomReservation->deleted->isNull()->orIf($tRoomReservation->deleted->isFalse()),
                     $tRoomReservation->startTime->afterOrEquals($start),
                     $tRoomReservation->endTime->beforeOrEquals($end)
                 )
@@ -108,7 +104,7 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
         $reservations = $this->schema('Ccheckin_Rooms_Reservation');
         $cond = $reservations->allTrue(
             $reservations->accountId->equals($account->id),
-            $reservations->missed->isFalse()
+            $reservations->missed->isFalse()->orIf($reservations->missed->isNull())
         );
         $accountReservations = $reservations->find($cond, array('orderBy' => array('start_time')));
         

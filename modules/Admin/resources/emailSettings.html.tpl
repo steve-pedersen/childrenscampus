@@ -90,8 +90,8 @@
 	</div>
 
 	<div class="row email-row testing-row">
-		<h3 class="">Testing</h3>
-		<p class="alert alert-warning"><strong>NOTE: Turning on testing will make it so that ALL email will only be sent to the "Testing recipient email address". If no testing address is specified, but testing is turned on, email will fail to send to anyone.</strong></p>
+		<h3 class="">Debug Testing Mode</h3>
+		<p class="alert testingOnly"><strong>NOTE: most likely only for AT use only. Turning on testing will make it so that ALL email will only be sent to the "Debug testing address". If no testing address is specified, but testing is turned on, email will fail to send to anyone.</strong></p>
 		<div class="col-xs-4">
 			<div class="form-group testingOnly">
 				<label for="testingOnly">Turn Testing On</label><br>
@@ -100,7 +100,7 @@
 		</div>
 		<div class="col-xs-8">
 			<div class="form-group">
-				<label for="testAddress">Testing recipient email address</label>
+				<label for="testAddress">Debug testing address</label>
 				<input type="email" class="form-control" name="testAddress" id="testAddress" value="{$testAddress}" placeholder="e.g. testaddress@gmail.com" />				
 			</div>
 		</div>

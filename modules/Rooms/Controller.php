@@ -363,7 +363,18 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             }
         }
         $now = new DateTime;
-        $now->setTime((int)$now->format('G'), 0);
+        if ($now > $reservation->startTime)
+        {
+            $now->setTime((int)$reservation->startTime->format('G'), 0);
+        }
+        elseif ($now->format('i') < 30)
+        {
+            $now->setTime((int)$now->format('G'), 0);
+        }
+        else
+        {
+            $now->setTime(((int)$now->format('G'))+1, 0);
+        }
 
         $this->template->reservation = $reservation;
         $this->template->topOfHour = $now;

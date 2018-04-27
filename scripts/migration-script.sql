@@ -283,7 +283,6 @@ WHERE key = 'email-course-requested-admin';
 UPDATE at_config_settings
 SET value = '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-<br>
 <p>You have requested a new course:</p>
 <ul>
 	<li>|%COURSE_FULL_NAME%|</li>
@@ -297,7 +296,6 @@ WHERE key = 'email-course-requested-teacher';
 UPDATE at_config_settings
 SET value = '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-<br>
 <p>Thank you for choosing the Children''s Campus for your students to conduct observations. The following course has been approved:</p>
 <ul>
 	<li>|%COURSE_FULL_NAME%|</li>
@@ -314,8 +312,7 @@ WHERE key = 'email-course-allowed-teacher';
 UPDATE at_config_settings
 SET value = '
 <p>Dear Student,</p>
-<br>
-<p>You have been invited to conduct observations at Children''s Campus –- SF State’s quality Early Care and Education Center. Here are the details of the course:</p>
+<p>You have been invited to conduct observations at Children''s Campus &mdash; SF State''s quality Early Care and Education Center. Here are the details of the course:</p>
 <ul>
 	<li>|%COURSE_FULL_NAME%|</li>
 	<li>|%COURSE_SHORT_NAME%|</li>
@@ -329,7 +326,6 @@ WHERE key = 'email-course-allowed-students';
 UPDATE at_config_settings
 SET value = '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-<br>
 <p>Children''s Campus has denied the following course you requested:</p>
 <ul>
 	<li>|%COURSE_FULL_NAME%|</li>
@@ -343,7 +339,6 @@ WHERE key = 'email-course-denied';
 UPDATE at_config_settings
 SET value = '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-<br>
 <p>Thank you for choosing the Children''s Campus for your course observation requirement. Here are the details of your reservation:</p>				
 <ul>
 	<li>|%RESERVE_DATE%|</li>
@@ -358,7 +353,6 @@ WHERE key = 'email-reservation-details';
 UPDATE at_config_settings
 SET value = '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-<br>
 <p>This is a reminder about your upcoming reservation at Children''s Campus for your course observation requirement. Here are the details of your reservation:</p>
 <ul>
 	<li>|%RESERVE_DATE%|</li>
@@ -377,7 +371,6 @@ WHERE key = 'email-reservation-reminder-time';
 UPDATE at_config_settings
 SET value = '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-<br>
 <p>Thank you for choosing the Children''s Campus for your course observation requirement.  Our online reservation system is showing that you missed your last observation appointment.  <u>If you miss one more</u>, the system will remove all future reservations that you''ve created.  If the system removes your reservations, you will be allowed to re-reserve rooms but the same rules will apply.  Please respect that other students need to do observations and are affected by your decision to miss your appointment.</p>
 <p>Here are the details of your missed reservation:</p>
 <ul>
@@ -412,7 +405,7 @@ WHERE key = 'welcome-text';
 UPDATE at_config_settings
 SET value = '
 <p><strong>Students: Please take note of our location!</strong></p>
-<p>The Children’s Campus is located on the campus of San Francisco State University at the corner of North State Drive and Lake Merced Blvd.  We are beside the Library Annex.  
+<p>The Children''s Campus is located on the campus of San Francisco State University at the corner of North State Drive and Lake Merced Blvd.  We are beside the Library Annex.  
 If you need help locating our center, please check the <u><a href="http://www.sfsu.edu/~sfsumap/" title="Opens in a new window." target="_blank" class="popup">campus map</a></u></p>'
 WHERE key = 'location-message';
 

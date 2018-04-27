@@ -4,7 +4,8 @@
 .next-item,
 .nonvisual-context,
 .module-items-tab-bar,
-.sticky-footer { display: none; }
+.sticky-footer,
+.right-sidebar, .sidebar-nav, .weekly-schedule, .color-legend, #filmstrip { display: none; }
 
 a { text-decoration: none; color: black;}
 
@@ -19,8 +20,9 @@ a { text-decoration: none; color: black;}
 }
 h1 { font-size: 1.2em; margin-bottom: 0; line-height: 1em;}
 
+
 #content {
-    border: 1px solid black;
+    /*border: 1px solid black;*/
     padding: 1em;
     margin: 0 0;
 }
@@ -32,15 +34,6 @@ h1 { font-size: 1.2em; margin-bottom: 0; line-height: 1em;}
 #footer,
 .submission .alert { font-size: 0.8em; }
 
-/* Children's Campus customizations */
-.right-sidebar, .sidebar-nav, .weekly-schedule, .color-legend, #filmstrip {
-	display: none;
-}
-@media print{
-	a[href]:after {
-		content:none
-	}
-}
 h1 {
 	font-size: 2.5em;
 }
@@ -69,4 +62,12 @@ td.blocked-date {
 	font-weight: bold;
 	background-color: #E5E5E5 !important;
 	-webkit-print-color-adjust: exact;
+}
+
+a[href]:after {
+	content:none
+}
+div.main-content {
+	padding: 0;
+	width: 100%;
 }

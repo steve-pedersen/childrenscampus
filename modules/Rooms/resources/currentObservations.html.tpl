@@ -1,6 +1,13 @@
 <h1>Current Observations</h1>
+<div class="tabs">
+    <ul class="nav nav-tabs nav-justified weekly-schedule">
+        <li role="presentation"><a title="Missed Reservations" href="admin/observations/missed"><span class="glyphicon glyphicon-chevron-left"></span> Missed Reservations</a></li>
+        <li role="presentation" class="active"><a href="admin/observations/current">Current Observations</a></li>
+        <li role="presentation"><a title="Upcoming Reservations" href="admin/observations/reservations">Upcoming Reservations <span class="glyphicon glyphicon-chevron-right"></span></a></li>
+    </ul>
+</div>
 <p> 
-    These are the current observation which are going on at Children's Campus.  
+    These are the current, ongoing observation which are going on at Children's Campus.  
     You may use this feature to verify that people have successfully logged into the system.
 </p>
 <table class="table table-bordered table-striped">
@@ -15,7 +22,7 @@
     </thead>
     {foreach item='reservation' from=$reservations}
         <tr>
-            <td>{$reservation->observation->startTime|date_format:"%B %e, %Y %I:%M %p"}</td>
+            <td>{$reservation->observation->startTime->format('M jS, Y g:ia')}</td>
             <td>{$reservation->account->firstName} {$reservation->account->lastName} ({$reservation->account->emailAddress})</td>
             <td>{$reservation->room->name}</td>
             <td>{$reservation->observation->purpose->shortDescription|escape}</td>

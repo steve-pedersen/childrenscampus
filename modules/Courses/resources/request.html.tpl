@@ -20,11 +20,12 @@
 <form method="get" action="{$smarty.server.REQUEST_URI|escape}">
     <div class="form-group">
         <label for="semester" class="field-label field-linked">Semester <span class="badge">{if $activeDisplay} {$activeDisplay}{/if}</span></label>
-        <select name="semester" class="form-control" onchange="this.form.submit()">
+        <select name="semester" class="form-control" onchange="this.form.submit()" required>
         {foreach item='semester' from=$semesters}
             <option value="{$semester->id}" {if $semester->internal == $activeSemester}selected active{/if}">{$semester->display}</option>
         {/foreach}
         </select>
+        {if $errors.semester}<p class="error alert alert-danger">{$errors.semester}</p>{/if}
     </div>
 </form>
 {/if}
@@ -42,6 +43,7 @@
         {else}
             <p class="alert alert-warning">You have no classes for the selected semester.</p>
         {/if}
+        {if $errors.course}<p class="error alert alert-danger">{$errors.course}</p>{/if}
     </div>
     <div class="form-group">
         <label for="facet-typeId">Course Type</label>
@@ -51,7 +53,7 @@
             <option value="{$type->id}"{if $facet && ($facet->typeId == $type->id)} selected="selected"{/if}>{$type->name|escape}</option>
         {/foreach}
         </select>
-        {if $errors.facet_type}<p class="error">{$errors.facet_type}</p>{/if}
+        {if $errors.facet_type}<p class="error alert alert-danger">{$errors.facet_type}</p>{/if}
     </div>
     <div class="form-group">
         <label>For the purposes of this assignment, will your students have to:</label>

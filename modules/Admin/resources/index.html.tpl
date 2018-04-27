@@ -9,7 +9,7 @@
 <div class="list-group col-xs-6">
     <h3><img src="assets/images/icon_course.png" class="transparent control_icon" width="64" height="64"> Observations</h3>
     <a class="list-group-item" href="admin/observations/current">Current Observations</a> 
-    <a class="list-group-item" href="admin/observations/reservations">Current Reservations</a> 
+    <a class="list-group-item" href="admin/observations/reservations">Upcoming Reservations</a> 
     <a class="list-group-item" href="admin/observations/missed">Missed Reservations</a> 
 </div>
 <!-- </div> -->

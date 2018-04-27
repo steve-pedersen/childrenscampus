@@ -99,7 +99,7 @@ class Ccheckin_Rooms_ReservationCleanupCronJob extends Bss_Cron_Job
 			$reservation->delete();
         }       
 
-        // Get the reservations which are more than a week old and delete them.
+        // Get the reservations which are more than a month old and delete them.
         $cond = $reservations->startTime->before(new DateTime('-1 month'));   
         $results = $reservations->find($cond);
         

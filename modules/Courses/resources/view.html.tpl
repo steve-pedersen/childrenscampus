@@ -13,10 +13,12 @@
 <div class="course">
 <h2>Overview</h2>
 <dl class="dl-horizontal">
-	<dt>Instructors:</dt>
+	<dt>Instructor{if $course->teachers|@count > 1}s{/if}:</dt>
 	{foreach item='instructor' from=$course->teachers}
 	<dd>{$instructor->firstName} {$instructor->lastName}</dd>
 	{/foreach}
+    <dt>Semester</dt>
+    <dd>{$course->semester->display}</dd>
 {if $pView}
 	<dt>Number of students:</dt>
 	<dd>{$students|@count}</dd>

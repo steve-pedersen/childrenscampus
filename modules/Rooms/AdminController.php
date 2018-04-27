@@ -201,18 +201,24 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
                 $now = new DateTime;
                 $st = $res->observation->startTime;
                 
+                // if now is different year, month, or day than observation start time, set now to when the observation was supposed to end
+                // this is for the math to check out when someone is editing an observation on a different day than it occurred.
                 if ($now->format('Y')!==$st->format('Y') || $now->format('m')!==$st->format('m') || $now->format('d')!==$st->format('d'))
                 {
                     $now = $res->endTime;
                 }
-                if ($st > $now)
+                // set observation end time from now var
+                $et = $now;
+                // set start time to end time minus expected duration
+                if ($st > $et)
                 {
-                    $temp = $res->endTime->format('G') - $res->startTime->format('G');
-                    $st = (clone $now)->modify('-'.$temp.'hours');
+                    $tempDuration = $res->endTime->format('G') - $res->startTime->format('G');
+                    $st = (clone $et)->modify('-' .$tempDuration. ' hours');
                 }
+                // calculate the exact or estimated duration
+                $duration = abs(($et->format('G') - $st->format('G'))*60 + ($et->format('i') - $st->format('i')));
 
-                $res->observation->endTime = $now;
-                $duration = abs(($now->format('G') - $st->format('G'))*60 + ($now->format('i') - $st->format('i')));
+                $res->observation->endTime = $et;
                 $res->observation->duration = $duration;
                 $res->observation->save();
                 $obs = $res->observation;
@@ -234,11 +240,12 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
     {
         $resSchema = $this->schema('Ccheckin_Rooms_Reservation');
         $view = $this->request->getQueryParameter('view', 'all');
+        $view = 'upcoming'; // decided this function should only show upcoming, but kept query functionality in case.
 
         if ($view === 'upcoming')
         {
-            $now = new DateTime;
-            $reservations = $resSchema->find($resSchema->startTime->afterOrEquals($now), array('orderBy' => '-startTime'));
+            $checkinRange = new DateTime('-30 minutes');
+            $reservations = $resSchema->find($resSchema->startTime->afterOrEquals($checkinRange), array('orderBy' => '-startTime'));
         }
         else
         {
@@ -261,8 +268,5 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
 
         $this->template->reservations = $missed;
     }
-
-    // NOTE: On old app this begins with a die statement, so probably just a dev/debug func
-    public function generateObservation () {}
 
 }

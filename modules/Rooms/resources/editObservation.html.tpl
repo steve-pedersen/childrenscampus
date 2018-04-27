@@ -1,12 +1,12 @@
 {if $observation}
 <h1>View & Edit Observations<br><small>for {$user->fullName} ({$user->emailAddress})</small></h1>
 
-<h2>Edit duration<br>
-    <small>
-        {$observation->purpose->object->shortDescription}<br>
-        Check-in date: {$observation->startTime->format('M j, h:ia')}
-    </small>
-</h2>
+<h2>Edit observation</h2>
+<dl class="dl-horizontal">
+    <dt>Purpose</dt><dd>{$observation->purpose->object->shortDescription}</dd>
+    <dt>Room</dt><dd>{$observation->room->name}</dd>
+    <dt>Check-in time</dt><dd>{$observation->startTime->format('M jS, g:ia')}</dd>
+</dl>
 <br>
 <form action="{$smarty.server.REQUEST_URI}" method="post" class="form-inline">
     <div class="row">
@@ -39,7 +39,7 @@
     {foreach item=obs from=$userObservations}
         <tr>
             <td>{$obs->purpose->object->shortDescription}</td>
-            <td>{$obs->startTime->format('M j, h:ia')}</td>
+            <td>{$obs->startTime->format('M j, g:ia')}</td>
             <td class="duration">{if $obs->duration}{$obs->duration}{else}0{/if}<small>&nbsp;(mins)</small></td>
             <td>{if $pAdmin}<a class="pull-right btn btn-xs btn-default" href="admin/observations/{$user->id}/{$obs->id}">edit time</a>{/if}</td>
         </tr>

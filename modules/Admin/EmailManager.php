@@ -4,6 +4,7 @@ class Ccheckin_Admin_EmailManager
 {
 	private $app;
 	private $ctrl;
+	private $type;
 	private $fromEmail;
 	private $fromName;
 	private $testEmail;
@@ -65,6 +66,7 @@ class Ccheckin_Admin_EmailManager
 			exit;
 		}
 
+		$this->type = $type;
 		$fileType = lcfirst(str_replace('send', '', $type));
 		$this->attachments = $this->getEmailAttachments($fileType);	
 		$this->ccRequest = (!$this->testingOnly ? ($type === 'sendCourseRequestedAdmin') : false);
@@ -353,8 +355,7 @@ class Ccheckin_Admin_EmailManager
 				if (is_array($user) && array_shift($user))
 				{
 					$user = array_shift($user);
-				}
-				
+				}				
 				if ($user)
 				{
 					$email = $user->emailAddress ?? '';

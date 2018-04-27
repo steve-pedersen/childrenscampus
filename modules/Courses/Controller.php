@@ -234,27 +234,38 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
             if ($this->getPostCommand() == 'request')
             {
                 $courseId = $this->request->getPostParameter('course');
-                $courseData = $this->getCourse($courseId);
-                
-                $course->fullName = $courseData['title'];
-                $course->shortName = $courseData['shortName'];
-                $course->department = $courseData['department'];
-                $course->externalCourseKey = $courseData['id'];
-
-                $facetData = $this->request->getPostParameter('facet');
-                $facet = $this->schema('Ccheckin_Courses_Facet')->createInstance();
-                $facet->typeId = $facetData['typeId'];
-                $facet->description = $courseData['description'];               
-                if (isset($facetData['tasks']))
+                if (!$courseId)
                 {
-                    $facet->tasks = array_intersect_key($facet->GetAllTasks(), $facetData['tasks']);
+                    $errors['course'] = 'No course was selected';
                 }
-                
-                if ($semesterId = $this->request->getPostParameter('selected-semester'))
+                else
                 {
-                    $semester = $semesters[$semesterId];
-                    $course->startDate = $semester->startDate;
-                    $course->endDate = $semester->endDate;
+                    $courseData = $this->getCourse($courseId);
+                    
+                    $course->fullName = $courseData['title'];
+                    $course->shortName = $courseData['shortName'];
+                    $course->department = $courseData['department'];
+                    $course->externalCourseKey = $courseData['id'];
+
+                    $facetData = $this->request->getPostParameter('facet');
+                    $facet = $this->schema('Ccheckin_Courses_Facet')->createInstance();
+                    $facet->typeId = $facetData['typeId'];
+                    $facet->description = $courseData['description'];               
+                    if (isset($facetData['tasks']))
+                    {
+                        $facet->tasks = array_intersect_key($facet->GetAllTasks(), $facetData['tasks']);
+                    }
+                    
+                    if ($semesterId = $this->request->getPostParameter('selected-semester'))
+                    {
+                        $semester = $semesters[$semesterId];
+                        $course->startDate = $semester->startDate;
+                        $course->endDate = $semester->endDate;
+                    }
+                    else
+                    {
+                        $errors['semester'] = 'No semester was selected';
+                    }
                 }
                 
                 $errors += $course->validate();

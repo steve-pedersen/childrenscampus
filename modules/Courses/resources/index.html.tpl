@@ -12,11 +12,17 @@
 {foreach item='course' from=$courses}
 <div class="panel panel-default">
   <div class="panel-heading">
-    <h2 class="panel-title">
-        <a href="courses/view/{$course->id}">{$course->fullName|escape}{if $course->shortName} <br>
-        <small>{$course->shortName|escape}</small>{/if}</a>
-    </h2>
-
+    <div class="row">
+        <div class="col-xs-9">
+            <h2 class="panel-title">
+                <a href="courses/view/{$course->id}">{$course->fullName|escape}{if $course->shortName} <br>
+                <small>{$course->shortName|escape}</small>{/if}</a>
+            </h2>
+        </div>
+        <div class="col-xs-3 text-right">
+            <span class="">{$course->semester->display}</span>
+        </div>
+    </div>
   </div>
   <div class="panel-body">
     {assign var='facet' value=$course->facets->index(0)}
