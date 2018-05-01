@@ -35,6 +35,7 @@ class Ccheckin_Admin_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUpg
                 $settings->defineProperty('email-reservation-reminder', 'Email content to remind student about upcoming reservation.', 'string');
                 $settings->defineProperty('email-reservation-reminder-time', 'Setting for when to send out reminders (1 day, 2 hours prior, etc.).', 'string');
                 $settings->defineProperty('email-reservation-missed', 'Email content for when a Student misses a reservation to send to Student.', 'string');
+                $settings->defineProperty('email-reservation-canceled', 'Email content for Student when an Admin cancels their reservation.', 'string');
 
 
                 $def = $this->createEntityType('ccheckin_admin_files', $this->getDataSource('Ccheckin_Admin_File'));

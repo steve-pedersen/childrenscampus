@@ -269,6 +269,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                     $siteSettings->setProperty('email-reservation-reminder-time', $this->request->getPostParameter('reservationReminderTime'));
                     $siteSettings->setProperty('email-reservation-reminder', $this->request->getPostParameter('reservationReminder'));
                     $siteSettings->setProperty('email-reservation-missed', $this->request->getPostParameter('reservationMissed'));
+                    $siteSettings->setProperty('email-reservation-canceled', $this->request->getPostParameter('reservationCanceled'));
 
                     $attachedFiles = array();
                     $attachmentData = $this->request->getPostParameter('attachment');
@@ -403,6 +404,15 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
 
                                 $this->template->sendSuccess = 'You should receive a test email momentarily for Reservation-Reminder template.';  
                                 break;
+
+                            case 'reservationCanceled':
+                                $emailData['reservation'] = new stdClass();
+                                $emailData['reservation_date'] = new DateTime;
+                                $emailData['reservation_purpose'] = 'TEST Observation only course - TEST-CAD-0101-01-Spring-2025';
+                                $emailManager->processEmail('send' . ucfirst($which), $emailData, true);
+
+                                $this->template->sendSuccess = 'You should receive a test email momentarily for Reservation-Reminder template.';  
+                                break;
                         }
                     }
             }
@@ -427,6 +437,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
         $this->template->reservationReminder = $siteSettings->getProperty('email-reservation-reminder');
         $this->template->reservationReminderTime = $siteSettings->getProperty('email-reservation-reminder-time');
         $this->template->reservationMissed = $siteSettings->getProperty('email-reservation-missed');
+        $this->template->reservationCanceled = $siteSettings->getProperty('email-reservation-canceled');
         $this->template->reminderOptions = $reminderOptions;
     }
     

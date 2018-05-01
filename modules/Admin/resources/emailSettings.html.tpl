@@ -71,7 +71,9 @@
 <form action="{$smarty.server.REQUEST_URI}" method="post">
 	{generate_form_post_key}
 	
+
 	<h2 class="email-header"><u>Settings</u></h2>
+
 	<div class="row">
 		<div class="col-xs-12">
 			<div class="form-group">
@@ -89,7 +91,7 @@
 		</div>
 	</div>
 
-	<div class="row email-row testing-row">
+	<div class="row email-row testing-row well">
 		<h3 class="">Debug Testing Mode</h3>
 		<p class="alert testingOnly"><strong>NOTE: most likely only for AT use only. Turning on testing will make it so that ALL email will only be sent to the "Debug testing address". If no testing address is specified, but testing is turned on, email will fail to send to anyone.</strong></p>
 		<div class="col-xs-4">
@@ -106,7 +108,9 @@
 		</div>
 	</div>
 
+
 	<h2 class="email-header"><u>Users</u></h2>
+
 	<div class="row email-row users-row">
 		<div class="col-xs-12">
 			<h3 id="systemNotificationRecipients">System Notification Recipients</h3>
@@ -174,6 +178,7 @@
 		</div>
 	</div>
 
+
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
@@ -210,6 +215,7 @@
 		</div>
 	</div>
 
+
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
@@ -244,6 +250,7 @@
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
 		</div>
 	</div>
+
 
 	<div class="row email-row">
 		<div class="col-xs-8">
@@ -280,6 +287,7 @@
 		</div>
 	</div>
 
+
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
@@ -314,6 +322,7 @@
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
 		</div>
 	</div>
+
 
 	<div class="row email-row">
 		<div class="col-xs-8">
@@ -386,6 +395,7 @@
 		</div>
 	</div>
 
+
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
@@ -432,6 +442,7 @@
 		</div>
 	</div>
 
+
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
@@ -467,8 +478,47 @@
 		</div>
 	</div>
 
+
+	<div class="row email-row">
+		<div class="col-xs-8">
+			<div class="form-group">
+				<label class="lead" for="reservationCanceled">Reservation Canceled: <span class="email-type-description">sent to Student when their reservation gets canceled by an admin.</span></label>
+				<textarea name="reservationCanceled" id="reservationCanceled" class="wysiwyg form-control" rows="{if $reservationCanceled}{$reservationCanceled|count_paragraphs*2}{else}8{/if}">{$reservationCanceled}</textarea>
+				<span class="help-block">
+					You can use the following tokens for context replacements to fill out the template: 
+					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%RESERVE_DATE%|</code>, <code>|%PURPOSE_INFO%|</code>, <code>|%RESERVATION_SIGNUP_LINK%|</code>
+				</span>
+			</div>
+		</div>
+
+		<div class="col-xs-4">
+			<label id="testreservationcanceled">Test Reservation-Canceled Template</label>
+			<p class="lead">This will send an email to your account showing how the email will look to you.</p>
+			<button type="submit" name="command[sendtest][reservationCanceled]" aria-describedby="testreservationcanceled" class="btn btn-default">Send Test</button>
+		</div>
+
+		<div class="col-xs-12 form-group">
+			<label id="attachmentReservationCanceled">File Attachment(s) <span class="email-type-description"> - Select to attach</label>
+			<select multiple="multiple" class="form-control" name="attachment[reservationCanceled][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentReservationCanceled">
+			{foreach item='attachment' from=$attachments}
+				{assign var='isAttached' value=false}
+				{foreach item='key' from=$attachment->attachedEmailKeys}
+					{if $key === 'reservationCanceled'}{assign var='isAttached' value=true}{/if}
+				{/foreach}
+				<option value="{$attachment->id}" {if $isAttached}selected{/if}>
+				{if $attachment->title}{$attachment->title}{else}{$attachment->remoteName}{/if}
+				</option>
+			{/foreach}
+			</select>
+			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
+		</div>
+	</div>
+
+
 	<div class="controls">
 		<button type="submit" name="command[save]" class="btn btn-primary">Save</button>
 		<a href="admin" class="btn btn-default pull-right">Cancel</a>
 	</div>
+
 </form>
+

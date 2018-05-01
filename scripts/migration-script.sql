@@ -296,13 +296,16 @@ WHERE key = 'email-course-requested-teacher';
 UPDATE at_config_settings
 SET value = '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-<p>Thank you for choosing the Children''s Campus for your students to conduct observations. The following course has been approved:</p>
+<p>Thank you for choosing the Children''s Campus for your students to conduct observations. 
+The following course has been approved:</p>
 <ul>
 	<li>|%COURSE_FULL_NAME%|</li>
 	<li>|%COURSE_SHORT_NAME%|</li>
 </ul>
 <br>
-<p>Attached to this email you''ll find our guidelines for student observers, both in the classroom and the observation rooms.  Please see that your students receive a copy of this prior to their first observation at the center.  If you or the students have any questions about their observations they should contact us.</p>
+<p>Attached to this email you''ll find our guidelines for student observers, both in the classroom and the observation rooms.  
+Please see that your students receive a copy of this prior to their first observation at the center.  
+If you or the students have any questions about their observations they should contact us.</p>
 <br>
 <p>You can access it here |%COURSE_VIEW_LINK%|, using your SFSU ID and password.</p>
 <br>
@@ -312,13 +315,16 @@ WHERE key = 'email-course-allowed-teacher';
 UPDATE at_config_settings
 SET value = '
 <p>Dear Student,</p>
-<p>You have been invited to conduct observations at Children''s Campus &mdash; SF State''s quality Early Care and Education Center. Here are the details of the course:</p>
+<p>You have been invited to conduct observations at Children''s Campus &mdash; SF State''s quality Early Care and Education Center. 
+Here are the details of the course:</p>
 <ul>
 	<li>|%COURSE_FULL_NAME%|</li>
 	<li>|%COURSE_SHORT_NAME%|</li>
 </ul>
 <br>
-<p>Attached to this email you''ll find our guidelines for student observers, both in the classroom and the observation rooms. Please see that you read this documentation prior to your first observation at the center. If you have any questions about your observations they should contact me.</p>
+<p>Attached to this email you''ll find our guidelines for student observers, both in the classroom and the observation rooms. 
+Please see that you read this documentation prior to your first observation at the center. 
+If you have any questions about your observations they should contact me.</p>
 <br>
 <p>You can begin making reservations from |%OPEN_DATE%| until |%CLOSE_DATE%|, which can be done here |%SITE_LINK%|, using your SFSU ID and password to login.</p>'
 WHERE key = 'email-course-allowed-students';
@@ -339,7 +345,8 @@ WHERE key = 'email-course-denied';
 UPDATE at_config_settings
 SET value = '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-<p>Thank you for choosing the Children''s Campus for your course observation requirement. Here are the details of your reservation:</p>				
+<p>Thank you for choosing the Children''s Campus for your course observation requirement. 
+Here are the details of your reservation:</p>				
 <ul>
 	<li>|%RESERVE_DATE%|</li>
 	<li>|%PURPOSE_INFO%|</li>
@@ -347,13 +354,16 @@ SET value = '
 	<li>|%RESERVE_VIEW_LINK%|</li>
 </ul>
 <br>
-<p>If you made this reservation by mistake, please cancel your reservation here |%RESERVE_CANCEL_LINK%|. Observation at the Children''s Campus is a privilege and should not be taken for granted. Thank you for understanding.</p>'
+<p>If you made this reservation by mistake, please cancel your reservation here |%RESERVE_CANCEL_LINK%|. 
+Observation at the Children''s Campus is a privilege and should not be taken for granted. 
+Thank you for understanding.</p>'
 WHERE key = 'email-reservation-details';
 
 UPDATE at_config_settings
 SET value = '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-<p>This is a reminder about your upcoming reservation at Children''s Campus for your course observation requirement. Here are the details of your reservation:</p>
+<p>This is a reminder about your upcoming reservation at Children''s Campus for your course observation requirement. 
+Here are the details of your reservation:</p>
 <ul>
 	<li>|%RESERVE_DATE%|</li>
 	<li>|%PURPOSE_INFO%|</li>
@@ -361,7 +371,9 @@ SET value = '
 	<li>|%RESERVE_VIEW_LINK%|</li>
 </ul>
 <br>
-<p>If you need to cancel this reservation, please do so immediately here |%RESERVE_CANCEL_LINK%|. Observation at the Children''s Campus is a privilege and should not be taken for granted. Thank you for understanding.</p>'
+<p>If you need to cancel this reservation, please do so immediately here |%RESERVE_CANCEL_LINK%|. 
+Observation at the Children''s Campus is a privilege and should not be taken for granted. 
+Thank you for understanding.</p>'
 WHERE key = 'email-reservation-reminder';
 
 UPDATE at_config_settings
@@ -371,7 +383,11 @@ WHERE key = 'email-reservation-reminder-time';
 UPDATE at_config_settings
 SET value = '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-<p>Thank you for choosing the Children''s Campus for your course observation requirement.  Our online reservation system is showing that you missed your last observation appointment.  <u>If you miss one more</u>, the system will remove all future reservations that you''ve created.  If the system removes your reservations, you will be allowed to re-reserve rooms but the same rules will apply.  Please respect that other students need to do observations and are affected by your decision to miss your appointment.</p>
+<p>Thank you for choosing the Children''s Campus for your course observation requirement.  
+Our online reservation system is showing that you missed your last observation appointment.  
+<u>If you miss one more</u>, the system will remove all future reservations that you''ve created.  
+If the system removes your reservations, you will be allowed to re-reserve rooms but the same rules will apply.  
+Please respect that other students need to do observations and are affected by your decision to miss your appointment.</p>
 <p>Here are the details of your missed reservation:</p>
 <ul>
 	<li>|%RESERVE_DATE%|</li>
@@ -379,9 +395,26 @@ SET value = '
 	<li>|%RESERVE_MISSED_LINK%|</li>
 </ul>
 <br>
-<p>In the future if you''re going to miss your observation appointment, you should cancel your reservation in advance.  Many students want to observe at the CC but cannot due to our full reservation system.</p>
-<p>Observation at the Children''s Campus is a privilege and should not be taken for granted.  Thank you for understanding.</p>'
+<p>In the future if you''re going to miss your observation appointment, you should cancel your reservation in advance.  
+Many students want to observe at the CC but cannot due to our full reservation system.</p>
+<p>Observation at the Children''s Campus is a privilege and should not be taken for granted.  
+Thank you for understanding.</p>'
 WHERE key = 'email-reservation-missed';
+
+UPDATE at_config_settings
+SET value = '
+<p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
+<p>You reservation at Children''s Campus has been canceled.</p>
+<p>Here are the details of your canceled reservation:</p>
+<ul>
+	<li>|%RESERVE_DATE%|</li>
+	<li>|%PURPOSE_INFO%|</li>
+	<li>|%RESERVE_SIGNUP_LINK%|</li>
+</ul>
+<br>
+<p>Please contact us with any questions if needed.
+Thank you for understanding.</p>'
+WHERE key = 'email-reservation-canceled';
 
 COMMIT;
 -- END Email Defaults ***************************************************

@@ -41,7 +41,8 @@ class Ccheckin_Admin_EmailManager
 			'sendCourseDenied',
 			'sendReservationDetails',
 			'sendReservationReminder',
-			'sendReservationMissed'
+			'sendReservationMissed',
+			'sendReservationCanceled'
 		);
 
 		return $types;
@@ -310,6 +311,26 @@ class Ccheckin_Admin_EmailManager
 		);
 
 		$body = trim($this->app->siteSettings->getProperty('email-reservation-missed'));
+		if ($this->hasContent($body))
+		{
+			$this->sendEmail($data['user'], $params, $body);	
+		}
+	}
+
+	public function sendReservationCanceled ($data, $test)
+	{
+		$this->subjectLine = "Children's Campus Check-in: Reservation Canceled";
+
+		$params = array(
+			'|%FIRST_NAME%|' => $data['user']->firstName,
+			'|%LAST_NAME%|' => $data['user']->lastName,
+			'|%RESERVE_DATE%|' => $data['reservation_date']->format('M j, Y g:ia'),
+			'|%RESERVE_SIGNUP_LINK%|' => $this->generateLink('/reservations', true, 'Sign Up For a Visit'),
+			'|%PURPOSE_INFO%|' => $data['reservation_purpose'],
+			'message_title' => 'Reservation Canceled'
+		);
+
+		$body = trim($this->app->siteSettings->getProperty('email-reservation-canceled'));
 		if ($this->hasContent($body))
 		{
 			$this->sendEmail($data['user'], $params, $body);	

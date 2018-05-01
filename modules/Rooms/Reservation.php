@@ -42,7 +42,7 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
         );
     }
 
-    public function GetRoomAvailable ($room, $start, $duration, $resSchema)
+    public function GetRoomAvailable ($room, $start, $duration, $student, $resSchema)
     {
         $available = false;
         $continue = true;
@@ -65,7 +65,7 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
             $end->setTime($endHour, 0);
             $tRoomReservation = $resSchema;
             
-            $cond = $tRoomReservation->find($tRoomReservation->anyTrue(
+            $cond = $tRoomReservation->anyTrue(
                 $tRoomReservation->allTrue(
                     $tRoomReservation->roomId->equals($room->id),
                     $tRoomReservation->startTime->beforeOrEquals($start),
@@ -86,9 +86,10 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
                     $tRoomReservation->startTime->afterOrEquals($start),
                     $tRoomReservation->endTime->beforeOrEquals($end)
                 )
-            ));
-            
-            $reservations = is_array($cond) ? $cond : $tRoomReservation->find($cond);
+            );
+
+            $reservations = $tRoomReservation->find($cond);
+            // $reservations = is_array($cond) ? $cond : $tRoomReservation->find($cond);
             
             if (count($reservations) < $room->maxObservers)
             {
@@ -96,7 +97,7 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
             }
         }
         
-        return $available;
+        return ($available ? $cond : false);
     }
     
     public static function GetAccountReservations ($account)

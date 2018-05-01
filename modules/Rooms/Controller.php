@@ -276,14 +276,14 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                 $reservations->missed->isFalse()->orIf($reservations->missed->isNull()),
                 $reservations->startTime->afterOrEquals($now)        
             );
-            $upcomingReservations = $reservations->find($cond, array('orderBy' => '-startTime'));
+            $upcomingReservations = $reservations->find($cond, array('orderBy' => '+startTime'));
         }
         else
         {
             $upcomingReservations = $reservations->find(
                 ($reservations->checkedIn->isFalse()->orIf($reservations->checkedIn->isNull()))->andIf(
                 $reservations->startTime->afterOrEquals($now)),
-                array('orderBy' => '-startTime')
+                array('orderBy' => '+startTime')
             );
         }
         
@@ -399,8 +399,12 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                 switch ($command)
                 {
                     case 'delete':
+                        if ($this->hasPermission('admin'))
+                        {
+                            $this->sendReservationCanceledNotification($reservation, $viewer);
+                        }                 	
                         $reservation->delete();
-                        $this->flash('The reservation has been deleted.');
+                        $this->flash('The reservation has been canceled.');
                         $this->response->redirect('reservations/upcoming');
                         exit;
                 }
@@ -478,7 +482,9 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                             $purposeId = $this->request->getPostParameter('purpose');
                             $duration = $this->request->getPostParameter('duration');
                             $continue = false;
+                            $contiguous = false;
                             $end = null;
+                            $exceedDuration = 'You can only reserve up to 3 hours in a row.';
                             
                             if ($duration)
                             {
@@ -488,9 +494,101 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                                 if ($purpose = $this->schema('Ccheckin_Purposes_Purpose')->get($purposeId))
                                 {
                                     $reservationSchema = $this->schema('Ccheckin_Rooms_Reservation');
-                                    if (!($continue = Ccheckin_Rooms_Reservation::GetRoomAvailable($room, $date, $duration, $reservationSchema)))
+                                    if (!($continue = Ccheckin_Rooms_Reservation::GetRoomAvailable($room, $date, $duration, $viewer, $reservationSchema)))
                                     {
                                         $message = 'We cannot reserve the room at this time for ' . $duration . ' hours';
+                                    }
+                                    elseif (($results = $reservationSchema->find($continue->andIf($reservationSchema->accountId->equals($viewer->id)))))
+                                    {
+                                    	$continue = false;
+                                    	$message = 'You have another reservation that conflicts with this one.';
+                                    }
+                                    // check for reservations before, after or sandwiched around this request
+                                    if ($continue)
+                                    {
+                                    	$beforeCondition = $reservationSchema->allTrue(
+                                    		$reservationSchema->roomId->equals($room->id),
+                                    		$reservationSchema->accountId->equals($viewer->id),
+                                    		$reservationSchema->endTime->equals($date)
+                                    	);
+                                    	$afterCondition = $reservationSchema->allTrue(
+                                    		$reservationSchema->roomId->equals($room->id),
+                                    		$reservationSchema->accountId->equals($viewer->id),
+                                    		$reservationSchema->startTime->equals($end)
+                                    	);
+                                    	
+                                    	// if there is a prior reservation, check for one in the following hour
+                                    	if (($contiguousBefore = $reservationSchema->findOne($beforeCondition)))
+                                    	{
+                                    		// proceed if combined will be no more than 3 hours
+                                    		if ((($contiguousBefore->endTime->format('G')-$contiguousBefore->startTime->format('G'))+$duration) <= 3)
+                                    		{
+                                    			$contiguous = true;
+	                                    		$sandwichCondition = $afterCondition; // chances to use sandwich in a var name don't happen often enough :)
+
+	                                    		if (($contiguousAfter = $reservationSchema->findOne($sandwichCondition)))
+	                                    		{
+	                                    			// following reservation is more than an hour
+	                                    			if (($contiguousAfter->endTime->format('G') - $contiguousAfter->startTime->format('G')) > 1)
+	                                    			{
+	                                    				$continue = false;
+	                                    				$message = $exceedDuration;
+	                                    			}
+	                                    			else
+	                                    			{
+	                                    				$continue = false;
+	                                    				$message = 'Your reservations before and after this one were combined together to make one long reservation.';
+	                                    				$duration = 3;
+	                                    				$date = $contiguousBefore->startTime;
+	                                    				$contiguousBefore->endTime = $contiguousAfter->endTime;
+	                                    				$contiguousBefore->save();
+	                                    				$afterObservation = $contiguousAfter->observation;
+	                                    				$contiguousAfter->delete();
+	                                    				$afterObservation->delete(); 
+	                                    				$reservation = $contiguousBefore; // set the reservation as the before-sandwich-breadslice                            				
+	                                    			}
+	                                    		}
+	                                    		else
+	                                    		{
+	                                    			$continue = false;
+	                                    			$message = 'Your reservation before this one was combined together to make it one longer reservation.';
+	                                    			$date = $contiguousBefore->startTime;
+	                                    			$duration = ($contiguousBefore->endTime->format('G')-$contiguousBefore->startTime->format('G'))+$duration;
+	                                    			$contiguousBefore->endTime = (clone $contiguousBefore->startTime)->modify('+' . $duration . ' hours');
+	                                    			$contiguousBefore->save();
+		                                    		$reservation = $contiguousBefore; // set the reservation as the one prior to this request
+	                                    		}
+                                    		}
+                                    		else
+                                    		{
+                                    			$continue = false;
+                                    			$message = $exceedDuration;
+                                    		}
+	
+                                    	}
+                                    	elseif (($contiguousAfter = $reservationSchema->findOne($afterCondition)))
+                                    	{
+                                    		// proceed if combined will be no more than 3 hours
+                                    		if ((($contiguousAfter->endTime->format('G')-$contiguousAfter->startTime->format('G'))+$duration) <= 3)
+                                    		{
+                                    			$contiguous = true;
+                                    			$continue = true;
+                                    			$message = 'Your reservation immediately after this one was combined together to make it one longer reservation. 
+                                    				An email with the new details has been sent to you.';
+
+                                    			// set new end & duration then delete the later reservation/observation
+                                    			$end = $contiguousAfter->endTime;
+                                    			$duration = ($contiguousAfter->endTime->format('G')-$contiguousAfter->startTime->format('G')) + $duration;
+                                    			$afterObservation = $contiguousAfter->observation;
+                                    			$contiguousAfter->delete();
+                                				$afterObservation->delete();                              				
+                                    		}
+                                    		else
+                                    		{
+                                     			$continue = false;
+                                    			$message = $exceedDuration;                           			
+                                    		}
+                                    	}
                                     }
 
                                     $cdate = clone $date;
@@ -525,6 +623,8 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                             {
                                 $message = 'Please state the amount of time for the visit';
                             }
+
+                            $dateSummary = 'Starts: ' . $date->format('M j, Y g:ia').' for '.$duration.' hour'. ($duration > 1 ? 's.' : '.');
                             
                             if ($continue)
                             {
@@ -546,8 +646,23 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                                 
                                 $this->sendReservationDetailsNotification($reservation, $viewer);
 
-                                $this->flash('Your reservation has been scheduled for '.$date->format('M j, Y g:ia').' for '.$duration.' hour'. ($duration > 1 ? 's.' : '.'));
+                                $flash = 'Your reservation has been scheduled for '. $dateSummary;
+                                if ($contiguous) $flash = $message . ' ' . $dateSummary;
+                                $this->flash($flash);
                                 $this->response->redirect('reservations/view/' . $reservation->id);
+                            }
+                            elseif ($contiguous)
+                            {
+                            	if (isset($reservation))
+                            	{
+                            		$this->flash($message . ' ' . $dateSummary);
+                            		$message = '';
+                            		$this->response->redirect('reservations/view/' . $reservation->id);
+                            	}
+                            	else
+                            	{
+                            		$this->flash($message);
+                            	}
                             }
                         }
                         break;
@@ -666,13 +781,13 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     private function buildDayTimes ($room, $day, $reservations)
     {
         $times = array();
-
+        
         if (isset($room->schedule[$day->format('N')-1]))
         {
             $startTime = clone $day;
             $endTime = clone $day;
             $hours = array_keys($room->schedule[$day->format('N')-1]);
-
+            
             for ($i = self::START_HOUR; $i <= self::END_HOUR; $i++)
             {
                 if (!in_array($i, $hours))
@@ -737,6 +852,17 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         $emailData['user'] = $account;
         $emailManager->processEmail('sendReservationDetails', $emailData);
     }
+
+    protected function sendReservationCanceledNotification ($reservation, $account)
+    {
+        $emailManager = new Ccheckin_Admin_EmailManager($this->getApplication(), $this);
+        $emailData = array();        
+        $emailData['reservation_date'] = $reservation->startTime;
+        $emailData['reservation_purpose'] = $reservation->observation->purpose->shortDescription;
+        $emailData['user'] = $account;
+        $emailManager->processEmail('sendReservationCanceled', $emailData);
+    }
+
 
 }
 
