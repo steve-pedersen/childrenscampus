@@ -17,7 +17,16 @@ class Ccheckin_Courses_FacetType extends Bss_ActiveRecord_BaseWithAuthorization 
     public function setName ($name)
     {
         $this->_assign('name', $name);
-        $this->_assign('sortName', strtolower($name));  // TODO: Come up with a better sort name algorithm, e.g if strpos($name, 'participation') then 'participate' ******************
+        $sortName = strtolower($name);
+        if ((strpos($sortName, 'participation') !== false) || (strpos($sortName, 'participate') !== false))
+        {
+            $sortName = 'participate';
+        }
+        elseif ((strpos($sortName, 'observation') !== false) || (strpos($sortName, 'observe') !== false))
+        {
+            $sortName = 'observe';
+        }
+        $this->_assign('sortName', $sortName);
     }
     
     public function validate ()

@@ -28,9 +28,7 @@ If you need help locating our center, please check the <a href="http://www.sfsu.
     <dt>Who:</dt>
     <dd>{$reservation->account->firstName} {$reservation->account->lastName}</dd>
     <dt>When:</dt>
-    <dd>{$reservation->startTime|date_format:$dateFormat}</dd>
-    <dt>Until:</dt>
-    <dd>{$reservation->endTime|date_format:$dateFormat}</dd>
+    <dd>{$reservation->startTime->format('F j, Y – ga')} to {$reservation->endTime->format('ga')}</dd>
     <dt>Course Info:</dt>
     <dd>
         {$reservation->observation->purpose->object->course->fullName}<br>({$reservation->observation->purpose->object->course->shortName})

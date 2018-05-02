@@ -44,6 +44,12 @@ class Ccheckin_Courses_Course extends Bss_ActiveRecord_BaseWithAuthorization //i
         // $this->addEventHandler('before-insert', array($this, 'beforeInsert'));
     }
 
+    public function getShortNameAbbrev ()
+    {
+        $nameArr = explode('-', $this->shortName, 3);
+        return $nameArr[0] . '-' . $nameArr[1];
+    }
+
     public function getCollege ($reload=false)
     {
         if ($reload || $this->_college === null)

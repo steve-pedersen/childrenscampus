@@ -218,26 +218,18 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             $date->modify('-1 day');
         }
 
-        $sems = $this->schema('Ccheckin_Semesters_Semester');
-        $activeSemesterCode = Ccheckin_Semesters_Semester::guessActiveSemester(true);
-        $activeSemester = $sems->findOne($sems->internal->equals($activeSemesterCode));
-        $withinSemesterRange = false;
+        $currentSemester = $this->getSemesterWithinRange(new DateTime);
+        $courseInSemester = false;
 
         foreach ($courses as $course)
         {
-            if ($course->semester->id === $activeSemester->id)
+            if ($currentSemester && ($currentSemester->id === $course->semester->id))
             {
-                $openDate = ($activeSemester->openDate === null) ? $activeSemester->startDate : $activeSemester->openDate;
-                $closeDate = ($activeSemester->closeDate === null) ? $activeSemester->endDate : $activeSemester->closeDate;
-                $withinSemesterRange = ($openDate < $currDate && $currDate < $closeDate);
+                $courseInSemester = true;
             }
-            // elseif ($course->semester->internal[3] == 1)     // account for possible overlap with winter and spring....
-            // {
-            // }
         }
 
-        $calendar['week'] = ($withinSemesterRange ? $this->buildWeek($room, $date) : array());
-        
+        $calendar['week'] = ($courseInSemester ? $this->buildWeek($room, $date) : array());     
         $calendar['times'] = array();
         
         for ($i = self::START_HOUR; $i <= self::END_HOUR; $i++)
@@ -250,6 +242,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         $this->template->blockDates = $this->convertToDateTimes($storedDates);          
         $this->template->calendar = $calendar;
         $this->template->room = $room;
+        $this->template->currSemester = $this->getSemesterWithinRange(new DateTime);
     }
     
     public function view ()
@@ -259,7 +252,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         
         $this->template->ismissed = $reservation->missed || (!$reservation->checkedIn && ($reservation->endTime < new DateTime));
         $this->template->reservation = $reservation;
-        $this->template->dateFormat = "%b %e, %Y at %l %p";
+        $this->template->dateFormat = "%b %e, %Y from %l%p";
     }
     
     public function upcoming ()
@@ -417,18 +410,27 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     }
     
 
-    public function withinSemesterRange ($date)
+    public function getSemesterWithinRange ($date)
     {
         $sems = $this->schema('Ccheckin_Semesters_Semester');
-        $activeSemesterCode = Ccheckin_Semesters_Semester::guessActiveSemester(true);
-        $activeSemester = $sems->findOne($sems->internal->equals($activeSemesterCode));
-        $openDate = ($activeSemester->openDate === null) ? $activeSemester->startDate : $activeSemester->openDate;
-        $closeDate = ($activeSemester->closeDate === null) ? $activeSemester->endDate : $activeSemester->closeDate;
-        $withinSemesterRange = ($openDate < $date && $date < $closeDate);
+        $semester = $sems->findOne($sems->allTrue(
+            $sems->startDate->beforeOrEquals($date),
+            $sems->endDate->afterOrEquals($date)
+        ));
 
-        return $withinSemesterRange;
+        return $semester;
     }
 
+    public function getSemesterWithinReservationRange ($date)
+    {
+        $sems = $this->schema('Ccheckin_Semesters_Semester');
+        $semester = $sems->findOne($sems->allTrue(
+            $sems->openDate->beforeOrEquals($date),
+            $sems->closeDate->afterOrEquals($date)
+        ));
+
+        return $semester;
+    }
 
     public function reserve ()
     {
@@ -454,8 +456,9 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         $validDate = true;
 
         try {
+            $now = new DateTime;
             $date = new DateTime($year .'-'. $month  .'-'. $day .' '. $hour .':00');
-            if (!$this->withinSemesterRange($date))
+            if (!$this->getSemesterWithinRange($now) || !$this->getSemesterWithinReservationRange($date))
             {
                 $continue = false;
                 $validDate = false;
@@ -484,7 +487,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                             $continue = false;
                             $contiguous = false;
                             $end = null;
-                            $exceedDuration = 'You can only reserve up to 3 hours in a row.';
+                            $exceedsDuration = 'You can only reserve up to 3 hours in a row.';
                             
                             if ($duration)
                             {
@@ -524,15 +527,15 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                                     		if ((($contiguousBefore->endTime->format('G')-$contiguousBefore->startTime->format('G'))+$duration) <= 3)
                                     		{
                                     			$contiguous = true;
-	                                    		$sandwichCondition = $afterCondition; // chances to use sandwich in a var name don't happen often enough :)
-
+	                                    		$sandwichCondition = $afterCondition;
+                                                // is the requested hour sandwiched between two other reservations?
 	                                    		if (($contiguousAfter = $reservationSchema->findOne($sandwichCondition)))
 	                                    		{
 	                                    			// following reservation is more than an hour
 	                                    			if (($contiguousAfter->endTime->format('G') - $contiguousAfter->startTime->format('G')) > 1)
 	                                    			{
 	                                    				$continue = false;
-	                                    				$message = $exceedDuration;
+	                                    				$message = $exceedsDuration;
 	                                    			}
 	                                    			else
 	                                    			{
@@ -562,7 +565,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                                     		else
                                     		{
                                     			$continue = false;
-                                    			$message = $exceedDuration;
+                                    			$message = $exceedsDuration;
                                     		}
 	
                                     	}
@@ -586,7 +589,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                                     		else
                                     		{
                                      			$continue = false;
-                                    			$message = $exceedDuration;                           			
+                                    			$message = $exceedsDuration;                           			
                                     		}
                                     	}
                                     }
@@ -660,8 +663,8 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                             		$this->response->redirect('reservations/view/' . $reservation->id);
                             	}
                             	else
-                            	{
-                            		$this->flash($message);
+                            	{   // flash them their error message
+                                    $this->flash($message);
                             	}
                             }
                         }
@@ -678,21 +681,30 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         {
             $object = $p->getObject();
             
-            if (($object instanceof Ccheckin_Courses_Facet) && !$object->course->active) 
+            if (($object instanceof Ccheckin_Courses_Facet) && !$object->course->active || ($object->type->sortName !== $room->observationType)) 
             {
                 unset($purposes[$idx]);
             }
         }
 
         $purposes = array_values($purposes);
-        
+        $selected = null;
+        foreach ($purposes as $p)
+        {
+            if ($p->object->type->sortName === $room->observationType)
+            {
+                $selected = $p->id;
+            }
+        }
+
         if (count($purposes) == 1)
         {
             $purpose = $purposes[0];
         }
-        
+
         $this->template->room = $room;
         $this->template->purposes = $purposes;
+        $this->template->selected = $selected;
         $this->template->message = $message;
         $this->template->purpose = $purpose;
         $this->template->date = $date ?? null;
@@ -767,12 +779,18 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         {
             $day['outside'] = true;
         }
-        
+
+        $now = new DateTime;
+        $currentSemester = $this->getSemesterWithinRange($now);
+        $dateSemester = $this->getSemesterWithinRange($date);
+      
         $day['dayOfWeek'] = $date->format('w');
         $day['dayOfMonth'] = $date->format('j');
         $day['suffix'] = $date->format('S');
         $day['month'] = $date->format('M');
         $day['date'] = $date->format('Y') . '/' . $date->format('m') . '/' . $date->format('d');
+        $day['datetime'] = new DateTime($date->format('Y/m/d'));
+        $day['inSemester'] = (($currentSemester && $dateSemester) && ($currentSemester->id === $dateSemester->id));
         $day['times'] = $this->buildDayTimes($room, $date, $reservations);
 
         return $day;
@@ -782,7 +800,9 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     {
         $times = array();
         
-        if (isset($room->schedule[$day->format('N')-1]))
+        // N: 1 for Monday thru 7 for Sunday
+        // room->schedule: 0 for Monday thru 5 for Friday
+        if (isset($room->schedule[$day->format('N')-1]))    
         {
             $startTime = clone $day;
             $endTime = clone $day;

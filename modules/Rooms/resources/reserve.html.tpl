@@ -15,7 +15,7 @@
         <label for="purpose">Select a Purpose</label>
         <select name="purpose" class="form-control">
             {foreach from=$purposes  item='purpose'}
-            <option value="{$purpose->id}">{$purpose->shortDescription|escape}</option>
+            <option value="{$purpose->id}" {if $purpose->id == $selected}selected default{/if}>{$purpose->shortDescription|escape}</option>
             {/foreach}
         </select>
     </div>

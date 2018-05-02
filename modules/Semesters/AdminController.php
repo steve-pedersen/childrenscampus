@@ -51,27 +51,29 @@ class Ccheckin_Semesters_AdminController extends At_Admin_Controller
                     case 'add':
                         $semester = $semesters->createInstance();
                         
-                        $startDate = $this->request->getPostParameter('startDate');
-                        if ($startDate)
+                        if ($startDate = $this->request->getPostParameter('startDate'))
                         {
                             $semester->startDate = new DateTime($startDate);
                         }
-                        
-                        $endDate = $this->request->getPostParameter('endDate');
-                        if ($endDate)
+                        if ($endDate = $this->request->getPostParameter('endDate'))
                         {
                             $semester->endDate = new DateTime($endDate);
                         }
-                        $openDate = $this->request->getPostParameter('openDate');
-                        if ($openDate)
+                        if ($openDate = $this->request->getPostParameter('openDate'))
                         {
                             $semester->openDate = new DateTime($openDate);
                         }
-                        
-                        $closeDate = $this->request->getPostParameter('closeDate');
-                        if ($closeDate)
+                        else
+                        {
+                            $semester->openDate = new DateTime($startDate);
+                        }
+                        if ($closeDate = $this->request->getPostParameter('closeDate'))
                         {
                             $semester->closeDate = new DateTime($closeDate);
+                        }
+                        else
+                        {
+                            $semester->closeDate = new DateTime($endDate);
                         }
              
                         $term = $this->request->getPostParameter('term');

@@ -129,11 +129,11 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
                 $earlyWinter = true;
             }
         }
-        elseif ($m < 5)
+        elseif ($m < 6)
         {
             $s = 3; // Spring
         }
-        elseif ($m < 8)
+        elseif ($m < 8 || ($m == 8 && $d < 20))
         {
             $s = 5; // Summer
         }

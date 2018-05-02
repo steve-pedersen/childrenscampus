@@ -10,11 +10,19 @@
     </div>
 </div>
 {else}
-<h1>Select the room you want to reserve</h1>
+<h1>Select the room you want to reserve
+{if $rooms.observe && $rooms.participate}
+
+{/if}
+</h1>
 {if $rooms.observe}
 <div class="room-section">
     {if $rooms.participate}
-    <h2>Observation Only</h2>
+    <h2>Observation Only
+<div class="pull-right">
+    <a class="btn btn-sm btn-default" href="reservations#participate" role="button"><span class="glyphicon glyphicon-arrow-down"> </span> Participation Rooms</a>
+</div>
+    </h2>
     <p class="">
         Students will be observing children only from the observation room/s.  
         Students will not have opportunity to interact with the children and/or 
@@ -42,7 +50,7 @@
 {if $rooms.participate}
 <div class="room-section">
     {if $rooms.observe}
-    <h2>Participation</h2>
+    <h2 id="participate">Participation</h2>
     <p class="">
         This space is reserved for students who will be interacting with the 
         children throughout their required observation hours.  Generally 

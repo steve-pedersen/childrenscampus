@@ -10,7 +10,6 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
             'courses/view/:id'      => array('callback' => 'view', ':id' => '[0-9]+'),
             'courses/history/:id'   => array('callback' => 'history', ':id' => '[0-9]+'),
             'courses/request'       => array('callback' => 'request'),
-            'courses/students/:id'  => array('callback' => 'students', ':id' => '[0-9]+'),
         );
     }
 
@@ -58,6 +57,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
             }
         }
         
+        sort($cs);
         
         $this->template->canRequest = $this->hasPermission('course request');
         $this->template->viewall = $viewall;
@@ -192,7 +192,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         return false;
     }
 
-    // TODO: Fix tasks submission and remove unused fields/fetch from ClassData
+
     public function request ()
     {       
         $this->addBreadcrumb('courses', 'View Courses');
@@ -214,7 +214,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         {
             $semesters[$sem->id] = $sem;
         }
-        // sorry for such similar vars. this could be better
+        // Note, active has semester-code and selected has object
         $activeSemester = $this->requireExists(Ccheckin_Semesters_Semester::guessActiveSemester(true)); // used for querying
         $selectedSemester = $sems->findOne($sems->internal->equals($activeSemester));  // used for post data
 
@@ -357,91 +357,6 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         $this->template->selectedSemester = $selectedSemester;
     }
     
-    // NOTE: This function will probably be obsolete unless manual student accounts/enrollments are needed.
-    public function students ()
-    {
-        $this->addBreadcrumb('courses', 'View Courses');
-        $viewer = $this->requireLogin();
-        $id = $this->getRouteVariable('id');   
-        $course = $this->requireExists($this->schema('Ccheckin_Courses_Course')->get($id));
-        
-        if (!$this->hasPermission('course view', $course) || (!$this->hasPermission('admin') && !$course->active))
-        {
-            $this->triggerError('Ccheckin_Master_PermissionErrorHandler');
-            exit;
-        }
-        
-        if ($this->request->getRequestMethod() == 'post')
-        {
-            if ($command = $this->getPostCommand())
-            {               
-                switch ($command)
-                {
-                    case 'request':
-                        $userRequest = 'nothing'; // $this->schema('Ccheckin_Courses_UserRequest')->createInstance(); // TODO: Refactor
-                        $users = array();
-                        
-                        if ($studentsObserve = $this->request->getPostParameter('students-observe'))
-                        {
-                            $users['observe'] = array_filter(explode("\n", $studentsObserve));
-                        }
-                        
-                        if ($studentsParticipate = $this->request->getPostParameter('students-participate'))
-                        {
-                            $users['participate'] = array_filter(explode("\n", $studentsParticipate));
-                        }
-                        
-                        if (!empty($users))
-                        {
-                            $userRequest->users = $users;
-                            $userRequest->course = $course;
-                            $userRequest->requestedBy = $viewer;
-                            $userRequest->requestDate = date('c');
-                            $userRequest->save();
-                            $this->sendStudentRequestedNotification($course, $viewer);
-                            $this->flash('Your student requests have been added to system.');
-                        }
-                        break;
-                }
-            }
-        }
-        
-        $this->template->course = $course;
-        $this->template->students = $course->students;
-    }
-    
-    // NOTE: This will probably be obsolete 
-    public function drop ()
-    {
-        $this->addBreadcrumb('courses', 'View Courses');
-        $this->requireLogin();
-        $courseId = $this->getRouteVariable('cid');
-        $accountId = $this->getRouteVariable('aid'); 
-        $course = $this->requireExists($this->schema('Ccheckin_Courses_Course')->get($id));       
-        $account = $this->requireExists($this->schema('Bss_AuthN_Account')->get($accountId));
-        $this->requirePermission('course view', $course);
-        
-        if ($this->request->getRequestMethod() == 'post')
-        {
-            if ($command = $this->getPostCommand())
-            {
-                switch ($command)
-                {
-                    case 'drop':
-                        foreach ($course->facets as $facet)
-                        {
-                            $facet->removeUser($account);
-                        }
-                        $this->flash('The student has been removed from the course');
-                        $this->response->redirect('courses/students/' . $course->id);
-                        break;
-                }
-            }
-        }
-        
-        $this->template->student = $account;
-        $this->template->course = $course;
-    }
 
     // Send email to all Admin accounts that have 'receiveAdminNotifications' turned on.
     protected function sendCourseRequestedAdminNotification ($request, $account)

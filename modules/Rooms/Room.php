@@ -36,13 +36,6 @@ class Ccheckin_Rooms_Room extends Bss_ActiveRecord_BaseWithAuthorization // impl
         );
     }
 
-    // public function getDays ()
-    // {
-    //     $days = $this->_fetch('days');
-        
-    //     return $days ? $days : array();
-    // }
-    
     public function getHours ($day = null)
     {
         $hours = array();
@@ -58,8 +51,7 @@ class Ccheckin_Rooms_Room extends Bss_ActiveRecord_BaseWithAuthorization // impl
     public function getSchedule ()
     {
         $schedule = json_decode($this->_fetch('schedule'), true);
-        // echo "<pre>"; var_dump($schedule); die;
-        // sort($schedule);
+
         return $schedule ? $schedule : array();
     }
     

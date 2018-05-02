@@ -59,8 +59,9 @@ class Ccheckin_Rooms_ReservationCleanupCronJob extends Bss_Cron_Job
                 
                 foreach ($deleteReservations as $dr)
                 {
-                    $dr->observation->delete();
+                    $obs = $dr->observation;
                     $dr->delete();
+                    $obs->delete();
                 }
             }
 

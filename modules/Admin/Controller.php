@@ -477,10 +477,11 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                         break;
 
                     case 'add':
-                        $newDate = $this->request->getPostParameter('blockeddatenew');  
+                        $newDate = $this->request->getPostParameter('blockeddatenew');
                         try {
                             $blockDates[] = new DateTime($newDate);
                             $storedDates[] = $newDate;
+                            $this->sendReservationCanceledNotification($newDate);
                             $siteSettings->setProperty('blocked-dates', json_encode($storedDates));
                             $this->flash('Blocked off date added.');
 
@@ -495,7 +496,46 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
 
         $this->template->blockDates = $blockDates;
     }
-   
+
+    public function sendReservationCanceledNotification ($blockedDate)
+    {
+        $reservations = $schemaManager->getSchema('Ccheckin_Rooms_Reservation');
+        $blocked = new DateTime($blockedDate);
+        $canceled = array();
+
+        $cond = $reservations->allTrue(
+            $reservations->startTime->after(new DateTime()),
+            $reservations->missed->isNull()->orIf($reservations->missed->isFalse()),
+            $reservations->checkedIn->isNull()->orIf($reservations->checkedIn->isFalse())
+
+        );
+        $upcoming = $reservations->find($cond);
+
+        foreach ($upcoming as $reservation)
+        {
+            if ($blocked->format('Y/m/d') === $reservation->startTime->format('Y/m/d'))
+            {
+                $canceled[] = $reservation;
+            }
+        }
+
+        $emailManager = new Ccheckin_Admin_EmailManager($this->getApplication(), $this);
+        
+        // notify students of cancellation
+        foreach ($canceled as $reservation)
+        {
+            $emailData = array();        
+            $emailData['reservation_date'] = $reservation->startTime;
+            $emailData['reservation_purpose'] = $reservation->observation->purpose->shortDescription;
+            $emailData['user'] = $reservation->account;
+            $emailManager->processEmail('sendReservationCanceled', $emailData);
+
+            $observation = $reservation->observation;
+            $reservation->delete();
+            $observation->delete();
+        }
+    }
+ 
     /**
      * Set the site notice.
      */
@@ -577,7 +617,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
     {
         $app = $this->getApplication();
         $migrationComplete = $app->siteSettings->getProperty('migration-complete');
-        
+
         if (!$migrationComplete)
         {
             set_time_limit(0);
@@ -586,6 +626,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
             $semSchema = $this->schema('Ccheckin_Semesters_Semester');
             $courseSchema = $this->schema('Ccheckin_Courses_Course');
             $facetSchema = $this->schema('Ccheckin_Courses_Facet');
+            $facetTypeSchema = $this->schema('Ccheckin_Courses_FacetType');
 
             // Generate Semester 'internal'
             foreach ($semSchema->find($semSchema->internal->isNull()) as $semester)
@@ -626,6 +667,13 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                     $course->enrollments->setProperty($enrollee, 'term', $semCode);
                 }
                 $course->enrollments->save();
+            }
+
+            // Update the sortName attribute of facet types
+            foreach ($facetTypeSchema->getAll() as $type)
+            {
+                $type->name = $type->name;
+                $type->save();
             }
 
             $app->siteSettings->setProperty('migration-complete', true);

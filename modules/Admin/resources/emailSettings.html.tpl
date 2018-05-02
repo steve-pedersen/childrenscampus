@@ -93,14 +93,14 @@
 
 	<div class="row email-row testing-row well">
 		<h3 class="">Debug Testing Mode</h3>
-		<p class="alert testingOnly"><strong>NOTE: most likely only for AT use only. Turning on testing will make it so that ALL email will only be sent to the "Debug testing address". If no testing address is specified, but testing is turned on, email will fail to send to anyone.</strong></p>
-		<div class="col-xs-4">
+		<p class="alert testingOnly"><strong>Note, this is most likely for AT use only.</strong> Turning on testing will make it so that ALL email will be sent only to the "Debug testing address". If no testing address is specified, but testing is turned on, <u>email will fail to send to anyone</u>.</p>
+		<div class="col-xs-6">
 			<div class="form-group testingOnly">
 				<label for="testingOnly">Turn Testing On</label><br>
 				<input type="checkbox"  name="testingOnly" id="testingOnly" value="{if $testingOnly}1{/if}" {if $testingOnly}checked aria-checked="true"{/if} />						
 			</div>
 		</div>
-		<div class="col-xs-8">
+		<div class="col-xs-6">
 			<div class="form-group">
 				<label for="testAddress">Debug testing address</label>
 				<input type="email" class="form-control" name="testAddress" id="testAddress" value="{$testAddress}" placeholder="e.g. testaddress@gmail.com" />				
