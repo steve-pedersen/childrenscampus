@@ -7,7 +7,7 @@
     </ul>
 </div>
 <p> 
-    These are the current, ongoing observation which are going on at Children's Campus.  
+    These are the current, ongoing observations at Children's Campus.  
     You may use this feature to verify that people have successfully logged into the system.
 </p>
 <table class="table table-bordered table-striped">
@@ -25,7 +25,7 @@
             <td>{$reservation->observation->startTime->format('M jS, Y g:ia')}</td>
             <td>{$reservation->account->firstName} {$reservation->account->lastName} ({$reservation->account->emailAddress})</td>
             <td>{$reservation->room->name}</td>
-            <td>{$reservation->observation->purpose->shortDescription|escape}</td>
+            <td>{$reservation->observation->purpose->shortDescription|escape}. <a href="reservations/view/{$reservation->id}">View reservation details</a></td>
             <td>{if !$reservation->observation->endTime}<a class="btn btn-xs btn-default" href="admin/observations/current?checkout={$reservation->id}">check-out</a>{/if}</td>
         </tr>
     {foreachelse}
