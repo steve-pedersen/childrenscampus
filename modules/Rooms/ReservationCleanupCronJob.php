@@ -19,9 +19,55 @@ class Ccheckin_Rooms_ReservationCleanupCronJob extends Bss_Cron_Job
         	set_time_limit(0);
         	$this->sendReservationMissedNotification();
         	$this->cleanupOldReservations();
-            
+            $this->clearNewMissedReservationPenalties();
+
             return true;
         }
+    }
+
+    public function clearNewMissedReservationPenalties ()
+    {
+        $app = $this->getApplication();
+        $siteSettings = $app->siteSettings;
+        $schemaManager = $app->schemaManager;
+
+        $semesters = $schemaManager->getSchema('Ccheckin_Semesters_Semester');
+
+        $now = new DateTime;
+        $lastClearDate = $siteSettings->getProperty('missed-reservations-cleared-date', '-10 years');
+        $lastClearDate = new DateTime($lastClearDate);
+       
+        $condition = $semesters->allTrue(
+            $semesters->startDate->beforeOrEquals($now),            // now is later than semester start
+            $semesters->startDate->after(new DateTime('-2 days')),  // semester hadn't started 2 days ago
+            $semesters->startDate->after($lastClearDate)            // and is later than the last clearing
+        );
+        $foundNewSemester = $semesters->findOne($condition);
+        
+        if ($foundNewSemester)
+        {
+            $this->clearAllMissedReservationPenalties();
+            $siteSettings->setProperty('missed-reservations-cleared-date', $activeNewSemester->startDate->format('Y-m-d'));
+        }
+    }
+
+    public function clearAllMissedReservationPenalties ()
+    {
+        $app = $this->getApplication();
+        $siteSettings = $app->siteSettings;
+        $schemaManager = $app->schemaManager;
+        $accounts = $app->schemaManager->getSchema('Bss_AuthN_Account');
+
+        $missedReservationAccounts = $accounts->find($accounts->missedReservation->isTrue());
+
+        foreach ($missedReservationAccounts as $account)
+        {
+            $account->missedReservation = false;
+            $account->save();
+        }
+
+        $now = new DateTime;
+        $app->siteSettings->setProperty('missed-reservations-cleared-date', $now->format('Y-m-d'));      
     }
 
     public function sendReservationMissedNotification ()

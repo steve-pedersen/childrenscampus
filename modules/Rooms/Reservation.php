@@ -42,12 +42,6 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
         );
     }
 
-    public function getCourseShortNameAbbreviation ()
-    {
-        $nameArr = explode('-', $this->observation->purpose->object->course->shortName, 3);
-        return $nameArr[0] . '-' . $nameArr[1];
-    }
-
     public function GetRoomAvailable ($room, $start, $duration, $student, $resSchema)
     {
         $available = false;

@@ -260,7 +260,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         $viewer = $this->requireLogin();
         $reservations = $this->schema('Ccheckin_Rooms_Reservation');
         $now = new DateTime;
-        
+
         if (!$this->hasPermission('admin'))
         {
 			$cond = $reservations->allTrue(

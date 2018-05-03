@@ -10,9 +10,16 @@ class Ccheckin_Rooms_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUpg
 {
     public function onModuleUpgrade ($fromVersion)
     {
+        $app = $this->getApplication();
+        $settings = $app->siteSettings;
+
         switch ($fromVersion)
         {
             case 0:
+
+                // Penalty forgiveness flag
+                $settings->defineProperty('missed-reservations-cleared-date', 'Date string for when missed reservations have last been cleared.', 'string');
+
                 /**
                 *   Create tables
                 */
