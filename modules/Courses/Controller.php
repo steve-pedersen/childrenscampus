@@ -53,7 +53,7 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         {
             if ($this->hasPermission('admin'))
             {
-                $cs = $courseSchema->find($courseSchema->active->isTrue());
+                $cs = $courseSchema->find($courseSchema->active->isTrue(), array('orderBy' => '-startDate'));
             }
         }
 
@@ -77,14 +77,28 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
             }
         }
 
-        sort($cs);
+        // sort by start date
+        $res = usort($cs, 
+            function ($a, $b)
+            {
+                if (isset($a->startDate) && isset($b->startDate))
+                {
+                    $a = $a->startDate;
+                    $b = $b->startDate;
+                }
+                if ($a == $b) {
+                    return 0;
+                }
+                return ($a < $b) ? 1 : -1;
+            }
+        );
         
         $this->template->canRequest = $this->hasPermission('course request');
         $this->template->viewall = $viewall;
         $this->template->viewactive = $viewactive;
         $this->template->courses = $cs;
     }
-    
+
     public function view ()
     {
         $this->addBreadcrumb('courses', 'View Courses');
