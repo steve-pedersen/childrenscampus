@@ -17,7 +17,9 @@
     {/if}
 </div>
 {elseif !$courses && $viewactive}
+<div class="pull-right">
     <a class="btn btn-sm btn-default" href="courses" role="button">All Courses</a>
+</div>
 {/if}
 </h1>
 {foreach item='course' from=$courses}
