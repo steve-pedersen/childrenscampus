@@ -16,6 +16,8 @@
         <a class="btn btn-sm btn-default" href="courses?viewactive=true" role="button">My Current Courses</a>
     {/if}
 </div>
+{elseif !$courses && $viewactive}
+    <a class="btn btn-sm btn-default" href="courses" role="button">All Courses</a>
 {/if}
 </h1>
 {foreach item='course' from=$courses}
