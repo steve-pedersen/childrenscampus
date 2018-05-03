@@ -75,27 +75,31 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
             // NOTE: college & department fields will only be fetched post-migration
             foreach ($observations as $obs)
             {
-                $course = $obs->purpose->object->course;
-                if (!in_array($course->shortName, array_keys($orgs)))
-                {   // cache API results
-                    $orgs[$course->shortName] = array();
-                    $orgs[$course->shortName]['college'] = ($obs->startTime > $migrationDate) ? $course->college : '';
-                    $orgs[$course->shortName]['department'] = ($obs->startTime > $migrationDate) ? $course->department : '';
-                }
-                
-                $semester = $semSchema->findOne($semSchema->startDate->equals($course->startDate));
+                if ($obs->duration)
+                {
+                    $course = $obs->purpose->object->course;
+                    if (!in_array($course->shortName, array_keys($orgs)))
+                    {   // cache API results
+                        $orgs[$course->shortName] = array();
+                        $orgs[$course->shortName]['college'] = ($obs->startTime > $migrationDate) ? $course->college : '';
+                        $orgs[$course->shortName]['department'] = ($obs->startTime > $migrationDate) ? $course->department : '';
+                    }
+                    
+                    $semester = $semSchema->findOne($semSchema->startDate->equals($course->startDate));
 
-                $obsData[$obs->id] = array();
-                $obsData[$obs->id]['obsId'] = $obs->id;
-                $obsData[$obs->id]['course'] = $course->shortName;
-                $obsData[$obs->id]['semester'] = $semester->display;
-                $obsData[$obs->id]['college'] = $orgs[$course->shortName]['college'];
-                $obsData[$obs->id]['department'] = $orgs[$course->shortName]['department'];
-                $obsData[$obs->id]['firstName'] = $obs->account->firstName;
-                $obsData[$obs->id]['lastName'] = $obs->account->lastName;
-                $obsData[$obs->id]['username'] = $obs->account->username;
-                $obsData[$obs->id]['email'] = $obs->account->emailAddress;
-                $obsData[$obs->id]['duration'] = $obs->duration ?? 0;
+                    $obsData[$obs->id] = array();
+                    $obsData[$obs->id]['obsId'] = $obs->id;
+                    $obsData[$obs->id]['course'] = $course->shortName;
+                    $obsData[$obs->id]['semester'] = $semester->display;
+                    $obsData[$obs->id]['college'] = $orgs[$course->shortName]['college'];
+                    $obsData[$obs->id]['department'] = $orgs[$course->shortName]['department'];
+                    $obsData[$obs->id]['firstName'] = $obs->account->firstName;
+                    $obsData[$obs->id]['lastName'] = $obs->account->lastName;
+                    $obsData[$obs->id]['username'] = $obs->account->username;
+                    $obsData[$obs->id]['email'] = $obs->account->emailAddress;
+                    $obsData[$obs->id]['duration'] = $obs->duration ?? 0;                
+                }
+    
             }
 
             header("Content-Type: application/download\n");
@@ -627,6 +631,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
             $courseSchema = $this->schema('Ccheckin_Courses_Course');
             $facetSchema = $this->schema('Ccheckin_Courses_Facet');
             $facetTypeSchema = $this->schema('Ccheckin_Courses_FacetType');
+            $reservations = $this->schema('Ccheckin_Rooms_Reservation');
 
             // Generate Semester 'internal'
             foreach ($semSchema->find($semSchema->internal->isNull()) as $semester)
@@ -674,6 +679,23 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
             {
                 $type->name = $type->name;
                 $type->save();
+            }
+
+            // Delete old missed reservations
+            $cond = $reservations->allTrue(
+                $reservations->startTime->before(new DateTime('-2 weeks')),
+                $reservations->missed->isNull()->orIf($reservations->missed->isFalse()),
+                $reservations->checkedIn->isNull()->orIf($reservations->checkedIn->isFalse())
+            );
+            $missed = $reservations->find($cond);
+            foreach ($missed as $reservation)
+            {
+                $observation = $reservation->observation;
+                $reservation->delete();
+                if (!$observation->duration)
+                {
+                    $observation->delete();
+                }      
             }
 
             $app->siteSettings->setProperty('migration-complete', true);

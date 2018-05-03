@@ -82,7 +82,6 @@ class Ccheckin_Rooms_ReservationCleanupCronJob extends Bss_Cron_Job
             $reservations->startTime->before(new DateTime('-4 hours')),
             $reservations->missed->isNull()->orIf($reservations->missed->isFalse()),
             $reservations->checkedIn->isNull()->orIf($reservations->checkedIn->isFalse())
-
         );
         $missed = $reservations->find($cond);
         
