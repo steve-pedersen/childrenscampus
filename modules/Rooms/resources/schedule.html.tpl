@@ -23,45 +23,50 @@
         {foreach item='timeDisplay' key='time' from=$calendar.times}
         <tr class="schedule-table">
             <th scope="row" class="time-display">{if $timeDisplay == '12 AM'}12 PM{else}{$timeDisplay}{/if}</th>
-          {foreach from=$calendar.week item='day'}
+            {foreach from=$calendar.week item='day'}
             {if $day.dayOfWeek != 0 && $day.dayOfWeek != 6}
-                        {assign var='blockedDate' value=false}
-                {foreach from=$blockDates item=$blocked}
-                    {if $blocked->format('Y/m/d') == $day.date}
-                        {assign var='blockedDate' value=true}
+                {if $day.inSemester}
+                    {assign var='blockedDate' value=false}
+                    {foreach from=$blockDates item=$blocked}
+                        {if $blocked->format('Y/m/d') == $day.date}
+                            {assign var='blockedDate' value=true}
+                        {/if}
+                    {/foreach}
+                    {if !$blockedDate  && (($currSemester->openDate <= $day.datetime) && ($day.datetime <= $currSemester->closeDate))}               
+                                {assign var='isScheduled' value=false}
+                        {foreach from=$room->schedule[$day.dayOfWeek-1][$time] item=schedule}                   
+                            {if $schedule}                        
+                                {assign var='isScheduled' value=true}
+                            {/if}
+                        {/foreach}
+                        
+                        {assign var='result' value=$day.times[$time]}
+                        {if count($result) >= $room->maxObservers}
+                        <td class="{if $isScheduled}available-date-full{else}unavailable-date{/if}{if count($result)>0 && $result[0]->account} has-reservations{/if}">
+                        {else}
+                        <td class="{if $isScheduled}available-date{else}unavailable-date{/if}{if count($result)>0 && $result[0]->account} has-reservations{/if}">
+                        {/if}
+                        {foreach item='reservation' from=$result}
+                            {if $reservation->account}
+                                {assign var='courseArr' value=explode('-',$reservation->observation->purpose->object->course->shortName,3)}
+                            <a href="reservations/view/{$reservation->id}">
+                                {$reservation->account->firstName|escape} {$reservation->account->lastName|escape} <span class="text-primary">({$courseArr[0]}-{$courseArr[1]})</span>
+                            </a>
+                            {if !$reservation@last}<br>{/if}
+                            {/if}
+                        {/foreach}
+                        </td>
+                    {else}
+                        {if $timeDisplay@index == 0}
+                        <td class="blocked-date text-center" rowspan="{$timeDisplay@total}">&mdash;closed&mdash;</td>      
+                        {/if}
                     {/if}
-                {/foreach}
-            {if !$blockedDate}               
-                        {assign var='isScheduled' value=false}
-                {foreach from=$room->schedule[$day.dayOfWeek-1][$time] item=schedule}                   
-                    {if $schedule}                        
-                        {assign var='isScheduled' value=true}
-                    {/if}
-                {/foreach}
-                
-                {assign var='result' value=$day.times[$time]}
-                {if count($result) >= $room->maxObservers}
-                <td class="{if $isScheduled}available-date-full{else}unavailable-date{/if}{if count($result)>0 && $result[0]->account} has-reservations{/if}">
                 {else}
-                <td class="{if $isScheduled}available-date{else}unavailable-date{/if}{if count($result)>0 && $result[0]->account} has-reservations{/if}">
-                {/if}
-                {foreach item='reservation' from=$result}
-                    {if $reservation->account}
-                        {assign var='courseArr' value=explode('-',$reservation->observation->purpose->object->course->shortName,3)}
-                    <a href="reservations/view/{$reservation->id}">
-                        {$reservation->account->firstName|escape} {$reservation->account->lastName|escape} <span class="text-primary">({$courseArr[0]}-{$courseArr[1]})</span>
-                    </a>
-                    {if !$reservation@last}<br>{/if}
-                    {/if}
-                {/foreach}
-                </td>
-            {else}
-                {if $timeDisplay@index == 0}
-                <td class="blocked-date text-center" rowspan="{$timeDisplay@total}">&mdash;closed&mdash;</td>      
+                    <td class="text-center out-of-semester-range"></td>
                 {/if}
             {/if}
-            {/if}
-          {/foreach}
+
+            {/foreach}
         </tr>
         {/foreach}
     </tbody>

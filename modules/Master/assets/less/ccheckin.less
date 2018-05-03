@@ -1,4 +1,18 @@
 
+// COLORS
+// --------------------------------------------------------
+// Primary
+@light-blue: #31759C;
+@dark-blue: #004F71;
+@sf-light-purple: #463077;
+@sf-dark-purple: #231161;
+@gray-lte: #d2d6de;
+
+// Link colors (Aka: <a> tags)
+@link-color: @sf-light-purple;
+@link-hover-color: darken(@link-color, 10%);
+
+
 @media (min-width: 1200px) {
 	div#content {
 	    /*width: 95% !important;*/
@@ -107,7 +121,11 @@ div.announcements-section {
 
 /* LEFT SIDEBAR (MAIN NAV) */
 .sidebar-nav {
-
+	a {
+		/*font-size: 1.1em;*/
+		color: @dark-blue;
+		font-weight: 600;
+	}
 	.menu-header {
 		color: #53565A;
 	}
@@ -149,6 +167,10 @@ div.announcements-section {
 		-webkit-box-shadow: none;
 		box-shadow: none;
 	}
+}
+
+div.admin-settings {
+	/*font-weight: bold;*/
 }
 
 /* TABLE STYLINGS */
@@ -405,3 +427,57 @@ div.testing-row {
 .alert-success {
 	/*background-color:;*/
 }
+
+
+// Drop shadows
+.box-shadow(@shadow) {
+  -webkit-box-shadow: @shadow;
+     -moz-box-shadow: @shadow;
+          box-shadow: @shadow;
+}
+
+//border radius creator
+.border-radius(@radius) {
+  border-radius: @radius;
+}
+
+//Different radius each side
+.border-radius(@top-left,  @top-right,  @bottom-left,  @bottom-right)
+{
+  border-top-left-radius: @top-left;
+  border-top-right-radius: @top-right;
+  border-bottom-right-radius: @bottom-right;
+  border-bottom-left-radius: @bottom-left;
+}
+
+
+/*
+ * Component: Info Box
+ * -------------------
+ */
+.info-box {
+	display: block;
+	background: #FFF; // FFF
+	width: 100%;
+	box-shadow: 0 2px 2px rgba(0, 0, 0, .1);
+	.border-radius(4px; 4px; 2px; 2px);
+	margin-bottom: 12px;
+	> a {
+		font-weight: 400;
+	}
+	> a:hover {
+		background-color: @light-blue;
+		color: #fff;
+	}
+
+	> h3 {
+		padding: 8px 0 8px 12px;
+		background: @gray-lte;
+		> img {
+			margin-right: 4px;
+		}
+	}
+}
+
+
+

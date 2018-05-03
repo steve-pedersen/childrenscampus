@@ -23,7 +23,7 @@
 
 {/if}
 {if $welcomeText}
-{$welcomeText|allow_basic_html}
+{$welcomeText}
 {else}
     <p>Children's Campus supports positive child development through quality care and education for approximately 85 infants, toddlers and preschool children. The Children's Campus also provides opportunities for student internships in a variety of disciplines such as teaching, nursing, child development, psychology, and social work. Faculty and student research is encouraged to improve best practices in early care and education, and the facility will serve as a site for observation to augment classroom instruction. The Children's Campus has been designed and staffed with highly qualified professionals in order to meet state and federal licensing and accreditation requirements and is supported by an advisory board of participating parents, faculty, and staff.</p>
 {/if}
@@ -36,7 +36,7 @@
 		  <div class="card-body">
 		    <p class="card-text">
 			{if $locationMessage}
-			{$locationMessage|allow_basic_html}
+			{$locationMessage}
 			{else}
 			    <p><strong>Students: Please take note of our location!</strong></p>
 			    <p>
@@ -51,7 +51,7 @@
 	</div>
 	<div id="welcome-text-extended" class="col-xs-12">
 	{if $welcomeTextExtended}
-	{$welcomeTextExtended|allow_basic_html}
+	{$welcomeTextExtended}
 	{else}
 		<h2>Children's Campus At-A-Glance:</h2>
 		<ul>

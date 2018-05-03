@@ -34,7 +34,6 @@ COMMIT;
 
 
 -- set application admin
-psql ccheckin
 BEGIN;
 UPDATE bss_authn_accounts 
 SET username = 'admin', email_address = 'pedersen@sfsu.edu', first_name = 'Steve', last_name = 'Pedersen', receive_admin_notifications = false
@@ -218,7 +217,7 @@ COMMIT;
 -- room_reservations => ccheckin_room_reservations
 BEGIN;
 INSERT INTO ccheckin_room_reservations (id, room_id, observation_id, account_id, checked_in, start_time, end_time, missed, reminder_sent)
-SELECT o.id, o.room_id, o.observation_id, o.account_id, o.checked_in, o.start_time, o.end_time, o.missed, true
+SELECT o.id, o.room_id, o.observation_id, o.account_id, o.checked_in, o.start_time, o.end_time, o.missed, CASE WHEN o.missed = true THEN true ELSE null END
 FROM room_reservations o, rooms r, room_observations obs, bss_authn_accounts a
 WHERE o.room_id = r.id AND o.observation_id = obs.id AND o.account_id = a.id;
 -- id_seq

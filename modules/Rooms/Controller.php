@@ -155,6 +155,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             $this->template->blockDates = $this->convertToDateTimes($storedDates);            
             $this->template->calendar = $calendar;
             $this->template->room = $room;
+            $this->template->currSemester = $this->getSemesterWithinRange(new DateTime);
         }
         else
         {
@@ -792,7 +793,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         $day['datetime'] = new DateTime($date->format('Y/m/d'));
         $day['inSemester'] = (($currentSemester && $dateSemester) && ($currentSemester->id === $dateSemester->id));
         $day['times'] = $this->buildDayTimes($room, $date, $reservations);
-
+        
         return $day;
     }
     
