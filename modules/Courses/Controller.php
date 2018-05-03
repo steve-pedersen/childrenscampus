@@ -56,11 +56,32 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                 $cs = $courseSchema->find($courseSchema->active->isTrue());
             }
         }
-        
+
+        $viewactive = $this->request->getQueryParameter('viewactive', false);
+        if (($viewactive !== false) && !empty($cs))
+        {
+            $now = new DateTime;
+            $semesters = $this->schema('Ccheckin_Semesters_Semester');
+            $condition = $semesters->allTrue(
+                $semesters->startDate->before($now),
+                $semesters->endDate->after($now)
+            );
+            $currentSemester = $semesters->findOne($condition);
+
+            foreach ($cs as $id => $course)
+            {
+                if ($course->startDate->format('Y-m-d') !== $currentSemester->startDate->format('Y-m-d'))
+                {
+                    unset($cs[$id]);
+                }
+            }
+        }
+
         sort($cs);
         
         $this->template->canRequest = $this->hasPermission('course request');
         $this->template->viewall = $viewall;
+        $this->template->viewactive = $viewactive;
         $this->template->courses = $cs;
     }
     

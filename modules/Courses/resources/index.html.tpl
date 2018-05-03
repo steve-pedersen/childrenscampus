@@ -1,10 +1,19 @@
 <h1>{if $viewall}All{else}My{/if} Courses
-{if $pAdmin}
+{if $pAdmin && !$viewall}
 <div class="pull-right">
     {if $viewall}
-        <a class="btn btn-default" href="courses" role="button">View My Courses</a>
+        <a class="btn btn-sm btn-default" href="courses" role="button">View My Courses</a>
     {else}
-        <a class="btn btn-default" href="courses?viewall=true" role="button">View All Courses</a>
+        <a class="btn btn-sm btn-default" href="courses?viewall=true" role="button">View All Courses</a>
+    {/if}
+</div>
+{/if}
+{if $courses}
+<div class="pull-right">
+    {if $viewactive}
+        <a class="btn btn-sm btn-default" href="courses" role="button">All Courses</a>
+    {else}
+        <a class="btn btn-sm btn-default" href="courses?viewactive=true" role="button">My Current Courses</a>
     {/if}
 </div>
 {/if}
