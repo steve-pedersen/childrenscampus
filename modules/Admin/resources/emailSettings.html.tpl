@@ -6,6 +6,29 @@
 	<p><strong>If you have made changes to the templates please make sure to save the changes below.</strong></p>
 </div>
 {/if}
+
+<div class="row email-row email-toc">
+	<h2>On this page:</h2>
+	<div class="col-sm-6">
+		<ul class="list-unstyled">
+			<li class="list-group-item"><a href="admin/settings/email#newAccount">New Account</a></li>
+			<li class="list-group-item"><a href="admin/settings/email#reservationDetails">Reservation Details</a></li>
+			<li class="list-group-item"><a href="admin/settings/email#reservationReminder">Reservation Reminder</a></li>
+			<li class="list-group-item"><a href="admin/settings/email#reservationMissed">Reservation Missed</a></li>
+			<li class="list-group-item"><a href="admin/settings/email#reservationCanceled">Reservation Canceled</a></li>
+		</ul>
+	</div>
+	<div class="col-sm-6">
+		<ul class="list-unstyled">
+			<li class="list-group-item"><a href="admin/settings/email#courseDenied">Course Denied</a></li>
+			<li class="list-group-item"><a href="admin/settings/email#courseRequestedAdmin">Course Requested Admin</a></li>
+			<li class="list-group-item"><a href="admin/settings/email#courseRequestedTeacher">Course Requested Teacher</a></li>
+			<li class="list-group-item"><a href="admin/settings/email#courseAllowedTeacher">Course Allowed Teacher</a></li>
+			<li class="list-group-item"><a href="admin/settings/email#courseAllowedStudents">Course Allowed Students</a></li>
+		</ul>
+	</div>
+</div>
+
 <br>
 
 <form id="fileAttachment" method="post" action="{$smarty.server.REQUEST_URI}" enctype="multipart/form-data">
@@ -146,6 +169,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
+				<h3 id="newAccount" class="toc-header" aria-hidden></h3>
 				<label class="lead" for="newAccount">New Account Notification: <span class="email-type-description">sent to newly created accounts when "Notify user of account" is checked.</span></label>
 				<textarea name="newAccount" id="newAccount" class="wysiwyg form-control" rows="{if $newAccount}{$newAccount|count_paragraphs*2}{else}8{/if}">{$newAccount}</textarea>
 				<span class="help-block">
@@ -163,17 +187,19 @@
 
 		<div class="col-xs-12 form-group">
 			<label id="attachmentNewAccount" class="">File attachment(s) <span class="email-type-description"> - Select to attach</label>
-			<select multiple="multiple" class="form-control" name="attachment[newAccount][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentNewAccount">
+			<select multiple="multiple" class="form-control attach-select" name="attachment[newAccount][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentNewAccount">		
+			{assign var=attachCount value=0}
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
 				{foreach item='key' from=$attachment->attachedEmailKeys}
-					{if $key === 'newAccount'}{assign var='isAttached' value=true}{/if}
+					{if $key === 'newAccount'}{assign var='isAttached' value=true}{assign var=attachCount value=($attachCount+1)}{/if}
 				{/foreach}
 				<option value="{$attachment->id}" {if $isAttached}selected{/if}>
 				{if $attachment->title}{$attachment->title}{else}{$attachment->remoteName}{/if}
 				</option>
 			{/foreach}
 			</select>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
 		</div>
 	</div>
@@ -182,6 +208,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
+				<h3 id="courseRequestedAdmin" class="toc-header" aria-hidden></h3>
 				<label class="lead" for="courseRequestedAdmin" class="lead">Course Requested Admin: <span class="email-type-description">sent to Administrator as a notification of a course request.</span></label>
 				<p><u>Note:</u> This email notification can be turned off and on by selecting the option on a person's Edit Account page. See the <a href="admin/settings/email#systemNotificationRecipients">System Notification Recipients</a> section of this page for more details.</p>
 				<textarea name="courseRequestedAdmin" id="courseRequestedAdmin" class="wysiwyg form-control" rows="{if $courseRequestedAdmin}{$courseRequestedAdmin|count_paragraphs*2}{else}8{/if}">{$courseRequestedAdmin}</textarea>
@@ -200,17 +227,19 @@
 
 		<div class="col-xs-12 form-group">
 			<label id="attachmentCourseRequestedAdmin" class="">File attachment(s) <span class="email-type-description"> - Select to attach</label>
-			<select multiple="multiple" class="form-control" name="attachment[courseRequestedAdmin][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentCourseRequestedAdmin">
+			<select multiple="multiple" class="form-control attach-select" name="attachment[courseRequestedAdmin][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentCourseRequestedAdmin">
+			{assign var=attachCount value=0}
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
 				{foreach item='key' from=$attachment->attachedEmailKeys}
-					{if $key === 'courseRequestedAdmin'}{assign var='isAttached' value=true}{/if}
+					{if $key === 'courseRequestedAdmin'}{assign var='isAttached' value=true}{assign var=attachCount value=($attachCount+1)}{/if}
 				{/foreach}
 				<option value="{$attachment->id}" {if $isAttached}selected{/if}>
 				{if $attachment->title}{$attachment->title}{else}{$attachment->remoteName}{/if}
 				</option>
 			{/foreach}
 			</select>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
 		</div>
 	</div>
@@ -219,6 +248,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
+				<h3 id="courseRequestedTeacher" class="toc-header" aria-hidden></h3>
 				<label class="lead" for="courseRequestedTeacher">Course Requested Teacher: <span class="email-type-description">sent as a receipt to Teacher who requested the course, once request is submitted.</span></label>
 				<textarea name="courseRequestedTeacher" id="courseRequestedTeacher" class="wysiwyg form-control" rows="{if $courseRequestedTeacher}{$courseRequestedTeacher|count_paragraphs*2}{else}8{/if}">{$courseRequestedTeacher}</textarea>
 				<span class="help-block">
@@ -236,17 +266,19 @@
 
 		<div class="col-xs-12 form-group">
 			<label id="attachmentCourseRequestedTeacher">File Attachment(s) <span class="email-type-description"> - Select to attach</label>
-			<select multiple="multiple" class="form-control" name="attachment[courseRequestedTeacher][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentCourseRequestedTeacher">
+			<select multiple="multiple" class="form-control attach-select" name="attachment[courseRequestedTeacher][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentCourseRequestedTeacher">
+			{assign var=attachCount value=0}
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
 				{foreach item='key' from=$attachment->attachedEmailKeys}
-					{if $key === 'courseRequestedTeacher'}{assign var='isAttached' value=true}{/if}
+					{if $key === 'courseRequestedTeacher'}{assign var='isAttached' value=true}{assign var=attachCount value=($attachCount+1)}{/if}
 				{/foreach}
 				<option value="{$attachment->id}" {if $isAttached}selected{/if}>
 				{if $attachment->title}{$attachment->title}{else}{$attachment->remoteName}{/if}
 				</option>
 			{/foreach}
 			</select>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
 		</div>
 	</div>
@@ -255,6 +287,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
+				<h3 id="courseAllowedTeacher" class="toc-header" aria-hidden></h3>
 				<label class="lead" for="courseAllowedTeacher">Course Allowed Teacher: <span class="email-type-description">sent to Teacher who requested the course, once approved.</span></label>
 				<textarea name="courseAllowedTeacher" id="courseAllowedTeacher" class="wysiwyg form-control" rows="{if $courseAllowedTeacher}{$courseAllowedTeacher|count_paragraphs*2}{else}8{/if}">{$courseAllowedTeacher}</textarea>
 				<span class="help-block">
@@ -272,17 +305,19 @@
 
 		<div class="col-xs-12 form-group">
 			<label id="attachmentCourseAllowedTeacher">File Attachment(s) <span class="email-type-description"> - Select to attach</label>
-			<select multiple="multiple" class="form-control" name="attachment[courseAllowedTeacher][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentCourseAllowedTeacher">
+			<select multiple="multiple" class="form-control attach-select" name="attachment[courseAllowedTeacher][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentCourseAllowedTeacher">
+			{assign var=attachCount value=0}
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
 				{foreach item='key' from=$attachment->attachedEmailKeys}
-					{if $key === 'courseAllowedTeacher'}{assign var='isAttached' value=true}{/if}
+					{if $key === 'courseAllowedTeacher'}{assign var='isAttached' value=true}{assign var=attachCount value=($attachCount+1)}{/if}
 				{/foreach}
 				<option value="{$attachment->id}" {if $isAttached}selected{/if}>
 				{if $attachment->title}{$attachment->title}{else}{$attachment->remoteName}{/if}
 				</option>
 			{/foreach}
 			</select>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
 		</div>
 	</div>
@@ -291,6 +326,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
+				<h3 id="courseAllowedStudents" class="toc-header" aria-hidden></h3>
 				<label class="lead" for="courseAllowedStudents">Course Allowed Students: <span class="email-type-description">sent to all enrolled Students in a course, once approved.</span></label>
 				<textarea name="courseAllowedStudents" id="courseAllowedStudents" class="wysiwyg form-control" rows="{if $courseAllowedStudents}{$courseAllowedStudents|count_paragraphs*2}{else}8{/if}">{$courseAllowedStudents}</textarea>
 				<span class="help-block">
@@ -308,17 +344,19 @@
 
 		<div class="col-xs-12 form-group">
 			<label id="attachmentCourseAllowedStudents">File Attachment(s) <span class="email-type-description"> - Select to attach</label>
-			<select multiple="multiple" class="form-control" name="attachment[courseAllowedStudents][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentCourseAllowedStudents">
+			<select multiple="multiple" class="form-control attach-select" name="attachment[courseAllowedStudents][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentCourseAllowedStudents">
+			{assign var=attachCount value=0}
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
 				{foreach item='key' from=$attachment->attachedEmailKeys}
-					{if $key === 'courseAllowedStudents'}{assign var='isAttached' value=true}{/if}
+					{if $key === 'courseAllowedStudents'}{assign var='isAttached' value=true}{assign var=attachCount value=($attachCount+1)}{/if}
 				{/foreach}
 				<option value="{$attachment->id}" {if $isAttached}selected{/if}>
 				{if $attachment->title}{$attachment->title}{else}{$attachment->remoteName}{/if}
 				</option>
 			{/foreach}
 			</select>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
 		</div>
 	</div>
@@ -327,6 +365,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
+				<h3 id="courseDenied" class="toc-header" aria-hidden></h3>
 				<label class="lead" for="courseDenied">Course Denied: <span class="email-type-description">sent to Teacher who requested the course, once denied.</span></label>
 				<textarea name="courseDenied" id="courseDenied" class="wysiwyg form-control" rows="{if $courseDenied}{$courseDenied|count_paragraphs*2}{else}8{/if}">{$courseDenied}</textarea>
 				<span class="help-block">
@@ -344,17 +383,19 @@
 
 		<div class="col-xs-12 form-group">
 			<label id="attachmentCourseDenied">File Attachment(s) <span class="email-type-description"> - Select to attach</label>
-			<select multiple="multiple" class="form-control" name="attachment[courseDenied][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentCourseDenied">
+			<select multiple="multiple" class="form-control attach-select" name="attachment[courseDenied][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentCourseDenied">			
+			{assign var=attachCount value=0}
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
 				{foreach item='key' from=$attachment->attachedEmailKeys}
-					{if $key === 'courseDenied'}{assign var='isAttached' value=true}{/if}
+					{if $key === 'courseDenied'}{assign var='isAttached' value=true}{assign var=attachCount value=($attachCount+1)}{/if}
 				{/foreach}
 				<option value="{$attachment->id}" {if $isAttached}selected{/if}>
 				{if $attachment->title}{$attachment->title}{else}{$attachment->remoteName}{/if}
 				</option>
 			{/foreach}
 			</select>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
 		</div>
 	</div>
@@ -363,6 +404,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
+				<h3 id="reservationDetails" class="toc-header" aria-hidden></h3>
 				<label class="lead" for="reservationDetails">Reservation Details: <span class="email-type-description">sent as a receipt with pertinent info to Student who made a reservation, once one is made.</span></label>
 				<textarea name="reservationDetails" id="reservationDetails" class="wysiwyg form-control" rows="{if $reservationDetails}{$reservationDetails|count_paragraphs*2}{else}8{/if}">{$reservationDetails}</textarea>
 				<span class="help-block">
@@ -380,17 +422,19 @@
 
 		<div class="col-xs-12 form-group">
 			<label id="attachmentReservationDetails">File Attachment(s) <span class="email-type-description"> - Select to attach</label>
-			<select multiple="multiple" class="form-control" name="attachment[reservationDetails][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentReservationDetails">
+			<select multiple="multiple" class="form-control attach-select" name="attachment[reservationDetails][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentReservationDetails">
+			{assign var=attachCount value=0}
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
 				{foreach item='key' from=$attachment->attachedEmailKeys}
-					{if $key === 'reservationDetails'}{assign var='isAttached' value=true}{/if}
+					{if $key === 'reservationDetails'}{assign var='isAttached' value=true}{assign var=attachCount value=($attachCount+1)}{/if}
 				{/foreach}
 				<option value="{$attachment->id}" {if $isAttached}selected{/if}>
 				{if $attachment->title}{$attachment->title}{else}{$attachment->remoteName}{/if}
 				</option>
 			{/foreach}
 			</select>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
 		</div>
 	</div>
@@ -399,6 +443,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
+				<h3 id="reservationReminder" class="toc-header" aria-hidden></h3>
 				<label class="lead" for="reservationReminderTime">Reservation Reminder Time: <span class="email-type-description">choose an amount of time prior to a reservation to send a reminder email.</span></label>
 				<select class="form-control" name="reservationReminderTime" id="reservationReminderTime">
 				{foreach from=$reminderOptions item=opt}
@@ -427,17 +472,19 @@
 
 		<div class="col-xs-12 form-group">
 			<label id="attachmentReservationReminder">File Attachment(s) <span class="email-type-description"> - Select to attach</label>
-			<select multiple="multiple" class="form-control" name="attachment[reservationReminder][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentReservationReminder">
+			<select multiple="multiple" class="form-control attach-select" name="attachment[reservationReminder][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentReservationReminder">
+			{assign var=attachCount value=0}
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
 				{foreach item='key' from=$attachment->attachedEmailKeys}
-					{if $key === 'reservationReminder'}{assign var='isAttached' value=true}{/if}
+					{if $key === 'reservationReminder'}{assign var='isAttached' value=true}{assign var=attachCount value=($attachCount+1)}{/if}
 				{/foreach}
 				<option value="{$attachment->id}" {if $isAttached}selected{/if}>
 				{if $attachment->title}{$attachment->title}{else}{$attachment->remoteName}{/if}
 				</option>
 			{/foreach}
 			</select>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
 		</div>
 	</div>
@@ -446,6 +493,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
+				<h3 id="reservationMissed" class="toc-header" aria-hidden></h3>
 				<label class="lead" for="reservationMissed">Reservation Missed: <span class="email-type-description">sent to Student when they miss a reservation.</span></label>
 				<textarea name="reservationMissed" id="reservationMissed" class="wysiwyg form-control" rows="{if $reservationMissed}{$reservationMissed|count_paragraphs*2}{else}8{/if}">{$reservationMissed}</textarea>
 				<span class="help-block">
@@ -463,17 +511,19 @@
 
 		<div class="col-xs-12 form-group">
 			<label id="attachmentReservationMissed">File Attachment(s) <span class="email-type-description"> - Select to attach</label>
-			<select multiple="multiple" class="form-control" name="attachment[reservationMissed][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentReservationMissed">
+			<select multiple="multiple" class="form-control attach-select" name="attachment[reservationMissed][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentReservationMissed">
+			{assign var=attachCount value=0}
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
 				{foreach item='key' from=$attachment->attachedEmailKeys}
-					{if $key === 'reservationMissed'}{assign var='isAttached' value=true}{/if}
+					{if $key === 'reservationMissed'}{assign var='isAttached' value=true}{assign var=attachCount value=($attachCount+1)}{/if}
 				{/foreach}
 				<option value="{$attachment->id}" {if $isAttached}selected{/if}>
 				{if $attachment->title}{$attachment->title}{else}{$attachment->remoteName}{/if}
 				</option>
 			{/foreach}
 			</select>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
 		</div>
 	</div>
@@ -482,6 +532,7 @@
 	<div class="row email-row">
 		<div class="col-xs-8">
 			<div class="form-group">
+				<h3 id="reservationCanceled" class="toc-header" aria-hidden></h3>
 				<label class="lead" for="reservationCanceled">Reservation Canceled: <span class="email-type-description">sent to Student when their reservation gets canceled by an admin.</span></label>
 				<textarea name="reservationCanceled" id="reservationCanceled" class="wysiwyg form-control" rows="{if $reservationCanceled}{$reservationCanceled|count_paragraphs*2}{else}8{/if}">{$reservationCanceled}</textarea>
 				<span class="help-block">
@@ -499,17 +550,19 @@
 
 		<div class="col-xs-12 form-group">
 			<label id="attachmentReservationCanceled">File Attachment(s) <span class="email-type-description"> - Select to attach</label>
-			<select multiple="multiple" class="form-control" name="attachment[reservationCanceled][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentReservationCanceled">
+			<select multiple="multiple" class="form-control attach-select" name="attachment[reservationCanceled][]" size="{if $attachments|@count < 5}{$attachments|@count}{else}5{/if}" id="attachmentReservationCanceled">
+			{assign var=attachCount value=0}		
 			{foreach item='attachment' from=$attachments}
 				{assign var='isAttached' value=false}
 				{foreach item='key' from=$attachment->attachedEmailKeys}
-					{if $key === 'reservationCanceled'}{assign var='isAttached' value=true}{/if}
+					{if $key === 'reservationCanceled'}{assign var='isAttached' value=true}{assign var=attachCount value=($attachCount+1)}{/if}
 				{/foreach}
 				<option value="{$attachment->id}" {if $isAttached}selected{/if}>
 				{if $attachment->title}{$attachment->title}{else}{$attachment->remoteName}{/if}
 				</option>
 			{/foreach}
 			</select>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
 		</div>
 	</div>

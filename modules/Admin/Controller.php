@@ -199,6 +199,41 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
         $this->template->isKiosk = $isKiosk;
     }
 
+    public function updateEmailAttachments ($attachmentData)
+    {
+        $files = $this->schema('Ccheckin_Admin_File');
+        $attachedFiles = array();
+
+        foreach ($attachmentData as $emailKey => $fileIds)
+        {
+            foreach ($fileIds as $fileId)
+            {
+                if (!isset($attachedFiles[$fileId]))
+                {
+                    $attachedFiles[$fileId] = array();
+                }
+                if (!in_array($emailKey, $attachedFiles[$fileId]))
+                {
+                    $attachedFiles[$fileId][] = $emailKey;
+                }
+            }
+        }
+
+        // make sure each file matches the state of posted data
+        foreach ($files->getAll() as $file)
+        {
+            if (!in_array($file->id, array_keys($attachedFiles)))
+            {
+                $file->attachedEmailKeys = array();
+            }
+            else // make sure all the files match the posted data
+            {
+                $file->attachedEmailKeys = $attachedFiles[$file->id];
+            }
+            $file->save();
+        }
+    }
+
     public function emailSettings ()
     {
         $siteSettings = $this->getApplication()->siteSettings;
@@ -277,27 +312,8 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
 
                     $attachedFiles = array();
                     $attachmentData = $this->request->getPostParameter('attachment');
-                    
-                    foreach ($attachmentData as $emailKey => $fileIds)
-                    {
-                        foreach ($fileIds as $fileId)
-                        {
-                            if (!isset($attachedFiles[$fileId]))
-                            {
-                                $attachedFiles[$fileId] = array();
-                            }
-                            if (!in_array($emailKey, $attachedFiles[$fileId]))
-                            {
-                                $attachedFiles[$fileId][] = $emailKey;
-                            }
-                        }
-                    }
-                    foreach ($attachedFiles as $fileId => $emailKeys)
-                    {
-                        $file = $files->get($fileId);
-                        $file->attachedEmailKeys = $emailKeys;
-                        $file->save();
-                    }
+                    $this->updateEmailAttachments($attachmentData);
+
 
                     $this->flash("Children's Campus email settings and content have been saved.");
                     $this->response->redirect('admin/settings/email');
