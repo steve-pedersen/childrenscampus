@@ -589,6 +589,7 @@ class Ccheckin_Courses_AdminController extends At_Admin_Controller
                         $newInstructions = $this->request->getPostParameter('instructions');
                         $siteSettings->setProperty('course-request-text', $newInstructions);
                         $this->flash('Course request instructions have been updated.');
+                        $instructions = $newInstructions;
                         break;
                 }
             }

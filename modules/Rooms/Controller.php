@@ -688,13 +688,28 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
             }
         }
 
+        $now = new DateTime;
+        $semesters = $this->schema('Ccheckin_Semesters_Semester');
+        $condition = $semesters->allTrue(
+            $semesters->startDate->before($now),
+            $semesters->endDate->after($now)
+        );
+        $currentSemester = $semesters->findOne($condition);
+        
         $purposes = array_values($purposes);
         $selected = null;
-        foreach ($purposes as $p)
+        foreach ($purposes as $id => $p)
         {
-            if ($p->object->type->sortName === $room->observationType)
+            if ($p->object->course->startDate->format('Y-m-d') !== $currentSemester->startDate->format('Y-m-d'))
             {
-                $selected = $p->id;
+                unset($purposes[$id]);
+            }
+            else
+            {
+                if ($p->object->type->sortName === $room->observationType)
+                {
+                    $selected = $p->id;
+                }  
             }
         }
 
