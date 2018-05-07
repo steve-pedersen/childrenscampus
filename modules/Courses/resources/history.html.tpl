@@ -2,12 +2,11 @@
 <div class="tabs">
     <ul class="nav nav-tabs nav-justified">
         <li role="presentation"><a href="courses/view/{$course->id}">View</a></li>
-        <!-- <li role="presentation"><a href="courses/students/{$course->id}">Students</a></li> -->
         <li role="presentation" class="active"><a href="courses/history/{$course->id}">History</a></li>
     </ul>
 </div>
 {foreach item='facet' from=$facets}
-<h2>{$facet.facet->shortDescription|escape}</h2>
+<h2>{$course->fullName}<br><small>{$facet.facet->shortDescription}</small></h2>
 <table class="table table-bordered table-striped">
     <thead>
         <tr>

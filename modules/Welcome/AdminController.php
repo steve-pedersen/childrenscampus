@@ -54,11 +54,13 @@ class Ccheckin_Welcome_AdminController extends At_Admin_Controller
                         break;
 
                     case 'add':           
-                        $updatedAnnouncements = json_decode($siteSettings->getProperty('announcements'), true);                           
-                        $updatedAnnouncements[] = $this->request->getPostParameter('announcement');
-                        $siteSettings->setProperty('announcements', json_encode($updatedAnnouncements));
-                        $this->flash('Site announcement created');
-
+                        $updatedAnnouncements = json_decode($siteSettings->getProperty('announcements'), true);
+                        if ($newAnnouncement = $this->request->getPostParameter('announcement'))
+                        {
+                            $updatedAnnouncements[] = $newAnnouncement;
+                            $siteSettings->setProperty('announcements', json_encode($updatedAnnouncements));
+                            $this->flash('Site announcement created');
+                        }
                         break;
                 }
             }
