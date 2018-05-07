@@ -16,10 +16,6 @@
         <a class="btn btn-sm btn-default" href="courses?viewactive=true" role="button">My Current Courses</a>
     {/if}
 </div>
-{elseif !$courses && $viewactive && !$pAdmin}
-<div class="pull-right">
-    <a class="btn btn-sm btn-default" href="courses" role="button">All Courses!</a>
-</div>
 {/if}
 {/if}
 </h1>
