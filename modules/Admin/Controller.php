@@ -310,10 +310,8 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                     $siteSettings->setProperty('email-reservation-missed', $this->request->getPostParameter('reservationMissed'));
                     $siteSettings->setProperty('email-reservation-canceled', $this->request->getPostParameter('reservationCanceled'));
 
-                    $attachedFiles = array();
                     $attachmentData = $this->request->getPostParameter('attachment');
                     $this->updateEmailAttachments($attachmentData);
-
 
                     $this->flash("Children's Campus email settings and content have been saved.");
                     $this->response->redirect('admin/settings/email');
@@ -519,7 +517,8 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
 
     public function sendReservationCanceledNotification ($blockedDate)
     {
-        $reservations = $schemaManager->getSchema('Ccheckin_Rooms_Reservation');
+
+        $reservations = $this->schema('Ccheckin_Rooms_Reservation');
         $blocked = new DateTime($blockedDate);
         $canceled = array();
 
