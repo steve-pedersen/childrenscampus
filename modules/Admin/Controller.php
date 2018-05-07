@@ -17,6 +17,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
             '/admin/kiosk' => array('callback' => 'kioskMode'),
             '/admin/reports/generate' => array('callback' => 'reports'),
             '/admin/migrate' => array('callback' => 'migrate'),
+            '/admin/files/:fid/download' => array( 'callback' => 'download', 'fid' => '[0-9]+'),
         );
     }
     
@@ -31,6 +32,32 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
         $this->template->adminPage = $this->hasPermission('admin') && (strpos($this->request->getFullRequestedUri(), 'admin') !== false);
     }
 
+    public function download ()
+    {
+        $account = $this->requireLogin();
+        
+        $fid = $this->getRouteVariable('fid');
+        $file = $this->requireExists($this->schema('Ccheckin_Admin_File')->get($fid));
+        
+        if ($file->uploadedBy && ($account->id != $file->uploadedBy->id))
+        {
+            
+            if ($item = $this->getRouteVariable('item'))
+            {
+                $authZ = $this->getAuthorizationManager();
+                $extension = $item->extension;
+                
+                if ($authZ->hasPermission($account, $extension->getItemViewTask(), $item))
+                {
+                    $file->sendFile($this->response);
+                }
+            }
+            
+            // $this->requirePermission('file download');
+        }
+        
+        $file->sendFile($this->response);
+    }
 
     public function reports ()
     {
