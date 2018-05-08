@@ -10,8 +10,6 @@ resource.</p>
 
 <a class="btn btn-primary" href="login">Login</a>
 
-<!-- {include file=$loginTemplate} -->
-
 {else}
 
 <a class="btn btn-primary" href="home">Return to Children's Campus Check-in</a>

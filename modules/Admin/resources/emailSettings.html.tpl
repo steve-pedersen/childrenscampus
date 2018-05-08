@@ -199,8 +199,9 @@
 				</option>
 			{/foreach}
 			</select>
-			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
+			
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 		</div>
 	</div>
 
@@ -239,8 +240,9 @@
 				</option>
 			{/foreach}
 			</select>
-			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
+			
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 		</div>
 	</div>
 
@@ -278,8 +280,9 @@
 				</option>
 			{/foreach}
 			</select>
-			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
+			
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 		</div>
 	</div>
 
@@ -317,8 +320,9 @@
 				</option>
 			{/foreach}
 			</select>
-			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
+			
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 		</div>
 	</div>
 
@@ -356,8 +360,9 @@
 				</option>
 			{/foreach}
 			</select>
-			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
+			
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 		</div>
 	</div>
 
@@ -395,8 +400,9 @@
 				</option>
 			{/foreach}
 			</select>
-			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
+			
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 		</div>
 	</div>
 
@@ -434,8 +440,9 @@
 				</option>
 			{/foreach}
 			</select>
-			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
+			
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 		</div>
 	</div>
 
@@ -484,8 +491,9 @@
 				</option>
 			{/foreach}
 			</select>
-			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
+			
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 		</div>
 	</div>
 
@@ -523,8 +531,9 @@
 				</option>
 			{/foreach}
 			</select>
-			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
+			
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 		</div>
 	</div>
 
@@ -562,8 +571,9 @@
 				</option>
 			{/foreach}
 			</select>
-			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
+			
 			<p class="text-right caption-text"><em>Cmd+click on Mac or ctrl+click on Windows to select/deselect options.</em></p>
+			{if $attachCount > 0}<span class="label label-success label-attachment">{$attachCount} attachment{if $attachCount > 1}s{/if}</span>{/if}
 		</div>
 	</div>
 
