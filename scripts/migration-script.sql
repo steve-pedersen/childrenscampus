@@ -414,7 +414,6 @@ SET value = '
 <ul>
 	<li>|%RESERVE_DATE%|</li>
 	<li>|%PURPOSE_INFO%|</li>
-	<li></li>
 </ul>
 <br>
 <p>Please contact us with any questions or |%RESERVE_SIGNUP_LINK%| if needed.
