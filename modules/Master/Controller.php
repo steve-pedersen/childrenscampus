@@ -84,6 +84,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         );
         $reservations = $resSchema->find($cond, array('orderBy' => 'id'));
         
+        // check the user out
         if (!empty($reservations))
         {
             $reservation = is_array($reservations) ? $reservations[0] : $reservations;
@@ -91,17 +92,19 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
             $observation->endTime = $now;
             $st = $observation->startTime;
 
-            $sameDay = false;
-            if ($now->format('m')===$st->format('m') && $now->format('d')===$st->format('d'))
+            $sameSession = false;
+            
+            if ($now->format('m')===$st->format('m') && $now->format('d')===$st->format('d') && 
+                ($observation->startTime < $now && $now < $reservation->endTime))
             {
-                $sameDay = true;
+                $sameSession = true;
             }
-
-            if ($sameDay && ($now->format('G') === $st->format('G')))
+            
+            if ($sameSession && ($now->format('G') === $st->format('G')))
             {
                 $duration = intval($now->format('i') - $st->format('i'));
             }
-            elseif ($sameDay && ($now->format('G') > $st->format('G')))
+            elseif ($sameSession && ($now->format('G') > $st->format('G')))
             {
                 $duration = intval($now->format('i') - $st->format('i') + 60);
             }
@@ -110,7 +113,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
                 $duration = ($reservation->endTime->format('G')-$st->format('G') - ($st->format('i')/60)) * 60;
             }
 
-            if ($sameDay && $duration < 5)  // mins
+            if ($sameSession && $duration < 5)  // mins
             {
                 $this->template->earlycheckout = 'earlycheckout';
             }
@@ -122,7 +125,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
                 $this->template->checkedOut = 'checkedOut';
             }
         }
-        else
+        else // check the user in
         {
             $startWindow = new DateTime('now - 30 minutes');
             $endWindow = new DateTime('now + 30 minutes');
@@ -144,7 +147,6 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
                 $observation->save();
                 $reservation->checkedIn = true;
                 $reservation->save();
-                $redirectTime = 20;
                 $this->template->reservation = $reservation;
             }
             else
@@ -169,7 +171,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
                     $late['time'] = $reservation->startTime;
                     $reservation->missed = true;
                     $reservation->save();
-                    $redirectTime = 30;
+                    $redirectTime = 20;
                     $this->template->late = $late;
                 }
                 
@@ -178,7 +180,6 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
                     $reservation = $early[0];
                     $early['room'] = $reservation->room->name;
                     $early['time'] = $reservation->startTime;
-                    $redirectTime = 20;
                     $this->template->early = $early;
                 }
                 
@@ -190,8 +191,19 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         }
 
         $this->template->metaRedirect = '<meta http-equiv="refresh" content="'.$redirectTime.';URL=' . $this->baseUrl('kiosk/logout') . '">';
-
+        $this->refreshKioskCookie();
     }
+
+
+    public function refreshKioskCookie ()
+    {
+        $cookieName = 'cc-kiosk';
+        $cookieValue = 'kiosk';
+
+        setCookie($cookieName, false, time()+60*60*24*30*12, '/');
+        setCookie($cookieName, $cookieValue, time()+60*60*24*30*12, '/');
+    }
+
 
     protected function flash ($content) {
         $session = $this->request->getSession();

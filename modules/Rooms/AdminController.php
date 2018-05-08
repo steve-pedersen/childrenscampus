@@ -229,7 +229,7 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
                     ' minutes. Should you need to edit the duration of this observation, you can find it here: ' . $editUrl
                 );
 
-                $observations = $reservations->find($reservations->checkedIn->isTrue(), array('orderBy' => '-startTime'));
+                $observations = $reservations->find($reservations->checkedIn->isTrue(), array('orderBy' => '+startTime'));
             }
         }
 
@@ -245,11 +245,15 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
         if ($view === 'upcoming')
         {
             $checkinRange = new DateTime('-30 minutes');
-            $reservations = $resSchema->find($resSchema->startTime->afterOrEquals($checkinRange), array('orderBy' => '-startTime'));
+            $reservations = $resSchema->find(
+                $resSchema->startTime->afterOrEquals($checkinRange)->andIf(
+                $resSchema->checkedIn->isFalse()), 
+                array('orderBy' => '+startTime')
+            );
         }
         else
         {
-            $reservations = $resSchema->getAll(array('orderBy' => '-startTime'));
+            $reservations = $resSchema->getAll(array('orderBy' => '+startTime'));
         }
         
         $this->template->view = $view;
