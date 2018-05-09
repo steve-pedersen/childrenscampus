@@ -723,18 +723,26 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                 $type->save();
             }
 
+
             // Delete old missed reservations
-            $cond = $reservations->allTrue(
-                $reservations->startTime->before(new DateTime('-2 weeks')),
-                $reservations->missed->isNull()->orIf($reservations->missed->isFalse()),
-                $reservations->checkedIn->isNull()->orIf($reservations->checkedIn->isFalse())
+            $condition = $reservations->anyTrue(
+                $reservations->allTrue(
+                    $reservations->startTime->before(new DateTime('-3 days')),
+                    $reservations->checkedIn->isFalse()->orIf($reservations->checkedIn->isNull())
+                ),
+                $reservations->allTrue(
+                    $reservations->startTime->before(new DateTime('-3 days')),
+                    $reservations->missed->isTrue(),
+                    $reservations->checkedIn->isFalse()->orIf($reservations->checkedIn->isNull())
+                )                
             );
-            $missed = $reservations->find($cond);
+
+            $missed = $reservations->find($condition);
             foreach ($missed as $reservation)
             {
                 $observation = $reservation->observation;
                 $reservation->delete();
-                if (!$observation->duration)
+                if (isset($observation->duration) && !$observation->duration)
                 {
                     $observation->delete();
                 }      
