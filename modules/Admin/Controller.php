@@ -674,6 +674,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
             $facetSchema = $this->schema('Ccheckin_Courses_Facet');
             $facetTypeSchema = $this->schema('Ccheckin_Courses_FacetType');
             $reservations = $this->schema('Ccheckin_Rooms_Reservation');
+            $accounts = $this->schema('Bss_AuthN_Account');
 
             // Generate Semester 'internal'
             foreach ($semSchema->find($semSchema->internal->isNull()) as $semester)
@@ -748,6 +749,20 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                 }      
             }
 
+            // Forgive all missed reservation penalties
+            $missedReservationAccounts = $accounts->find($accounts->missedReservation->isTrue());
+
+            foreach ($missedReservationAccounts as $account)
+            {
+                $account->missedReservation = false;
+                $account->save();
+            }
+
+            $now = new DateTime;
+            $app->siteSettings->setProperty('missed-reservations-cleared-date', $now->format('Y-m-d'));   
+
+
+            // Set migration as complete
             $app->siteSettings->setProperty('migration-complete', true);
         }
 

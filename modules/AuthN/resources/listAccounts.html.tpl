@@ -94,7 +94,7 @@
                         {/foreach}
                         </td>
                         <td>{if $account->isActive}Active{else}Inactive{/if}</td>
-                        <td style="padding:2px;">
+                        <td>
                             <a class="btn btn-info btn-xs" href="admin/accounts/{$account->id}?returnTo={$smarty.server.REQUEST_URI|escape|escape}">Edit</a>
                             <input class="btn btn-primary btn-xs" type="submit" name="command[become][{$account->id}]" value="Become" title="Switch to account {$account->displayName}">
                         </td>
