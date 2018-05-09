@@ -26,7 +26,7 @@ class Ccheckin_Semesters_AdminController extends At_Admin_Controller
         $semesters = $this->schema('Ccheckin_Semesters_Semester');
         $errors = array();
         $message = '';
-        
+
         if ($this->request->wasPostedByUser())
         {
             if ($command = $this->getPostCommand())
@@ -96,13 +96,24 @@ class Ccheckin_Semesters_AdminController extends At_Admin_Controller
                 }
             }
         }
+
+        $view = $this->request->getQueryParameter('view', 'recent');
+        if ($view !== 'all')
+        {
+            if ($this->hasPermission('admin'))
+            {
+                $semesters = $semesters->find($semesters->startDate->after(new DateTime('-3 years')), array('orderBy' => '-startDate'));
+            }
+        }
+        else
+        {
+            $semesters = $semesters->getAll(array('orderBy' => '-startDate'));
+        }
         
-        // Get the remaining queued records
-        $semesters = $semesters->getAll(array('orderBy' => '-startDate'));
         
         $this->template->semesters = $semesters;
         $this->template->terms = Ccheckin_Semesters_Semester::GetTerms();
-        // $this->template->years = Ccheckin_Semesters_Semester::GetYears();
+        $this->template->view = $view;
         $this->template->message = $message;
         $this->template->errors = $errors;
     }

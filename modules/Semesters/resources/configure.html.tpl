@@ -2,7 +2,15 @@
 
 <form action="{$smarty.server.REQUEST_URI}" method="post">
 
-    <h2 class="font-weight-light">Semesters</h2>
+<h2 class="font-weight-light">Semesters
+    <div class="pull-right">
+    {if $view == 'recent'}
+        <a class="btn btn-sm btn-default" href="admin/semester/configure?view=all" role="button">View All</a>
+    {else}
+        <a class="btn btn-sm btn-default" href="admin/semester/configure?view=recent" role="button">View Recent</a>
+    {/if}
+    </div>
+</h2>
     <div class="form-group">
         <table class="table table-bordered table-striped">
             <thead class="thead-dark">
