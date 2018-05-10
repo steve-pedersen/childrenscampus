@@ -111,8 +111,14 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                         $orgs[$course->shortName]['college'] = ($obs->startTime > $migrationDate) ? $course->college : '';
                         $orgs[$course->shortName]['department'] = ($obs->startTime > $migrationDate) ? $course->department : '';
                     }
-                    
-                    $semester = $semSchema->findOne($semSchema->startDate->equals($course->startDate));
+              
+                    // create a dummy semester in case it gets deleted from the system
+                    if (!($semester = $semSchema->findOne($semSchema->startDate->equals($course->startDate)))) {
+                        $semesterDate = (clone $course->startDate)->modify('+2 weeks');
+                        $semesterCode = Ccheckin_Semesters_Semester::guessActiveSemester(true, $semesterDate, $course->endDate);
+                        $semester = new stdClass;
+                        $semester->display = Ccheckin_Semesters_Semester::ConvertToDescription($semesterCode);
+                    }
 
                     $obsData[$obs->id] = array();
                     $obsData[$obs->id]['obsId'] = $obs->id;
@@ -126,7 +132,6 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                     $obsData[$obs->id]['email'] = $obs->account->emailAddress;
                     $obsData[$obs->id]['duration'] = $obs->duration ?? 0;                
                 }
-    
             }
 
             header("Content-Type: application/download\n");

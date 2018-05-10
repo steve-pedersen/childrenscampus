@@ -88,6 +88,11 @@
 <div id="row" class="row">
 <div id="content kiosk-content" class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
 <div class="callOutBox kiosk text-center">
+{if $shibbolethLogout}
+<iframe src="{$shibbolethLogout}" width="0" height="1px" style="border:none;"></iframe>
+<p>Logging out...</p>
+{else}
+
 
 {if $reservation}
 	<h2 class="">You have checked in for your observation in room:</h2>
@@ -158,6 +163,7 @@
             </div>
 		</div>
 	</form>
+{/if}
 {/if}
 </div> <!-- end the callOut div -->
 </div> <!-- end the content div -->

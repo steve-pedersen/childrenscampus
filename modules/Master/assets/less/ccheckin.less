@@ -27,6 +27,7 @@ html > body {
 	div#content {
 		background-color: #fff;
 	}
+
 }
 /* WHITE BACKGROUND IN CONTENT AREA */
 div.main-content {
@@ -48,6 +49,10 @@ div.main-content {
 	}
 }
 
+.navbar li a.navbar-btn {
+    margin-top: 0;
+}
+
 /* KIOSK MODE */
 .callOutBox.kiosk {
 	/*left: 25%;*/
@@ -57,7 +62,8 @@ div.main-content {
 .callOutBox {
     background-color: #F8F8E8;
     border: 1px solid #A1A159;
-    padding: 20px;
+    border-radius: 5px;
+    padding: 30px;
 }
 
 /* NAVBAR FIXES */
@@ -76,6 +82,11 @@ div.main-content {
 		margin-top: 10px;
 	}  
 }
+/* Fixes issue after Logout had to be changed to an <a> */
+.navbar-nav > li > a {
+    margin-bottom: 0;
+}
+
 
 /* ANNOUNCEMENTS */
 div.announcements, 

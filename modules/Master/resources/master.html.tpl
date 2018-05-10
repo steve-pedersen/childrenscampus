@@ -7,6 +7,7 @@
 		<title>{if $pageTitle}{$pageTitle|escape} &mdash; {/if}{$appName|escape}</title>
 		<base href="{$baseUrl|escape}/">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		{if $metaRedirect}{$metaRedirect}{/if}
 		<link rel="stylesheet" type="text/css" href="assets/less/master.less.css">
     <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 		<link rel="stylesheet" type="text/css" href="assets/css/bootstrap-accessibility.css">
@@ -49,9 +50,7 @@
 						</li>
 						{/if}
 						<li style="text-align:center;">
-							<form method="post" action="logout">
-								<button class="btn btn-link logout navbar-btn" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
-							</form>
+							<a class="btn btn-link logout navbar-btn" id="logout-button" href="logout">Logout</a>
 						</li>
 						{else}
 						<li class="{if $activeTab=='login'} active{/if}">
@@ -108,6 +107,11 @@
         
 <div class="container" id="content" tabindex="-1">
 	<div class="row">
+
+	{if $shibbolethLogout}
+		<iframe src="{$shibbolethLogout}" width="0" height="1px" style="border:none;"></iframe>
+		<div class="text-center logging-out"><p class="lead">Logging out...</p></div>
+	{else}
 
 		{if $viewer}
 		<!-- LEFT NAVIGATION -->		
@@ -191,6 +195,7 @@
         </div>
         {/if}
 
+	{/if}
 	</div>
 </div>
 

@@ -103,13 +103,21 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
         return $year[0] . $year[2] . $year[3] . $term;
     }
 
-    public static function guessActiveSemester ($returnTermCode = true, $fromDate = null)
+    public static function guessActiveSemester ($returnTermCode = true, $fromDate = null, $endDate = null)
     {
+        $earlyWinter = false;
+        $m2 = 0;
+
         if ($fromDate)
         {
             $y = $fromDate->format('Y');
             $m = $fromDate->format('n');
             $d = $fromDate->format('d');
+            if ($endDate) 
+            {
+                $m2 = $endDate->format('n');
+                $d2 = $endDate->format('d');
+            }
         }
         else
         {
@@ -118,15 +126,21 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
             $d = date('d');            
         }
 
-        $earlyWinter = false;
-
-        // Winter session ~ Dec 20 to Jan 18
-        if (($m < 2 && $d < 18) || ($m == 12 && $d > 20))
+        // Winter session ~ Dec 20 to Jan 18?
+        // double check that the course end date also ends in Jan
+        if (($m == 1 && $d < 20) || ($m == 12 && $d > 20))
         {
-            $s = 1; // Winter
-            if ($m == 12)
+            if ($m2 && $m2 != 1) 
             {
-                $earlyWinter = true;
+                $s = 3; // then Spring
+            }
+            else
+            {
+                $s = 1; // Winter
+                if ($m == 12)
+                {
+                    $earlyWinter = true;
+                }
             }
         }
         elseif ($m < 6)

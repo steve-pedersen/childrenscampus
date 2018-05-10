@@ -16,9 +16,12 @@ class Ccheckin_AuthN_Controller extends Ccheckin_Master_Controller
 
     public function kioskLogout ()
     {
-        session_unset();
-        $viewer = $this->getUserContext();
-        $viewer->logout('/');
+        $logoutRedirect = $this->getLogoutRedirect();     
+        $this->getUserContext()->logout();
+
+        $this->template->baseUrl = $this->baseUrl();
+        $this->template->metaRedirect = '<meta http-equiv="refresh" content="1;URL=' . $this->baseUrl('') . '">';
+        $this->template->shibbolethLogout = $logoutRedirect;
     }
 
     /**
@@ -33,8 +36,35 @@ class Ccheckin_AuthN_Controller extends Ccheckin_Master_Controller
         {
             $this->response->redirect('admin');
         }
+        $context->logout();
+        $logoutRedirect = $this->getLogoutRedirect();
+        $this->template->baseUrl = $this->baseUrl();
+        $this->template->metaRedirect = '<meta http-equiv="refresh" content="1;URL=' . $this->baseUrl('') . '">';
+        $this->template->shibbolethLogout = $logoutRedirect;
+    }
 
-        $context->logout('/');
+    public function getLogoutRedirect ()
+    {
+        // session_unset();
+        $logoutRedirect = null;
+        
+        if (($idProviderName = $this->request->getCookie('wayfSettings')))
+        {
+            $manager = $this->application->identityProviderManager;
+            
+            if (($idProvider = $manager->getProvider($idProviderName)))
+            {
+                $logoutRedirect = $idProvider->getLogoutRedirection('/logout');
+                $this->template->singleSignOut = $idProvider->hasSingleSignOut();
+            }
+        }
+
+        if ($logoutRedirect === null)
+        {
+            $logoutRedirect = 'https://idp-test.sfsu.edu/idp/Logout';
+        }
+
+        return $logoutRedirect;
     }
 
     public function editProfile ()

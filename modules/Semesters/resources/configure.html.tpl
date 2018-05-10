@@ -40,10 +40,11 @@
         </table>
     </div>
     <div class="form-group commands">
-        <input class="btn btn-default" type="submit" name="command[remove]" id="command-remove" value="Remove Selected Semesters" />
+        <input class="btn btn-danger" type="submit" name="command[remove]" id="command-remove" value="Remove Selected Semesters" />
     </div>
+    
 
-<br>
+<br><hr>
 
     <h2 class="font-weight-light">Add a Semester</h2>
     <div class="form-group">

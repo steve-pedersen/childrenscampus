@@ -46,8 +46,8 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         else
         {
             $this->template->kioskMode = false;
-        }        	
-		$this->template->controller = $this;
+        }           
+        $this->template->controller = $this;
 
     }
 
@@ -127,8 +127,8 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         }
         else // check the user in
         {
-            $startWindow = new DateTime('now - 30 minutes');
-            $endWindow = new DateTime('now + 30 minutes');
+            $startWindow = new DateTime('-30 minutes');
+            $endWindow = new DateTime('+30 minutes');
             
             // Find all reservations for the user within a thirty minute window.           
             $cond = $resSchema->allTrue(
@@ -138,7 +138,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
                 $resSchema->checkedIn->isFalse()
             );
             $reservations = $resSchema->find($cond, array('orderBy' => 'id'));
-
+            
             if (!empty($reservations))
             {
                 $reservation = $reservations[0];
@@ -163,7 +163,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
                     $resSchema->accountId->equals($viewer->id)
                 );
                 $early = $resSchema->find($earlyCondition);
-
+                
                 if (!empty($late))
                 {
                     $reservation = $late[0];
@@ -368,15 +368,15 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         return $account;
     }
 
-	public function requireExists ($entity, $suggestionList = array())
-	{
-		if ($entity === null)
-		{
-			$this->notFound($suggestionList);
-		}
-		
-		return $entity;
-	}
+    public function requireExists ($entity, $suggestionList = array())
+    {
+        if ($entity === null)
+        {
+            $this->notFound($suggestionList);
+        }
+        
+        return $entity;
+    }
     
     public function processSubmission (Bss_ActiveRecord_Base $record, $fieldMap, $paramMap = array())
     {
@@ -402,8 +402,8 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
             $this->userMessage('Form submission out of date.', 'Please resubmit the form to save your changes.');
         }
 
-		$this->template->errorMap = $record->getValidationMessages();
-		return $this->request->wasPostedByUser() && $record->isValid();
+        $this->template->errorMap = $record->getValidationMessages();
+        return $this->request->wasPostedByUser() && $record->isValid();
     }
     
     /**

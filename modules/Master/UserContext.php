@@ -19,7 +19,7 @@ class Ccheckin_Master_UserContext extends Bss_Master_UserContext
     private $request;
     private $response;
     private $account;
-	private $anonRoleMap;
+    private $anonRoleMap;
     
     /**
      * Construct a user context for the given request and response.
@@ -32,7 +32,7 @@ class Ccheckin_Master_UserContext extends Bss_Master_UserContext
         $this->request = $request;
         $this->response = $response;
         $this->account = null;
-		$this->anonRoleMap = null;
+        $this->anonRoleMap = null;
     }
     
     public function getAuthorizationId () { return null; } // Skip direct permission checks.
@@ -114,7 +114,7 @@ class Ccheckin_Master_UserContext extends Bss_Master_UserContext
             // was an unbecome operation, so the user has just switched back to
             // their real account.
             $session->delete();
-            $returnTo = '/';
+            // $returnTo = '/';
         }
         
         if ($returnTo !== null)
@@ -208,78 +208,78 @@ class Ccheckin_Master_UserContext extends Bss_Master_UserContext
         return false;
     }
 
-	public function addAnonymousRole (Ccheckin_AuthN_Role $role)
-	{
-		$session = $this->request->getSession();
-		
-		if ($this->anonRoleMap === null)
-		{
-			$this->anonRoleMap = array();
-		}
-		
-		$this->anonRoleMap[$role->id] = $role;
-		
-		if (isset($session->anonymousRoles))
-		{
-			$roleSet = $session->anonymousRoles;
-		}
-		else
-		{
-			$roleSet = array();
-		}
-		
-		$roleSet[$role->id] = true;
-		$session->anonymousRoles = $roleSet;
-	}
-	
-	public function removeAnonymousRole (Ccheckin_AuthN_Role $role)
-	{
-		if (isset($this->anonRoleMap[$role->id]))
-		{
-			unset($this->anonRoleMap[$role->id]);
-			
-			$roleSet = $session->anonymousRoles;
-			unset($roleSet[$role->id]);
-			$session->anonymousRoles = $roleSet;
-		}
-	}
+    public function addAnonymousRole (Ccheckin_AuthN_Role $role)
+    {
+        $session = $this->request->getSession();
+        
+        if ($this->anonRoleMap === null)
+        {
+            $this->anonRoleMap = array();
+        }
+        
+        $this->anonRoleMap[$role->id] = $role;
+        
+        if (isset($session->anonymousRoles))
+        {
+            $roleSet = $session->anonymousRoles;
+        }
+        else
+        {
+            $roleSet = array();
+        }
+        
+        $roleSet[$role->id] = true;
+        $session->anonymousRoles = $roleSet;
+    }
+    
+    public function removeAnonymousRole (Ccheckin_AuthN_Role $role)
+    {
+        if (isset($this->anonRoleMap[$role->id]))
+        {
+            unset($this->anonRoleMap[$role->id]);
+            
+            $roleSet = $session->anonymousRoles;
+            unset($roleSet[$role->id]);
+            $session->anonymousRoles = $roleSet;
+        }
+    }
     
     public function getAnonymousRoles ()
     {
-		if ($this->anonRoleMap === null)
-		{
-	        $schemaManager = $this->request->getApplication()->schemaManager;
-	        $session = $this->request->getSession();
-			$this->anonRoleMap = array();
+        if ($this->anonRoleMap === null)
+        {
+            $schemaManager = $this->request->getApplication()->schemaManager;
+            $session = $this->request->getSession();
+            $this->anonRoleMap = array();
 
-			if (!isset($session->anonymousRoles))
-			{
-				$ipRoles = $schemaManager->getSchema('Ccheckin_AuthN_IpRoleAssignment');
-				$ipRoleList = $ipRoles->find($ipRoles->ipAddress->containsIpAddress($this->request->getRemoteAddress()));
-			
-				$roleSet = array();
-			
-				foreach ($ipRoleList as $ipRole)
-				{
-					$roleSet[$ipRole->role_id] = true;
-					$this->anonRoleMap[$ipRole->role_id] = $ipRole->role;
-				}
-			
-				$session->anonymousRoles = $roleSet;
-			}
-			else
-			{
-				$roleSet = $session->anonymousRoles;
-				$roles = $schemaManager->getSchema('Ccheckin_AuthN_Role');
-				
-				foreach ($roles->findById(array_keys($roleSet)) as $role)
-				{
-					$this->anonRoleMap[$role->id] = $role;
-				}
-			}
-		}
-		
-		return $this->anonRoleMap;
+            if (!isset($session->anonymousRoles))
+            {
+                $ipRoles = $schemaManager->getSchema('Ccheckin_AuthN_IpRoleAssignment');
+                $ipRoleList = $ipRoles->find($ipRoles->ipAddress->containsIpAddress($this->request->getRemoteAddress()));
+            
+                $roleSet = array();
+            
+                foreach ($ipRoleList as $ipRole)
+                {
+                    $roleSet[$ipRole->role_id] = true;
+                    $this->anonRoleMap[$ipRole->role_id] = $ipRole->role;
+                }
+            
+                $session->anonymousRoles = $roleSet;
+            }
+            else
+            {
+                $roleSet = $session->anonymousRoles;
+                $roles = $schemaManager->getSchema('Ccheckin_AuthN_Role');
+                
+                foreach ($roles->findById(array_keys($roleSet)) as $role)
+                {
+                    $this->anonRoleMap[$role->id] = $role;
+                }
+            }
+        }
+        
+        return $this->anonRoleMap;
     }
     
     public function getSubjectProxies ()
