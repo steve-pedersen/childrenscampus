@@ -15,8 +15,6 @@
 		<link rel="stylesheet" type="text/css" href="assets/css/print.css" media="print">
 		<link rel="stylesheet" type="text/css" href="assets/css/app-js.css" media="screen">
 		<link rel="stylesheet" type="text/css" href="assets/css/jquery.timepicker.min.css">
-		<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
-		<!-- <script>document.write('<link rel="stylesheet" type="text/css" href="assets/css/app-js.css" media="screen">');</script>  -->
 	</head>
 
 
@@ -86,87 +84,98 @@
 
 <div id="container" class="container">
 <div id="row" class="row">
-<div id="content kiosk-content" class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
-<div class="callOutBox kiosk text-center">
+<!-- <div id="content kiosk-content" class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+<div class="callOutBox kiosk text-center"> -->
+<div id="kioskContainer" class="col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2 col-xs-10 col-xs-offset-1">
+	<div class="wrapper text-center">
+
 {if $shibbolethLogout}
+
 <iframe src="{$shibbolethLogout}" width="0" height="1px" style="border:none;"></iframe>
-<p>Logging out...</p>
-{else}
+<div class="check-in-content">
+	<p>Logging out...</p>
+</div>
 
+{else} <!-- Show Kiosk Logged in/out -->
 
-{if $reservation}
-	<h2 class="">You have checked in for your observation in room:</h2>
-	<p>{$reservation->room->name|escape}</p>
-	<p>On {$reservation->observation->startTime|date_format:"%b %e, %Y at %I:%M %p"}</p>
-	<div class="kiosk-link">
-<!-- 		<form method="post" action="logout">
-			<button class="btn btn-default" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
-		</form> -->
-		<a href="kiosk/logout" class="btn btn-default">Logout</a>
-	</div>
-
-{elseif $checkedOut}
-	<h2 class="">You have successfully checked out</h2>
-	<div class="kiosk-link">
-<!-- 		<form method="post" action="logout">
-			<button class="btn btn-default" type="submit" name="command[logout]" id="logout-button" value="Logout">Logout</button>
-		</form> -->
-		<a href="kiosk/logout" class="btn btn-default">Logout</a>
-	</div>
-
-{elseif $late || $early}
-	{if $late}
-		<div class="flash"><div class="message error"><p>You are late for your appointment at <strong>{$late.time|date_format:"%b %e, %Y at %I:%M %p"}</strong>.  You must sign up again to reserve time for observations.</p></div></div>
-	{/if}
-	{if $early}
-		<p class="">You are early for your appointment at {$early.time|date_format:"%b %e, %Y at %I:%M %p"}. Please come back at time closer to your appointment.</p>
-	{/if}
-	<div class="kiosk-link">
-		<a href="kiosk/logout" class="btn btn-default">Logout</a>
-	</div>
-
-{elseif $empty}
-	<h2>No reservations found</h2>
-	<p>We have not found any reservation for you.</p>
-	<div class="kiosk-link">
-		<a href="kiosk/logout" class="btn btn-default">Logout</a>
-	</div>
-
-{elseif $earlycheckout}
-	<h2>Cannot checkout too early</h2>
-	<p>You must wait at least five minutes before you can checkout.</p>
-	<div class="kiosk-link">
-		<a href="kiosk/logout" class="btn btn-default">Logout</a>
-	</div>
-
-{else}
-	<h2>Sign-In Here</h2>
-		<form method="post" action="login/complete/sfsu-shib" autocomplete="false">
-		<!-- <form method="post" action="login/complete/sfsu-pw" autocomplete="false"> -->
-		<!-- <form method="post" action="login/complete/ad" autocomplete="false"> -->
-		<div id="loginForm">
-			{if $loginError}
-				<div class="flash"><div class="message error"><p>We could not find any accounts which match the ID and password.</p></div></div>
-			{/if}
-			<input type="hidden" name="returnTo" value="{$smarty.server.REQUEST_URI|escape}" />
-<!--             <div class="form-group">
-                <input type="text" autocomplete="off" class="form-control" id="password-username" name="username" placeholder="SF State ID or Email" alt="SF State ID or Email">
-            </div>
-
-            <div class="form-group">
-                <input type="password" autocomplete="off" class="form-control" id="password-password" name="password" placeholder="Password" alt="password">
-            </div> -->
-               
-            <div class="form-group">
-                {generate_form_post_key}
-                <button class="command-button btn btn-primary" type="submit" name="command[login]">Login</button>
-            </div>
+	{if $reservation}
+	<div class="check-in-content">
+		<h2 class="">You have checked in for your observation in room:</h2>
+		<p>{$reservation->room->name|escape}</p>
+		<p>On {$reservation->observation->startTime|date_format:"%b %e, %Y at %I:%M %p"}</p>
+		<div class="kiosk-link">
+			<a href="kiosk/logout" class="btn btn-default btn-lg">Logout</a>
 		</div>
-	</form>
-{/if}
-{/if}
-</div> <!-- end the callOut div -->
-</div> <!-- end the content div -->
+	</div>
+
+	{elseif $checkedOut}
+	<div class="check-in-content">
+		<h2 class="">You have successfully checked out</h2>
+		<div class="kiosk-link">
+			<a href="kiosk/logout" class="btn btn-default btn-lg">Logout</a>
+		</div>
+	</div>
+
+	{elseif $late || $early}
+	<div class="check-in-content">
+		{if $late}
+			<div class="flash"><div class="message error"><p>You are late for your appointment at <strong>{$late.time|date_format:"%b %e, %Y at %I:%M %p"}</strong>.  You must sign up again to reserve time for observations.</p></div></div>
+		{/if}
+		{if $early}
+			<p class="">You are early for your appointment at {$early.time|date_format:"%b %e, %Y at %I:%M %p"}. Please come back at time closer to your appointment.</p>
+		{/if}
+		<div class="kiosk-link">
+			<a href="kiosk/logout" class="btn btn-default btn-lg">Logout</a>
+		</div>
+	</div>
+
+	{elseif $empty}
+	<div class="check-in-content">
+		<h2>No reservations found</h2>
+		<p>We have not found any reservations for you.</p>
+		<div class="kiosk-link">
+			<a href="kiosk/logout" class="btn btn-default btn-lg">Logout</a>
+		</div>
+	</div>
+
+	{elseif $earlycheckout}
+	<div class="check-in-content">
+		<h2>Cannot checkout too early</h2>
+		<p>You must wait at least five minutes before you can checkout.</p>
+		<div class="kiosk-link">
+			<a href="kiosk/logout" class="btn btn-default btn-lg">Logout</a>
+		</div>
+	</div>
+	
+	{else} <!-- Login -->
+
+		<form method="post" action="login/complete/sfsu-shib">
+			<!-- <form method="post" action="login/complete/sfsu-pw" autocomplete="false"> -->
+			<!-- <form method="post" action="login/complete/ad" autocomplete="false"> -->
+			<input type="hidden" name="returnTo" value="{$smarty.server.REQUEST_URI|escape}" />
+			<div class="login-img">
+				<img src="assets/images/ccheckin-playroom-cropped.png" class="img-responsive img-1" alt="Children's playroom">
+				<img src="assets/images/ccheckin-outside.jpg" class="img-responsive img-2" alt="Backyard playground">
+			</div>
+			<div class="login-info">
+				<div class="login-text">
+					<h1>Children's Campus</h1>
+					<h2>at SF State</h2>
+					<p>A Center for Early Care and Educational, Professional Development and Research</p>
+				</div>
+				<div class="login-btn">
+					<button class="command-button btn btn-primary" type="submit" name="command[login]">Login</button>
+				</div>
+			</div>
+		{generate_form_post_key}
+		</form>
+
+	{/if} <!-- end kiosk options -->
+
+{/if} <!-- end Show Kiosk Logged in/out -->
+
+	</div> <!-- end wrapper div -->
+</div> <!-- end loginForm div -->
 <br style="clear: both;" />
 </div> <!-- end row div -->
 </div> <!-- end container div -->

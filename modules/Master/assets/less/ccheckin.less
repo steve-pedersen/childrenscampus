@@ -54,17 +54,120 @@ div.main-content {
 }
 
 /* KIOSK MODE */
-.callOutBox.kiosk {
-	/*left: 25%;*/
-    max-width: 100%;
-    font-size: 140%;
+#kioskContainer {
+	.wrapper {
+		height: 399px;
+		width: 654px;
+		margin: 50px auto;
+		border-radius: 7px 7px 7px 7px;
+		/* VIA CSS MATIC https://goo.gl/cIbnS */
+		-webkit-box-shadow: 0px 14px 32px 0px rgba(0, 0, 0, 0.15);
+		-moz-box-shadow: 0px 14px 32px 0px rgba(0, 0, 0, 0.15);
+		box-shadow: 0px 14px 32px 0px rgba(0, 0, 0, 0.15);
+	
+		.check-in-content {
+			height: inherit;
+			border-radius: 7px 7px 7px 7px;
+			background-color: @gray-lte;
+			font-size: 140%;
+			/*vertical-align: middle;*/
+			padding-top: 75px;
+			h2 {
+				/*letter-spacing: 0.2em;*/
+				text-transform: uppercase;
+			}
+			p {
+				line-height: 1.7em;
+				
+			}
+			a {
+				margin-top: 20px;
+			}
+			.kiosk-link {
+				/*padding-bottom: 50px;*/
+			}
+		}
+
+		.login-img {
+			float: left;
+			height: 399px;
+			width: 327px;
+			img {
+				/*border: 3px solid @gray-lte;*/
+			}
+			.img-1 {
+				border-radius: 7px 0 0 0;
+			}
+			.img-2 {
+				border-radius: 0 0 0 7px;
+			}
+		}
+
+		.login-info {
+			float: left;
+			height: 399px;
+			width: 327px;
+			border-radius: 0 7px 10px 7px;
+			background-color: #ffffff;
+		
+			.login-text {
+				height: 300px;
+				width: 327px;
+				h1 {
+					/*margin: 0 0 0 38px;*/
+					padding-top: 52px;
+					font-size: 34px;
+					color: #474747;
+				}
+				h2 {
+					margin: -5px 0 10px 0;
+					font-size: 13px;
+					/*font-family: 'Raleway', sans-serif;*/
+					font-weight: 400;
+					text-transform: uppercase;
+					color: @gray-darkest;
+					letter-spacing: 0.2em;
+				}
+				p {
+					height: 125px;
+					margin: 10px 20px 0 20px;
+					/*font-family: 'Playfair Display', serif;*/
+					color: @gray-darkest;
+					line-height: 1.7em;
+					font-size: 15px;
+					font-weight: 400;
+					overflow: hidden;
+				}
+			}
+			.login-btn button {
+				/*float: right;*/
+				display: inline-block;
+				height: 50px;
+				width: 176px;
+				/*margin: 0 40px 0 16px;*/
+				box-sizing: border-box;
+				border: transparent;
+				border-radius: 60px;
+				/*font-family: 'Raleway', sans-serif;*/
+				font-size: 14px;
+				font-weight: 500;
+				text-transform: uppercase;
+				letter-spacing: 0.2em;
+				color: #ffffff;
+				/*background-color: #9cebd5;*/
+				cursor: pointer;
+				outline: none;
+			}
+		}
+	}
 }
-.callOutBox {
-    background-color: #F8F8E8;
-    border: 1px solid #A1A159;
-    border-radius: 5px;
-    padding: 30px;
-}
+
+
+
+
+
+
+
 
 /* NAVBAR FIXES */
 .navbar {

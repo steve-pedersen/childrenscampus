@@ -61,8 +61,8 @@ class Ccheckin_AuthN_Controller extends Ccheckin_Master_Controller
         $this->getUserContext()->logout();
 
         // global logout through iframe
-        $this->template->baseUrl = $this->baseUrl();
-        $this->template->metaRedirect = '<meta http-equiv="refresh" content="1;URL=' . $this->baseUrl() . '">';
+        $this->template->baseUrl = $this->baseUrl('');
+        $this->template->metaRedirect = '<meta http-equiv="refresh" content="1;URL=' . $this->baseUrl('') . '">';
         $this->template->shibbolethLogout = $logoutRedirect; // iframe src
     }
 

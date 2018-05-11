@@ -33,7 +33,8 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
             {
                 $this->template->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'kiosk.html.tpl'));
                 $this->template->kioskMode = true;
-                if ($viewer)
+
+                if ($viewer && ($this->request->getFullRequestedUri() !== '/kiosk/logout'))
                 {
                     $this->runKiosk();
                 }
@@ -115,7 +116,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
 
             if ($sameSession && $duration < 5)  // mins
             {
-                $this->template->earlycheckout = 'earlycheckout';
+                // $this->template->earlycheckout = 'earlycheckout';
             }
             else
             {

@@ -9,7 +9,7 @@
 </div>
 {/if}
 
-<img class="img-responsive" src="assets/images/childrensCampus.jpg" alt="Photo of the front door to the Children's Campus">
+<img class="img-responsive" src="assets/images/ccheckin-playroom2.jpg" alt="Photo of the front door to the Children's Campus">
 {if $existing}
     {foreach item='reservation' from=$existing}
     <p>You have a reservation in room {$reservation->room->name} on {$reservation->startTime|date_format:"%b %e, %Y at %l %p"}</p>
@@ -42,7 +42,7 @@ If you need help locating our center, please check the <a href="http://www.sfsu.
 </div>
 <div class="link-controls">
     <p class="first">
-        <a class="ok btn btn-success" href="reservations/upcoming">OK</a>
+        <a class="ok btn btn-success" href="reservations/upcoming">OK</a>&nbsp;&nbsp;
         <a class="cancel btn btn-danger" href="reservations/delete/{$reservation->id}">Cancel reservation</a>
     </p>
 </div>

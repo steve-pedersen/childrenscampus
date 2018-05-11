@@ -32,7 +32,7 @@
 {if $userContext->account}
 	<div id="location-message" class="col-xs-6">
 		<div class="card" >
-		  <img class="card-img-top img-responsive" src="assets/images/childrensCampus.jpg" alt="Photo of the front door to the Children's Campus">
+		  <img class="card-img-top img-responsive" src="assets/images/ccheckin-entrance.jpg" alt="Front door to the Children's Campus">
 		  <div class="card-body">
 		    <p class="card-text">
 			{if $locationMessage}
