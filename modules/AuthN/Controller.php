@@ -16,17 +16,9 @@ class Ccheckin_AuthN_Controller extends Ccheckin_Master_Controller
 
     public function kioskLogout ()
     {
-        $logoutRedirect = $this->getLogoutRedirect();     
-        $this->getUserContext()->logout();
-
-        $this->template->baseUrl = $this->baseUrl();
-        $this->template->metaRedirect = '<meta http-equiv="refresh" content="1;URL=' . $this->baseUrl('') . '">';
-        $this->template->shibbolethLogout = $logoutRedirect;
+        $this->localGlobalLogoutAndRedirect();
     }
 
-    /**
-     * Logout a user account and return them to the login page.
-     */
     public function logout ()
     {
         $this->template->clearBreadcrumbs();
@@ -36,16 +28,17 @@ class Ccheckin_AuthN_Controller extends Ccheckin_Master_Controller
         {
             $this->response->redirect('admin');
         }
-        $context->logout();
-        $logoutRedirect = $this->getLogoutRedirect();
-        $this->template->baseUrl = $this->baseUrl();
-        $this->template->metaRedirect = '<meta http-equiv="refresh" content="1;URL=' . $this->baseUrl('') . '">';
-        $this->template->shibbolethLogout = $logoutRedirect;
+        else
+        {
+            $this->localGlobalLogoutAndRedirect();
+        }
     }
 
-    public function getLogoutRedirect ()
+    /**
+     * Logout a user account form local session, shibboleth idp, then redirect.
+     */
+    public function localGlobalLogoutAndRedirect ()
     {
-        // session_unset();
         $logoutRedirect = null;
         
         if (($idProviderName = $this->request->getCookie('wayfSettings')))
@@ -59,12 +52,18 @@ class Ccheckin_AuthN_Controller extends Ccheckin_Master_Controller
             }
         }
 
-        if ($logoutRedirect === null)
+        // local logout
+        $session = $this->request->getSession();       
+        if (isset($session->logoutReturnTo))
         {
-            $logoutRedirect = 'https://idp-test.sfsu.edu/idp/Logout';
+            unset($session->logoutReturnTo);
         }
+        $this->getUserContext()->logout();
 
-        return $logoutRedirect;
+        // global logout through iframe
+        $this->template->baseUrl = $this->baseUrl();
+        $this->template->metaRedirect = '<meta http-equiv="refresh" content="1;URL=' . $this->baseUrl() . '">';
+        $this->template->shibbolethLogout = $logoutRedirect; // iframe src
     }
 
     public function editProfile ()
