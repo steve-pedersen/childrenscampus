@@ -99,56 +99,84 @@
 {else} <!-- Show Kiosk Logged in/out -->
 
 	{if $reservation}
-	<div class="check-in-content">
-		<h2 class="">You have checked in for your observation in room:</h2>
-		<p>{$reservation->room->name|escape}</p>
-		<p>On {$reservation->observation->startTime|date_format:"%b %e, %Y at %I:%M %p"}</p>
-		<div class="kiosk-link">
-			<a href="kiosk/logout" class="btn btn-default btn-lg">Logout</a>
+		<div class="check-in-content">
+			<div class="logout-img">
+				<img src="assets/images/ccheckin-observation2.jpg" class="img-responsive" alt="Children's playroom">
+			</div>
+			<div class="logout-info">
+				<h2 class="">Checked in</h2>
+				<p>{$reservation->room->name|escape}<br>
+				<strong>On {$reservation->observation->startTime|date_format:"%b %e, %Y at %I:%M %p"}</strong>
+				</p>
+				<div class="kiosk-link">
+					<a href="kiosk/logout" class="btn btn-default btn-lg">Logout</a>
+				</div>
+			</div>
 		</div>
-	</div>
 
 	{elseif $checkedOut}
-	<div class="check-in-content">
-		<h2 class="">You have successfully checked out</h2>
-		<div class="kiosk-link">
-			<a href="kiosk/logout" class="btn btn-default btn-lg">Logout</a>
+		<div class="check-in-content">
+			<div class="logout-img">
+				<img src="assets/images/ccheckin-observation2.jpg" class="img-responsive" alt="Children's playroom">
+			</div>
+			<div class="logout-info">
+				<h2 class="">Checked out</h2>
+				<p>You have successfully checked out.</p>
+				<div class="kiosk-link">
+					<a href="kiosk/logout" class="btn btn-default btn-lg">Logout</a>
+				</div>
+			</div>
 		</div>
-	</div>
 
 	{elseif $late || $early}
-	<div class="check-in-content">
-		{if $late}
-			<div class="flash"><div class="message error"><p>You are late for your appointment at <strong>{$late.time|date_format:"%b %e, %Y at %I:%M %p"}</strong>.  You must sign up again to reserve time for observations.</p></div></div>
-		{/if}
-		{if $early}
-			<p class="">You are early for your appointment at {$early.time|date_format:"%b %e, %Y at %I:%M %p"}. Please come back at time closer to your appointment.</p>
-		{/if}
-		<div class="kiosk-link">
-			<a href="kiosk/logout" class="btn btn-default btn-lg">Logout</a>
+		<div class="check-in-content">
+			<div class="logout-img">
+				<img src="assets/images/ccheckin-observation2.jpg" class="img-responsive" alt="Children's playroom">
+			</div>
+			<div class="logout-info">
+			{if $late}
+				<h2>Late for appointment</h2>
+				<p>You are late for your appointment at <strong>{$late.time|date_format:"%b %e, %Y at %I:%M %p"}</strong>.  You must sign up again to reserve time for observations.</p>
+			{/if}
+			{if $early}
+				<h2>Early for appointment</h2>
+				<p class="">You are early for your appointment at {$early.time|date_format:"%b %e, %Y at %I:%M %p"}. Please come back at time closer to your appointment.</p>
+			{/if}
+				<div class="kiosk-link">
+					<a href="kiosk/logout" class="btn btn-default btn-lg">Logout</a>
+				</div>
+			</div>
 		</div>
-	</div>
 
 	{elseif $empty}
-	<div class="check-in-content">
-		<h2>No reservations found</h2>
-		<p>We have not found any reservations for you.</p>
-		<div class="kiosk-link">
-			<a href="kiosk/logout" class="btn btn-default btn-lg">Logout</a>
+		<div class="check-in-content">
+			<div class="logout-img">
+				<img src="assets/images/ccheckin-observation2.jpg" class="img-responsive" alt="Children's playroom">
+			</div>
+			<div class="logout-info">
+				<h2>No reservations found</h2>
+				<p>We have not found any reservations for you.</p>
+				<div class="kiosk-link">
+					<a href="kiosk/logout" class="btn btn-default btn-lg">Logout</a>
+				</div>
+			</div>
 		</div>
-	</div>
 
 	{elseif $earlycheckout}
-	<div class="check-in-content">
-		<h2>Cannot checkout too early</h2>
-		<p>You must wait at least five minutes before you can checkout.</p>
-		<div class="kiosk-link">
-			<a href="kiosk/logout" class="btn btn-default btn-lg">Logout</a>
+		<div class="check-in-content">
+			<div class="logout-img">
+				<img src="assets/images/ccheckin-observation2.jpg" class="img-responsive" alt="Children's playroom">
+			</div>
+			<div class="logout-info">
+				<h2>Cannot checkout too early</h2>
+				<p>You must wait at least five minutes before you can checkout.</p>
+				<div class="kiosk-link">
+					<a href="kiosk/logout" class="btn btn-default btn-lg">Logout</a>
+				</div>
+			</div>
 		</div>
-	</div>
 	
 	{else} <!-- Login -->
-
 		<form method="post" action="login/complete/sfsu-shib">
 			<!-- <form method="post" action="login/complete/sfsu-pw" autocomplete="false"> -->
 			<!-- <form method="post" action="login/complete/ad" autocomplete="false"> -->
@@ -169,6 +197,7 @@
 			</div>
 		{generate_form_post_key}
 		</form>
+
 
 	{/if} <!-- end kiosk options -->
 

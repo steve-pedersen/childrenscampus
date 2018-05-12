@@ -56,7 +56,7 @@ div.main-content {
 /* KIOSK MODE */
 #kioskContainer {
 	.wrapper {
-		height: 399px;
+		height: 400px;
 		width: 654px;
 		margin: 50px auto;
 		border-radius: 7px 7px 7px 7px;
@@ -69,32 +69,51 @@ div.main-content {
 			height: inherit;
 			border-radius: 7px 7px 7px 7px;
 			background-color: @gray-lte;
-			font-size: 140%;
-			/*vertical-align: middle;*/
-			padding-top: 75px;
-			h2 {
-				/*letter-spacing: 0.2em;*/
-				text-transform: uppercase;
+			font-size: 140%;	
+			.logout-info {
+				padding: 40px 5px 0 10px;
+				h2 {
+					text-transform: uppercase;
+					color: #474747;
+				}
+				p {
+					line-height: 1.7em;
+					font-size: 16px;
+					font-weight: 400;
+					height: 125px;
+				}
+				a {
+					margin-top: 20px;
+					display: inline-block;
+					height: 50px;
+					width: 176px;
+					box-sizing: border-box;
+					border: transparent;
+					border-radius: 60px;
+					font-size: 14px;
+					font-weight: 500;
+					text-transform: uppercase;
+					letter-spacing: 0.2em;
+				    padding-top: 15px;
+					cursor: pointer;
+					outline: none;
+				}				
 			}
-			p {
-				line-height: 1.7em;
-				
-			}
-			a {
-				margin-top: 20px;
-			}
-			.kiosk-link {
-				/*padding-bottom: 50px;*/
+			.logout-img {
+				margin-left: 10px;
+				border-left: 10px solid @gray-darkest;
+				float: right;
+				width: 314px;
+				img {
+					border-radius: 0 7px 7px 0;
+				}
 			}
 		}
 
 		.login-img {
 			float: left;
-			height: 399px;
+			height: 400px;
 			width: 327px;
-			img {
-				/*border: 3px solid @gray-lte;*/
-			}
 			.img-1 {
 				border-radius: 7px 0 0 0;
 			}
@@ -105,16 +124,15 @@ div.main-content {
 
 		.login-info {
 			float: left;
-			height: 399px;
+			height: 400px;
 			width: 327px;
-			border-radius: 0 7px 10px 7px;
+			border-radius: 0 7px 0 7px;
 			background-color: #ffffff;
 		
 			.login-text {
 				height: 300px;
 				width: 327px;
 				h1 {
-					/*margin: 0 0 0 38px;*/
 					padding-top: 52px;
 					font-size: 34px;
 					color: #474747;
@@ -122,7 +140,6 @@ div.main-content {
 				h2 {
 					margin: -5px 0 10px 0;
 					font-size: 13px;
-					/*font-family: 'Raleway', sans-serif;*/
 					font-weight: 400;
 					text-transform: uppercase;
 					color: @gray-darkest;
@@ -131,7 +148,6 @@ div.main-content {
 				p {
 					height: 125px;
 					margin: 10px 20px 0 20px;
-					/*font-family: 'Playfair Display', serif;*/
 					color: @gray-darkest;
 					line-height: 1.7em;
 					font-size: 15px;
@@ -140,21 +156,17 @@ div.main-content {
 				}
 			}
 			.login-btn button {
-				/*float: right;*/
 				display: inline-block;
 				height: 50px;
 				width: 176px;
-				/*margin: 0 40px 0 16px;*/
 				box-sizing: border-box;
 				border: transparent;
 				border-radius: 60px;
-				/*font-family: 'Raleway', sans-serif;*/
 				font-size: 14px;
 				font-weight: 500;
 				text-transform: uppercase;
 				letter-spacing: 0.2em;
 				color: #ffffff;
-				/*background-color: #9cebd5;*/
 				cursor: pointer;
 				outline: none;
 			}
