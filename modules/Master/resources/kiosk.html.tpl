@@ -93,7 +93,13 @@
 
 <iframe src="{$shibbolethLogout}" width="0" height="1px" style="border:none;"></iframe>
 <div class="check-in-content">
-	<p>Logging out...</p>
+	<div class="logout-img">
+		<img src="assets/images/ccheckin-observation2.jpg" class="img-responsive" alt="Children's playroom">
+	</div>
+	<div class="logout-info">
+		<h2>Logging out...</h2>
+		<p></p>
+	</div>
 </div>
 
 {else} <!-- Show Kiosk Logged in/out -->
