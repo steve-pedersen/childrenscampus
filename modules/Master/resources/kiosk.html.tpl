@@ -195,7 +195,7 @@
 				<div class="login-text">
 					<h1>Children's Campus</h1>
 					<h2>at SF State</h2>
-					<p>A Center for Early Care and Educational, Professional Development and Research</p>
+					<p>A Center for Early Care and Education, Professional Development and Research</p>
 				</div>
 				<div class="login-btn">
 					<button class="command-button btn btn-primary" type="submit" name="command[login]">Login</button>
