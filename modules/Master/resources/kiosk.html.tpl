@@ -41,8 +41,8 @@
 					<li>
 						<a class="manage-link btn btn-link" href="admin"><i class="halflings-icon white cog" aria-hidden="true"></i> Administrate</a>
 					</li>
-					<li style="text-align:center;">
-						<a href="kiosk/logout" class="btn btn-default">Logout</a>
+					<li style="">
+						<a class="btn btn-link logout navbar-btn" id="logout-button" href="kiosk/logout">Logout</a>
 					</li>
 					{/if}
 					{else}

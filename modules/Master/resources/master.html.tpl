@@ -49,9 +49,11 @@
 							<a class="manage-link btn btn-link" href="admin"><i class="halflings-icon white cog" aria-hidden="true"></i> Administrate</a>
 						</li>
 						{/if}
-						<li style="text-align:center;">
+						{if !$shibbolethLogout}
+						<li style="">
 							<a class="btn btn-link logout navbar-btn" id="logout-button" href="logout">Logout</a>
 						</li>
+						{/if}
 						{else}
 						<li class="{if $activeTab=='login'} active{/if}">
 							<a class="btn btn-link login-button" data-toggle="modal" href="login">Login</a>
