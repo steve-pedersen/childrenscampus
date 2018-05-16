@@ -54,9 +54,13 @@
     <div class="form-group">
         <label>For the purposes of this assignment, will your students have to:</label>
         {foreach item="task" key="taskId" from=$facet->GetAllTasks()}
+            {assign var=match value=false}
+            {foreach from=$facet->tasks item=courseTask}
+                {if $task == $courseTask}{assign var=match value=true}{/if}
+            {/foreach}
             <div class="checkbox">
             <label for="facet-tasks-{$taskId}">
-              <input type="checkbox" name="facet[tasks][{$taskId}]" id="facet-tasks-{$taskId}" value="{$task}" {if $facet->tasks.$taskId}checked="checked"{/if} /> {$task}
+              <input type="checkbox" name="facet[tasks][{$taskId}]" id="facet-tasks-{$taskId}" value="{$task}" {if $match}checked="checked"{/if} /> {$task}
             </label>
             </div>
         {/foreach}
