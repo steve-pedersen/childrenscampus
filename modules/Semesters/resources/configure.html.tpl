@@ -20,7 +20,7 @@
                     <th>Start</th>
                     <th>End</th>
                     <th>Open</th>
-                    <th>Close</th>
+                    <th>Last <small>day to reserve</small></th>
                 </tr>
             </thead>
             {foreach from=$semesters item='s'}
@@ -70,7 +70,7 @@
         <input class="form-control" type="text" name="openDate" id="openDate" placeholder="" />
     </div>
     <div class="form-group">
-        <label for="lastDate">Close Date <small>(when student reservations end)</small>:</label>
+        <label for="lastDate">Last Date to Reserve:</label>
         <input class="form-control" type="text" name="lastDate" id="lastDate" />
     </div>
     <hr>

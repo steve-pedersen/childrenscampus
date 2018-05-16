@@ -187,7 +187,7 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
         }   
         return '';
     }
-    public function getCloseDate ()
+    public function getLastDate ()
     {
         if ($lastDate = $this->_fetch('lastDate'))
         {
