@@ -16,7 +16,7 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
             'startDate' => array('datetime', 'nativeName' => 'start_date'),
             'endDate' => array('datetime', 'nativeName' => 'end_date'),
             'openDate' => array('datetime', 'nativeName' => 'open_date'),
-            'closeDate' => array('datetime', 'nativeName' => 'close_date')
+            'lastDate' => array('datetime', 'nativeName' => 'last_date')
         );
     }
     
@@ -189,9 +189,9 @@ class Ccheckin_Semesters_Semester extends Bss_ActiveRecord_BaseWithAuthorization
     }
     public function getCloseDate ()
     {
-        if ($closeDate = $this->_fetch('closeDate'))
+        if ($lastDate = $this->_fetch('lastDate'))
         {
-            return $closeDate;
+            return $lastDate;
         }
         return $this->_fetch('endDate');
     }

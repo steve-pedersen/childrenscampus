@@ -67,13 +67,13 @@ class Ccheckin_Semesters_AdminController extends At_Admin_Controller
                         {
                             $semester->openDate = new DateTime($startDate);
                         }
-                        if ($closeDate = $this->request->getPostParameter('closeDate'))
+                        if ($lastDate = $this->request->getPostParameter('lastDate'))
                         {
-                            $semester->closeDate = new DateTime($closeDate);
+                            $semester->lastDate = new DateTime($lastDate);
                         }
                         else
                         {
-                            $semester->closeDate = new DateTime($endDate);
+                            $semester->lastDate = new DateTime($endDate);
                         }
              
                         $term = $this->request->getPostParameter('term');

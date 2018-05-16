@@ -15,7 +15,7 @@
 	  $( '#openDate' ).datepicker({
 		formatDate: 'yy-mm-dd'
 	  });
-	  $( '#closeDate' ).datepicker({
+	  $( '#lastDate' ).datepicker({
 		formatDate: 'yy-mm-dd'
 	  });
 	  $( '#blockeddatenew' ).datepicker({

@@ -20,7 +20,7 @@ class Ccheckin_Semesters_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModul
                 $def->addProperty('start_date', 'datetime');
                 $def->addProperty('end_date', 'datetime');
                 $def->addProperty('open_date', 'datetime');
-                $def->addProperty('close_date', 'datetime');
+                $def->addProperty('last_date', 'datetime');
                 $def->save();
 
                 break;

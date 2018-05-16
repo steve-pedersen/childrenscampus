@@ -180,7 +180,7 @@ class Ccheckin_Admin_EmailManager
 			'|%COURSE_SHORT_NAME%|' => (!$test ? $course->shortName : $data['course']->shortName),
 			'|%COURSE_VIEW_LINK%|' => $this->generateLink('/courses/view/'.$data['course']->id, true, 'View Course'),
 			'|%OPEN_DATE%|' => (!$test ? $course->semester->openDate : $data['course']->openDate)->format('M j, Y'),
-			'|%CLOSE_DATE%|' => (!$test ? $course->semester->closeDate : $data['course']->closeDate)->format('M j, Y'),
+			'|%LAST_DATE%|' => (!$test ? $course->semester->lastDate : $data['course']->lastDate)->format('M j, Y'),
 			'message_title' => 'Course Request Approved'
 		);
 
@@ -204,7 +204,7 @@ class Ccheckin_Admin_EmailManager
 			'|%COURSE_FULL_NAME%|' => (!$test ? $course->fullName : $data['course']->fullName),
 			'|%COURSE_SHORT_NAME%|' => (!$test ? $course->shortName : $data['course']->shortName),
 			'|%OPEN_DATE%|' => (!$test ? $course->semester->openDate : $data['course']->openDate)->format('M j, Y'),
-			'|%CLOSE_DATE%|' => (!$test ? $course->semester->closeDate : $data['course']->closeDate)->format('M j, Y'),
+			'|%LAST_DATE%|' => (!$test ? $course->semester->lastDate : $data['course']->lastDate)->format('M j, Y'),
 			'|%SITE_LINK%|' => $this->generateLink('', true, "The Children's Campus"),
 			'message_title' => 'Course Available'
 		);

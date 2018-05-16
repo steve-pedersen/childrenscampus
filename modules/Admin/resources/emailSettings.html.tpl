@@ -295,7 +295,7 @@
 				<textarea name="courseAllowedTeacher" id="courseAllowedTeacher" class="wysiwyg form-control" rows="{if $courseAllowedTeacher}{$courseAllowedTeacher|count_paragraphs*2}{else}8{/if}">{$courseAllowedTeacher}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
-					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%COURSE_FULL_NAME%|</code>, <code>|%COURSE_SHORT_NAME%|</code>, <code>|%OPEN_DATE%|</code>, <code>|%CLOSE_DATE%|</code>, <code>|%COURSE_VIEW_LINK%|</code>
+					<code>|%FIRST_NAME%|</code>, <code>|%LAST_NAME%|</code>, <code>|%COURSE_FULL_NAME%|</code>, <code>|%COURSE_SHORT_NAME%|</code>, <code>|%OPEN_DATE%|</code>, <code>|%LAST_DATE%|</code>, <code>|%COURSE_VIEW_LINK%|</code>
 				</span>
 			</div>
 		</div>
@@ -335,7 +335,7 @@
 				<textarea name="courseAllowedStudents" id="courseAllowedStudents" class="wysiwyg form-control" rows="{if $courseAllowedStudents}{$courseAllowedStudents|count_paragraphs*2}{else}8{/if}">{$courseAllowedStudents}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
-					<code>|%COURSE_FULL_NAME%|</code>, <code>|%COURSE_SHORT_NAME%|</code>, <code>|%OPEN_DATE%|</code>, <code>|%CLOSE_DATE%|</code>, <code>|%SITE_LINK%|</code>
+					<code>|%COURSE_FULL_NAME%|</code>, <code>|%COURSE_SHORT_NAME%|</code>, <code>|%OPEN_DATE%|</code>, <code>|%LAST_DATE%|</code>, <code>|%SITE_LINK%|</code>
 				</span>
 			</div>
 		</div>

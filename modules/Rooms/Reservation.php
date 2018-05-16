@@ -57,7 +57,7 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
                 $continue = false;
             }   
         }
-        
+
         if ($continue)
         {
             $end = clone $start;
@@ -89,8 +89,7 @@ class Ccheckin_Rooms_Reservation extends Bss_ActiveRecord_BaseWithAuthorization 
             );
 
             $reservations = $tRoomReservation->find($cond);
-            // $reservations = is_array($cond) ? $cond : $tRoomReservation->find($cond);
-            
+
             if (count($reservations) < $room->maxObservers)
             {
                 $available = true;

@@ -227,7 +227,7 @@ COMMIT;
 
 -- semesters => ccheckin_semesters
 BEGIN;
-INSERT INTO ccheckin_semesters (id, display, start_date, end_date, open_date, close_date)
+INSERT INTO ccheckin_semesters (id, display, start_date, end_date, open_date, last_date)
 SELECT o.id, o.display, o.start_date, o.end_date, o.start_date, o.end_date
 FROM semesters o;
 -- id_seq
@@ -314,7 +314,7 @@ If you or the students have any questions about their observations they should c
 <br>
 <p>You can access it here |%COURSE_VIEW_LINK%|, using your SFSU ID and password.</p>
 <br>
-<p>Your students have already been automatically enrolled and will be able to make reservations from |%OPEN_DATE%| to |%CLOSE_DATE%|.</p>'
+<p>Your students have already been automatically enrolled and will be able to make reservations from |%OPEN_DATE%| to |%LAST_DATE%|.</p>'
 WHERE key = 'email-course-allowed-teacher';
 
 UPDATE at_config_settings
@@ -331,7 +331,7 @@ Here are the details of the course:</p>
 Please see that you read this documentation prior to your first observation at the center. 
 If you have any questions about your observations they should contact me.</p>
 <br>
-<p>You can begin making reservations from |%OPEN_DATE%| until |%CLOSE_DATE%|, which can be done here |%SITE_LINK%|, using your SFSU ID and password to login.</p>'
+<p>You can begin making reservations from |%OPEN_DATE%| until |%LAST_DATE%|, which can be done here |%SITE_LINK%|, using your SFSU ID and password to login.</p>'
 WHERE key = 'email-course-allowed-students';
 
 UPDATE at_config_settings

@@ -413,10 +413,11 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
 
     public function getSemesterWithinRange ($date)
     {
+        $day = (clone $date)->setTime(0, 0);
         $sems = $this->schema('Ccheckin_Semesters_Semester');
         $semester = $sems->findOne($sems->allTrue(
-            $sems->startDate->beforeOrEquals($date),
-            $sems->endDate->afterOrEquals($date)
+            $sems->startDate->beforeOrEquals($day),
+            $sems->endDate->afterOrEquals($day)
         ));
 
         return $semester;
@@ -424,10 +425,11 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
 
     public function getSemesterWithinReservationRange ($date)
     {
+        $day = (clone $date)->setTime(0, 0);
         $sems = $this->schema('Ccheckin_Semesters_Semester');
         $semester = $sems->findOne($sems->allTrue(
-            $sems->openDate->beforeOrEquals($date),
-            $sems->closeDate->afterOrEquals($date)
+            $sems->openDate->beforeOrEquals($day),
+            $sems->lastDate->afterOrEquals($day)
         ));
 
         return $semester;

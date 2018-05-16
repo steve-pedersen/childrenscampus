@@ -32,7 +32,7 @@
                             {assign var='blockedDate' value=true}
                         {/if}
                     {/foreach}
-                    {if !$blockedDate  && (($currSemester->openDate <= $day.datetime) && ($day.datetime <= $currSemester->closeDate))}               
+                    {if !$blockedDate  && (($currSemester->openDate <= $day.datetime) && ($day.datetime <= $currSemester->lastDate))}               
                                 {assign var='isScheduled' value=false}
                         {foreach from=$room->schedule[$day.dayOfWeek-1][$time] item=schedule}                   
                             {if $schedule}                        

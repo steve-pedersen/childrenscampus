@@ -397,7 +397,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                                 $emailData['course']->fullName = 'TEST: Introduction to Childhood Development';
                                 $emailData['course']->shortName = 'TEST-CAD-0101-01-Spring-2025';
                                 $emailData['course']->openDate = new DateTime;
-                                $emailData['course']->closeDate = new DateTime('now + 1 month');
+                                $emailData['course']->lastDate = new DateTime('now + 1 month');
                                 $emailManager->processEmail('send' . ucfirst($which), $emailData, true);
 
                                 $this->template->sendSuccess = 'You should receive a test email momentarily for Course-Allowed-Teacher template.';
@@ -408,7 +408,7 @@ class Ccheckin_Admin_Controller extends Ccheckin_Master_Controller
                                 $emailData['course']->fullName = 'TEST: Introduction to Childhood Development';
                                 $emailData['course']->shortName = 'TEST-CAD-0101-01-Spring-2025';
                                 $emailData['course']->openDate = new DateTime;
-                                $emailData['course']->closeDate = new DateTime('now + 1 month');
+                                $emailData['course']->lastDate = new DateTime('now + 1 month');
                                 $emailManager->processEmail('send' . ucfirst($which), $emailData, true);
 
                                 $this->template->sendSuccess = 'You should receive a test email momentarily for Course-Allowed-Students template.';

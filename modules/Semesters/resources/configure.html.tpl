@@ -30,7 +30,7 @@
                     <td>{$s->startDate->format('M d, Y')}</td>
                     <td>{$s->endDate->format('M d, Y')}</td>
                     <td>{$s->openDate->format('M d, Y')}</td>
-                    <td>{$s->closeDate->format('M d, Y')}</td>
+                    <td>{$s->lastDate->format('M d, Y')}</td>
                 </tr>
             {foreachelse}
                 <tr>
@@ -70,8 +70,8 @@
         <input class="form-control" type="text" name="openDate" id="openDate" placeholder="" />
     </div>
     <div class="form-group">
-        <label for="closeDate">Close Date <small>(when student reservations end)</small>:</label>
-        <input class="form-control" type="text" name="closeDate" id="closeDate" />
+        <label for="lastDate">Close Date <small>(when student reservations end)</small>:</label>
+        <input class="form-control" type="text" name="lastDate" id="lastDate" />
     </div>
     <hr>
     <div class="form-group commands">

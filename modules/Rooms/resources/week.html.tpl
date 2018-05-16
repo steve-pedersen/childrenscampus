@@ -32,7 +32,7 @@
                             {assign var='blockedDate' value=true}
                         {/if}
                     {/foreach}
-                    {if !$blockedDate && (($currSemester->openDate <= $day.datetime) && ($day.datetime <= $currSemester->closeDate))}
+                    {if !$blockedDate && (($currSemester->openDate <= $day.datetime) && ($day.datetime <= $currSemester->lastDate))}
                         {if $day.outside}
                         <td class="outside-month {$result} {if $result == 'open-space'}available-date{elseif $result == 'full'}unavailable-date{/if}">
                         {elseif $day.today}

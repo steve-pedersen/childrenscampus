@@ -34,7 +34,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
                 $this->template->setMasterTemplate(Bss_Core_PathUtils::path(dirname(__FILE__), 'resources', 'kiosk.html.tpl'));
                 $this->template->kioskMode = true;
 
-                if ($viewer && ($this->request->getFullRequestedUri() !== '/kiosk/logout'))
+                if ($viewer && (strpos($this->request->getFullRequestedUri(), 'kiosk/logout') === false))
                 {
                     $this->runKiosk();
                 }
@@ -114,9 +114,9 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
                 $duration = ($reservation->endTime->format('G')-$st->format('G') - ($st->format('i')/60)) * 60;
             }
 
-            if ($sameSession && $duration < 5)  // mins
+            if ($sameSession && $duration < 5)
             {
-                // $this->template->earlycheckout = 'earlycheckout';
+                $this->template->earlycheckout = 'earlycheckout';
             }
             else
             {
@@ -147,6 +147,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
                 $observation->startTime = $now;
                 $observation->save();
                 $reservation->checkedIn = true;
+                $reservation->reminderSent = true; // they've checked in, so make sure no reminder emails sent
                 $reservation->save();
                 $this->template->reservation = $reservation;
             }
