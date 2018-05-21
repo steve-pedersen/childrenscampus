@@ -9,7 +9,9 @@
 </div>
 {/if}
 
-<img class="img-responsive" src="assets/images/ccheckin-playroom2.jpg" alt="Photo of the front door to the Children's Campus">
+<div class="reservation-view-image">
+    <img class="img-responsive" src="assets/images/ccheckin-playroom2.jpg" alt="A room in Children's Campus">
+</div>
 {if $existing}
     {foreach item='reservation' from=$existing}
     <p>You have a reservation in room {$reservation->room->name} on {$reservation->startTime|date_format:"%b %e, %Y at %l %p"}</p>
