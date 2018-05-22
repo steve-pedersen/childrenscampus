@@ -1,13 +1,13 @@
 <?php
 
 /**
- *  Manage rooms, observations, and reservations as admin
+ *  Manage rooms, observations, and reservations as admin/programadmin
  *
  * @author  Charles O'Sullivan (chsoney@sfsu.edu)
  * @author  Steve Pedersen (pedersen@sfsu.edu)
  * @copyright   Copyright &copy; San Francisco State University.
  */
-class Ccheckin_Rooms_AdminController extends At_Admin_Controller
+class Ccheckin_Rooms_AdminController extends Ccheckin_Master_Controller // At_Admin_Controller
 {
     public static function getRouteMap ()
     {
@@ -18,7 +18,7 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
             'admin/observations/current' => array('callback' => 'currentObservations'),
             'admin/observations/reservations' => array('callback' => 'currentReservations'),
             'admin/observations/missed' => array('callback' => 'missedObservations'),
-            'admin/observations/generate' => array('callback' => 'generateObservations'), // TODO: Figure out what this is supposed to do and how it is accessed on dev site
+            'admin/observations/generate' => array('callback' => 'generateObservations'),
         );
     }
 
@@ -28,8 +28,13 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
         $this->template->clearBreadcrumbs();
         $this->addBreadcrumb('home', 'Home');
         $this->addBreadcrumb('admin', 'Admin');
+        if (!$this->hasPermission('admin'))
+        {
+            $this->requirePermission('programadmin');
+        }
         // if admin and on admin page, don't display 'Contact' sidebar
-        $this->template->adminPage = $this->hasPermission('admin') && (strpos($this->request->getFullRequestedUri(), 'admin') !== false); 
+        $this->template->programAdmin = $this->hasPermission('programadmin');
+        $this->template->adminPage = $this->hasPermission('programadmin') && (strpos($this->request->getFullRequestedUri(), 'admin') !== false); 
     }
 
     public function rooms () 
@@ -139,6 +144,7 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
 
     public function editObservation () 
     {
+        $this->requirePermission('admin');
         $observations = $this->schema('Ccheckin_Rooms_Observation');
         $reservations = $this->schema('Ccheckin_Rooms_Reservation');
         $userid = $this->getRouteVariable('userid');
@@ -237,7 +243,7 @@ class Ccheckin_Rooms_AdminController extends At_Admin_Controller
     }
 
     public function currentReservations () 
-    {
+    {       
         $resSchema = $this->schema('Ccheckin_Rooms_Reservation');
         $view = $this->request->getQueryParameter('view', 'all');
         $view = 'upcoming'; // decided this function should only show upcoming, but kept query functionality in case.

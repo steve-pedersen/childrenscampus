@@ -24,8 +24,8 @@
         <tr>
             <td>{$reservation->observation->startTime->format('M jS, Y g:ia')}</td>
             <td>{$reservation->account->firstName} {$reservation->account->lastName} ({$reservation->account->emailAddress})</td>
-            <td>{$reservation->room->name}</td>
-            <td>{$reservation->observation->purpose->shortDescription|escape}. <a href="reservations/view/{$reservation->id}">View reservation details</a></td>
+            <td><a href="reservations/schedule/{$reservation->room->id}">{$reservation->room->name}</a></td>
+            <td>{$reservation->observation->purpose->shortDescription|escape}</td>
             <td>{if !$reservation->observation->endTime}<a class="btn btn-xs btn-default" href="admin/observations/current?checkout={$reservation->id}">check-out</a>{/if}</td>
         </tr>
     {foreachelse}

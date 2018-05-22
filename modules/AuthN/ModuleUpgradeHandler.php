@@ -67,7 +67,7 @@ class Ccheckin_AuthN_ModuleUpgradeHandler extends Bss_ActiveRecord_BaseModuleUpg
                         array('name' => 'Teacher', 'description' => 'Assign to SF State teachers. Probably CAD teachers.', 'is_system_role' => true),
                         array('name' => 'CC Teacher', 'description' => "Assign to Children\'s Campus teachers. These are the actual children's teachers.", 'is_system_role' => true),
                         array('name' => 'Student', 'description' => 'Assign to Children\'s Campus students.', 'is_system_role' => true),
-                        // array('name' => 'Program Admin', 'description' => 'Do administrative tasks surrounding reservations and observations.', 'is_system_role' => true),
+                        array('name' => 'Front Desk', 'description' => 'Do administrative tasks surrounding reservations and observations.', 'is_system_role' => true),
                     ),
                     array(
                         'idList' => array('id')

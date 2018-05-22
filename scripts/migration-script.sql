@@ -109,7 +109,7 @@ VALUES
   ('at:ccheckin:authN/Role/2', 'receive system notifications', 'system'),
   ('at:ccheckin:authN/Role/2', 'reports generate', 'system'),
   ('at:ccheckin:authN/Role/3', 'course request', 'system'),
-  -- ('at:ccheckin:authN/Role/6', 'programadmin', 'system'), -- Program Admin to get programadmin permission
+  ('at:ccheckin:authN/Role/6', 'programadmin', 'system'), -- Front Desk to get programadmin permission
   ('at:ccheckin:authN/Role/4', 'room view schedule', 'system');
 COMMIT;
 

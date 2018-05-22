@@ -95,7 +95,14 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     
     public function schedule ()
     {
-        $this->requirePermission('room view schedule');
+        if (!$this->hasPermission('programadmin'))
+        {
+            $this->requirePermission('room view schedule');
+        }
+        else {
+            $this->requirePermission('programadmin');
+        }
+        
         $rooms = $this->schema('Ccheckin_Rooms_Room');
         
         $roomId = $this->getRouteVariable('id');
@@ -319,10 +326,9 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         $id = $this->getRouteVariable('id');
         $reservation = $this->requireExists($this->schema('Ccheckin_Rooms_Reservation')->get($id));
         
-        if (!$this->hasPermission('admin') && $reservation->accountId != $viewer->id)
+        if (!$this->hasPermission('programadmin') && $reservation->accountId != $viewer->id)
         {
-            $this->triggerError('Ccheckin_Master_PermissionErrorHandler');
-            exit;
+            $this->requirePermission('admin');
         }
 		
 		if ($this->request->wasPostedByUser())
@@ -380,10 +386,9 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
         $id = $this->getRouteVariable('id');
         $reservation = $this->requireExists($this->schema('Ccheckin_Rooms_Reservation')->get($id));
         
-        if (!$this->hasPermission('admin') && $reservation->accountId != $viewer->id)
+        if (!$this->hasPermission('programadmin') && $reservation->accountId != $viewer->id)
         {
-            $this->triggerError('Ccheckin_Master_PermissionErrorHandler');
-            exit;
+            $this->requirePermission('admin');
         }
         
         if ($this->request->wasPostedByUser())
@@ -393,7 +398,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                 switch ($command)
                 {
                     case 'delete':
-                        if ($this->hasPermission('admin'))
+                        if ($this->hasPermission('programadmin'))
                         {
                             $this->sendReservationCanceledNotification($reservation, $viewer);
                         }                 	
@@ -599,7 +604,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
 
                                     $cdate = clone $date;
                                     $cnow = clone $now;
-                                    if (($cdate < $now) && !$this->hasPermission('admin'))
+                                    if (($cdate < $now) && !$this->hasPermission('programadmin'))
                                     {
                                         $continue = false;
                                         $message = 'You cannot reserve a room for a date and time that has already passed.';

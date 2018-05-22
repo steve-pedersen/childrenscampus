@@ -125,15 +125,21 @@
                         {if $pAdmin}
                         <li><a href="admin/reports/generate">Create Reports</a></li>
                         {/if}
-                        {if $isCCTeacher || $pAdmin}
+                        {if $isCCTeacher || $pAdmin || $programAdmin}
                         <li><a href="reservations/schedule">Room Schedules</a></li>
                         {/if}
                         {if $isTeacher || $pAdmin}
                         <li><a href="courses">View Courses</a></li>
                         <li><a href="courses/request">Request a Course</a></li>
                         {/if}
+                        {if !$programAdmin && !$pAdmin}
                         <li><a href="reservations/missed">Missed Reservations</a></li>
                         <li><a href="reservations/observations">Past Observations</a></li>
+                        {else}
+                        <li><a href="admin/observations/current">Current Observations</a></li>
+                        <li><a href="admin/observations/reservations">Upcoming Reservations</a></li>
+                        <li><a href="admin/observations/missed">Missed Reservations</a></li>
+                       	{/if}
 						{if !$pAdmin}
                         <li><a href="profile">Edit Profile</a></li>
                         {/if}

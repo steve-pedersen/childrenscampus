@@ -261,6 +261,7 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
         // if admin and on admin page, don't display 'Contact' sidebar
         $this->template->adminPage = $this->hasPermission('admin') && (strpos($path, 'admin') !== false);
         $this->template->pAdmin = $this->hasPermission('admin');
+        $this->template->programAdmin = $this->hasPermission('programadmin');
         $this->template->isTeacher = $this->hasPermission('course request');
         $this->template->isCCTeacher = $this->hasPermission('room view schedule');
 
