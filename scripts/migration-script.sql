@@ -109,7 +109,7 @@ VALUES
   ('at:ccheckin:authN/Role/2', 'receive system notifications', 'system'),
   ('at:ccheckin:authN/Role/2', 'reports generate', 'system'),
   ('at:ccheckin:authN/Role/3', 'course request', 'system'),
-  -- ('at:ccheckin:authN/Role/3', 'course view', 'system'),
+  -- ('at:ccheckin:authN/Role/6', 'programadmin', 'system'), -- Program Admin to get programadmin permission
   ('at:ccheckin:authN/Role/4', 'room view schedule', 'system');
 COMMIT;
 
@@ -409,7 +409,7 @@ WHERE key = 'email-reservation-missed';
 UPDATE at_config_settings
 SET value = '
 <p>Dear |%FIRST_NAME%| |%LAST_NAME%|,</p>
-<p>You reservation at Children''s Campus has been canceled.</p>
+<p>Your reservation at Children''s Campus has been canceled.</p>
 <p>Here are the details of your canceled reservation:</p>
 <ul>
 	<li>|%RESERVE_DATE%|</li>

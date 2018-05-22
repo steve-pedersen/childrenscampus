@@ -251,7 +251,7 @@
 		<div class="col-xs-8">
 			<div class="form-group">
 				<h3 id="courseRequestedTeacher" class="toc-header" aria-hidden></h3>
-				<label class="lead" for="courseRequestedTeacher">Course Requested Teacher: <span class="email-type-description">sent as a receipt to Teacher who requested the course, once request is submitted.</span></label>
+				<label class="lead" for="courseRequestedTeacher">Course Requested Teacher: <span class="email-type-description">sent as a receipt to Teacher after requesting a new course.</span></label>
 				<textarea name="courseRequestedTeacher" id="courseRequestedTeacher" class="wysiwyg form-control" rows="{if $courseRequestedTeacher}{$courseRequestedTeacher|count_paragraphs*2}{else}8{/if}">{$courseRequestedTeacher}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 
@@ -411,7 +411,7 @@
 		<div class="col-xs-8">
 			<div class="form-group">
 				<h3 id="reservationDetails" class="toc-header" aria-hidden></h3>
-				<label class="lead" for="reservationDetails">Reservation Details: <span class="email-type-description">sent as a receipt with pertinent info to Student who made a reservation, once one is made.</span></label>
+				<label class="lead" for="reservationDetails">Reservation Details: <span class="email-type-description">sent as a receipt with pertinent info to Student after making a reservation.</span></label>
 				<textarea name="reservationDetails" id="reservationDetails" class="wysiwyg form-control" rows="{if $reservationDetails}{$reservationDetails|count_paragraphs*2}{else}8{/if}">{$reservationDetails}</textarea>
 				<span class="help-block">
 					You can use the following tokens for context replacements to fill out the template: 

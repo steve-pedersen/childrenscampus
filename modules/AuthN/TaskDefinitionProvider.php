@@ -12,6 +12,7 @@ class Ccheckin_AuthN_TaskDefinitionProvider extends Bss_AuthZ_TaskDefinitionProv
             'account manage' => 'Ability to change usernames, add/remove roles, and delete accounts.',
             'edit system notifications' => 'Ability to turn on or off admin email notifications such as "Course Requested".',
             'receive system notifications' => 'Ability to receive system email notifications such as "Course Requested".',
+            'programadmin' => 'Do administrative tasks surrounding reservations and observations.',
         );
     }
 }

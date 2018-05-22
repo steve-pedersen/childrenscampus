@@ -143,10 +143,9 @@
 			{if $late}
 				<h2>Late for appointment</h2>
 				<p>You are late for your appointment at <strong>{$late.time|date_format:"%b %e, %Y at %I:%M %p"}</strong>.  You must sign up again to reserve time for observations.</p>
-			{/if}
-			{if $early}
+			{elseif $early}
 				<h2>Early for appointment</h2>
-				<p class="">You are early for your appointment at {$early.time|date_format:"%b %e, %Y at %I:%M %p"}. Please come back at time closer to your appointment.</p>
+				<p class="">You are early for your appointment at {$early.time|date_format:"%b %e, %Y at %I:%M %p"}. Please come back at a time closer to your appointment.</p>
 			{/if}
 				<div class="kiosk-link">
 					<a href="kiosk/logout" class="btn btn-default btn-lg">Logout</a>
