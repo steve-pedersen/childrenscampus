@@ -78,7 +78,7 @@ class Ccheckin_AuthN_NoAccountErrorHandler extends Ccheckin_Master_ErrorHandler
             }
             if (($allowCreateAccount = $identity->getProperty('allowCreateAccount')))
             {
-                $importer = $this->getApplication()->moduleManager->getExtensionByName('at:ccheckin:profiles/importer', 'classdata');
+                $importer = $this->getApplication()->moduleManager->getExtensionByName('at:ccheckin:courses/enrollments', 'classdata');
                 $semesterManager = $this->getApplication()->semesterManager;
                 $roles = $this->schema('Ccheckin_AuthN_Role');
                 $roleNames = array();

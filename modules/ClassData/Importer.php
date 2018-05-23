@@ -4,7 +4,7 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
 {
     const DATASOURCE_ALIAS = 'classdata';
     const CC_DATASOURCE_ALIAS = 'ccheckin';
-    const ACCOUNTS_TABLE = 'bss_authn_accounts';
+    const ACCOUNTS_TABLE = 'bss_authn_account';
     const ENROLLMENTS_TABLE = 'ccheckin_course_enrollment_map';
     const COURSES_TABLE = 'ccheckin_courses';
     
@@ -29,35 +29,8 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
     public function findAccount ($uniqueId)
     {
         $account = null;
-        $dataSource = $this->getDataSource(self::DATASOURCE_ALIAS);
-        $query = $dataSource->createSelectQuery(self::ACCOUNTS_TABLE);
-        
-        foreach (self::$ClassDataAccountFieldMap as $ccheckinField => $accountField)
-        {
-            $query->project($ccheckinField);
-        }
-        
-        $condition = $dataSource->createCondition(
-            $dataSource->createTypedValue('SFSUid', 'symbol'),
-            Bss_DataSource_Condition::OP_EQUALS,
-            $dataSource->createTypedValue($uniqueId, 'string')
-        );
-        
-        $query->setCondition($condition);
-        $rs = $query->execute(true);
-        
-        while ($rs->next())
-        {
-            $account = new stdClass;
-            
-            foreach (self::$ClassDataAccountFieldMap as $ccheckinField => $accountField)
-            {
-                $account->$accountField = $rs->getValue($ccheckinField, 'string');
-            }
-            
-            break;
-        }
-        
+        $accounts = $this->schema(self::ACCOUNTS_TABLE);
+        $account = $accounts->findOne($accounts->username->equals($uniqueId));
         return $account;
     }
 
