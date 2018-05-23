@@ -27,6 +27,9 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
             ))
         );
 
+        // force remove kiosk cookie
+        // setCookie('cc-kiosk', false, time()+60*60*24*30*12, '/');
+
         if ($this->isKiosk())
         {
             if (!$this->hasPermission('admin'))
