@@ -4,6 +4,7 @@
  * Administrate accounts, roles, and access levels.
  * 
  * @author      Daniel A. Koepke (dkoepke@sfsu.edu)
+ * @author      Steve Pedersen (pedersen@sfsu.edu)
  * @copyright   Copyright &copy; San Francisco State University.
  */
 class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller

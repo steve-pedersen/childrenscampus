@@ -32,7 +32,7 @@
     <h2>Add a Blocked Date</h2>
     <div class="form-group">
         <label for="blockeddatenew">Date:</label>
-        <input type="text" class="form-control textfield" name="blockeddatenew" id="blockeddatenew" />
+        <input type="text" class="form-control textfield datepicker" name="blockeddatenew" id="blockeddatenew" />
     </div>
     
     <div class="commands">

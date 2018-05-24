@@ -57,21 +57,21 @@
     </div>
     <div class="form-group">
         <label for="startDate">Start Date:</label>
-        <input class="form-control" type="text" name="startDate" id="startDate" />
+        <input class="form-control datepicker" type="text" name="startDate" id="startDate" />
         {if $errors.startDate}<p class="error">{$errors.startDate}</p>{/if}
     </div>
     <div class="form-group">
         <label for="endDate">End Date:</label>
-        <input class="form-control" type="text" name="endDate" id="endDate" />
+        <input class="form-control datepicker" type="text" name="endDate" id="endDate" />
         {if $errors.endDate}<p class="error">{$errors.endDate}</p>{/if}
     </div>
     <div class="form-group">
         <label for="openDate">Open Date <small>(when student reservations can begin)</small>:</label>
-        <input class="form-control" type="text" name="openDate" id="openDate" placeholder="" />
+        <input class="form-control datepicker" type="text" name="openDate" id="openDate" placeholder="" />
     </div>
     <div class="form-group">
         <label for="lastDate">Last Date to Reserve:</label>
-        <input class="form-control" type="text" name="lastDate" id="lastDate" />
+        <input class="form-control datepicker" type="text" name="lastDate" id="lastDate" />
     </div>
     <hr>
     <div class="form-group commands">

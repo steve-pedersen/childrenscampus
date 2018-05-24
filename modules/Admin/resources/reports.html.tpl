@@ -7,14 +7,14 @@
             <div class="col-xs-6">
                 <label class="field-label field-linked" for="from">From</label>
            
-                <input class="form-control" type="text" name="from" id="datepickerFrom" />
+                <input class="form-control datepicker" type="text" name="from" id="datepickerFrom" />
             </div>
         </div>
         <div class="form-group">
             <div class="col-xs-6">
                 <label class="field-label field-linked" for="until">Until</label>
            
-                <input class="form-control" type="text" name="until" id="datepickerUntil" value="{$tomorrow->format('m/d/Y')}" />
+                <input class="form-control datepicker" type="text" name="until" id="datepickerUntil" value="{$tomorrow->format('m/d/Y')}" />
             </div>
         </div>
     </div>

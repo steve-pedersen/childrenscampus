@@ -2,46 +2,27 @@
 
 	// DatePicker 
 	$(function(){
-
 	  $.datepicker.setDefaults(
 		$.extend( $.datepicker.regional[ '' ] )
 	  );
-	  $( '#startDate' ).datepicker({
-		formatDate: 'yy-mm-dd'
-	  });
-	  $( '#endDate' ).datepicker({
-		formatDate: 'yy-mm-dd'
-	  });
-	  $( '#openDate' ).datepicker({
-		formatDate: 'yy-mm-dd'
-	  });
-	  $( '#lastDate' ).datepicker({
-		formatDate: 'yy-mm-dd'
-	  });
-	  $( '#blockeddatenew' ).datepicker({
-		formatDate: 'yy-mm-dd'
-	  });
-	  $( '#datepickerFrom' ).datepicker({
-		formatDate: 'yy-mm-dd'
-	  });
-	  $( '#datepickerUntil' ).datepicker({
-		formatDate: 'yy-mm-dd'
-	  });
-	  $( '#checkinDate' ).datepicker({
-		formatDate: 'yy-mm-dd',
-		showAnim: ''
-	  });
-	  $( '#checkinTime' ).timepicker({
-		timeFormat: 'h:mm p',
-		interval: 15,
-		minTime: '8',
-		maxTime: '6:00pm',
-		// defaultTime: '11',
-		// startTime: '10:00',
-		dynamic: false,
-		dropdown: true,
-		scrollbar: true
-	  });
+      $('.datepicker').each(function () {
+        var $self = $(this);
+        $self.datepicker({
+        	formatDate: 'yy-mm-dd'
+        });
+      });
+      $('.timepicker').each(function () {
+        var $self = $(this);
+        $self.timepicker({
+			timeFormat: 'h:mm p',
+			interval: 15,
+			minTime: '8',
+			maxTime: '6:00pm',
+			dynamic: false,
+			dropdown: true,
+			scrollbar: true
+        });
+      });
 	});
 
 	$(function () {
