@@ -84,7 +84,11 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
         $semesters = $this->schema('Ccheckin_Semesters_Semester');
         $semester = $semesters->findOne($semesters->internal->equals($semesterCode));       
         $courses = $this->schema('Ccheckin_Courses_Course');
-        $currentCourses = $courses->find($courses->startDate->equals($semester->startDate));       
+        $currentCourses = array();
+        if ($semester)
+        {
+            $currentCourses = $courses->find($courses->startDate->equals($semester->startDate));
+        }             
         $requests = $this->schema('Ccheckin_Courses_Request');
         $users = $this->schema('Bss_AuthN_Account');    
         $roles = $this->schema('Ccheckin_AuthN_Role');
