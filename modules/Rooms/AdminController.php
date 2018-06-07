@@ -144,7 +144,7 @@ class Ccheckin_Rooms_AdminController extends Ccheckin_Master_Controller // At_Ad
 
     public function editObservation () 
     {
-        $this->requirePermission('admin');
+        $this->requirePermission('programadmin');
         $observations = $this->schema('Ccheckin_Rooms_Observation');
         $reservations = $this->schema('Ccheckin_Rooms_Reservation');
         $userid = $this->getRouteVariable('userid');

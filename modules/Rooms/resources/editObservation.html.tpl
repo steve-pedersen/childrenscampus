@@ -41,7 +41,7 @@
             <td>{$obs->purpose->object->shortDescription}</td>
             <td>{$obs->startTime->format('M j, g:ia')}</td>
             <td class="duration">{if $obs->duration}{$obs->duration}{else}0{/if}<small>&nbsp;(mins)</small></td>
-            <td>{if $pAdmin}<a class="pull-right btn btn-xs btn-default" href="admin/observations/{$user->id}/{$obs->id}">edit time</a>{/if}</td>
+            <td><a class="pull-right btn btn-xs btn-default" href="admin/observations/{$user->id}/{$obs->id}">edit time</a></td>
         </tr>
     {foreachelse}
         <tr>
