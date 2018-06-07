@@ -182,7 +182,7 @@
 		</div>
 	
 	{else} <!-- Login -->
-		<form method="post" action="login/complete/sfsu-shib">
+		<form method="post" action="login">
 			<!-- <form method="post" action="login/complete/sfsu-pw" autocomplete="false"> -->
 			<!-- <form method="post" action="login/complete/ad" autocomplete="false"> -->
 			<input type="hidden" name="returnTo" value="{$smarty.server.REQUEST_URI|escape}" />
