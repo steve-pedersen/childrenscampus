@@ -71,7 +71,7 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
         }
 
         $page = $this->request->getQueryParameter('page', 1);
-        $limit = $this->request->getQueryParameter('limit', 20);
+        $limit = $this->request->getQueryParameter('limit', 50);
         $searchQuery = $this->request->getQueryParameter('sq');
         $sortBy = $this->request->getQueryParameter('sort', 'name');
         $sortDir = $this->request->getQueryParameter('dir', 'asc');
@@ -277,7 +277,7 @@ class Ccheckin_AuthN_AdminController extends Ccheckin_Master_Controller
     {
 		$qsa = array(
             'page' => $this->request->getQueryParameter('page', 1),
-            'limit' => $this->request->getQueryParameter('limit', 20),
+            'limit' => $this->request->getQueryParameter('limit', 50),
             'sq' => $this->request->getQueryParameter('sq'),
             'sort' => $this->request->getQueryParameter('sort', 'name'),
             'dir' => $this->request->getQueryParameter('dir', 'asc'),

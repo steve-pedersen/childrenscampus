@@ -25,7 +25,7 @@
             <ul class="list-unstyled">
                 <li><label for="account-limit">Accounts per page:</label>
                 <select class="fancy-select-box form-control" id="account-limit" name="limit">
-                    <option value="20"{if $limit==20} selected="selected"{/if}>20</option>
+                    <!-- <option value="20"{if $limit==20} selected="selected"{/if}>20</option> -->
                     <option value="50"{if $limit==50} selected="selected"{/if}>50</option>
                     <option value="100"{if $limit==100} selected="selected"{/if}>100</option>
                     <option value="99999"{if $limit==99999} selected="selected"{/if}>unlimited</option>
