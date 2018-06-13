@@ -1,6 +1,6 @@
 <h1>Configure Semesters</h1>
 
-<form action="{$smarty.server.REQUEST_URI}" method="post">
+<form action="{$smarty.server.REQUEST_URI}" method="post" autocomplete="off">
 
 <h2 class="font-weight-light">Semesters
     <div class="pull-right">

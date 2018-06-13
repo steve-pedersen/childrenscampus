@@ -1,6 +1,6 @@
 <h1>Confirm Check-in of Reservation</h1>
 
-<form action="{$smarty.server.REQUEST_URI|escape}" method="post" class="form-inline">
+<form action="{$smarty.server.REQUEST_URI|escape}" method="post" class="form-inline" autocomplete="off">
 	<p>This reservation is scheduled for <strong>{$reservation->startTime->format('n/j/Y')}</strong> from <strong>{$reservation->startTime->format('g:i A')}</strong> to <strong>{$reservation->endTime->format('g:i A')}</strong>.</p>
     <p>Choose the date & time to check-in this student:</p>
     <div class="form-group">
