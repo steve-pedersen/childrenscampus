@@ -47,6 +47,8 @@ class Ccheckin_Welcome_Controller extends Ccheckin_Master_Controller
 			$this->template->locationMessage = $locationMessage;
 		}
 
+        $reqSchema = $this->schema('Ccheckin_Courses_Request');
+        $this->template->pendingRequests = $reqSchema->find($reqSchema->requestedBy->id->equals($user->id)); 
 	}
 
 }

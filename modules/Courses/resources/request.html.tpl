@@ -1,4 +1,16 @@
 <h1>Request a Course</h1>
+{if $pendingRequests}
+<div class="alert alert-info">
+    <p class="lead">You have {$pendingRequests|@count} pending course request{if $pendingRequests|@count > 1}s{/if}:</p>
+    <ul class="">
+        {foreach from=$pendingRequests item=request}
+            <li>{$request->course->facets->index(0)->shortDescription}</li>
+        {/foreach}
+    </ul>
+    <br>
+    <p class=""><small><em>You will be notified when an admin approves or denies your request.</em></small></p>
+</div>
+{/if}
 <div class="course-instruction-container">
     {if $instructionText}
         {$instructionText}
@@ -43,7 +55,8 @@
         {else}
             <p class="alert alert-warning">You have no classes for the selected semester.</p>
         {/if}
-        {if $errors.course}<p class="error alert alert-danger">{$errors.course}</p>{/if}
+        {if $errors.request}<br><p class="error alert alert-danger"><strong>{$errors.course}</strong><br>{$errors.request}</p>
+        {elseif $errors.course}<br><p class="error alert alert-danger">{$errors.course}</p>{/if}
     </div>
     <div class="form-group">
         <label for="facet-typeId">Course Type</label>

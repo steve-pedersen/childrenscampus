@@ -14,6 +14,19 @@
 </div>
 {/if}
 
+{if $pendingRequests}
+<div class="alert alert-info">
+    <p class="lead">You have {$pendingRequests|@count} pending course request{if $pendingRequests|@count > 1}s{/if}:</p>
+    <ul class="">
+        {foreach from=$pendingRequests item=request}
+            <li>{$request->course->facets->index(0)->shortDescription}</li>
+        {/foreach}
+    </ul>
+    <br>
+    <p class=""><small><em>You will be notified when an admin approves or denies your request.</em></small></p>
+</div>
+{/if}
+
 <div class="row">
 {if $userContext->account}
 <div id="welcome-text" class="col-xs-6">

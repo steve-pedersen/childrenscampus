@@ -92,7 +92,9 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                 return ($a < $b) ? 1 : -1;
             }
         );
-        
+
+        $reqSchema = $this->schema('Ccheckin_Courses_Request');
+        $this->template->pendingRequests = $reqSchema->find($reqSchema->requestedBy->id->equals($viewer->id));     
         $this->template->canRequest = $this->hasPermission('course request');
         $this->template->viewall = $viewall;
         $this->template->viewactive = $viewactive;
@@ -301,6 +303,14 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
                     {
                         $errors['semester'] = 'No semester was selected';
                     }
+
+                    // verify this course of this type hasn't been requested already
+                    if ($this->findDuplicate($course, $facet))
+                    {
+                        $viewUrl = '<a href="'. $this->baseUrl('courses') .'"><strong>View Current Courses</strong></a>';
+                        $errors['course'] = 'You already have requested this course and type.';
+                        $errors['request'] = 'Check the list above or ' . $viewUrl . '.';
+                    }
                 }
                 
                 $errors += $course->validate();
@@ -379,6 +389,8 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
             } 
         }
 
+        $reqSchema = $this->schema('Ccheckin_Courses_Request');
+        $this->template->pendingRequests = $reqSchema->find($reqSchema->requestedBy->id->equals($viewer->id));
         $this->template->instructionText = $siteSettings->getProperty('course-request-text');
         $this->template->facetTypes = $facetTypes;
         $this->template->course = $course;
@@ -391,7 +403,54 @@ class Ccheckin_Courses_Controller extends Ccheckin_Master_Controller
         $this->template->activeSemester = $activeSemester;
         $this->template->selectedSemester = $selectedSemester;
     }
+
     
+    /**
+     * Evaluated using requestSummary, which is the concatenation course "shortName" and facetType "name"
+     * Example:     PSY-0431-02-Summer-2018-R3 Observation Only (not in classroom)
+     * 
+     * @return boolean
+     */
+    public function findDuplicate ($course, $facet) 
+    {
+        $viewer = $this->requireLogin();
+        $courseSchema = $this->schema('Ccheckin_Courses_Course');
+        $requestSchema = $this->schema('Ccheckin_Courses_Request');
+        $facetTypeSchema = $this->schema('Ccheckin_Courses_FacetType');
+        $duplicate = false;
+        $type = $facetTypeSchema->findOne($facetTypeSchema->id->equals($facet->typeId));
+        $requestSummary = $course->shortName .' '. $type->name;
+
+        // Get the remaining queued records that aren't deleted
+        // We will allow teachers to re-request a course that has been deleted
+        $deletedCourses = $courseSchema->find($courseSchema->deleted->isTrue());
+        $dcs = array();       
+        foreach ($deletedCourses as $dc)
+        {
+            $dcs[] = $dc->id;
+        }    
+
+        // check all active and approved courses first
+        $cs = $courseSchema->find($courseSchema->active->isTrue());
+        foreach ($cs as $c)
+        {
+            $temp = $c->shortName .' '. $c->facetType->name;
+            if ($temp === $requestSummary) return true;
+        }
+        // check any other pending requests
+        $cond = $requestSchema->allTrue(
+            $requestSchema->courseId->notInList($dcs),
+            $requestSchema->requestedById->equals($viewer->id)
+        );
+        $crs = $requestSchema->find($cond, array('orderBy' => 'requestDate')); 
+        foreach ($crs as $cr)
+        {
+            $temp = $cr->course->shortName .' '. $cr->course->facetType->name;
+            if ($temp === $requestSummary) return true;
+        }
+
+        return $duplicate;
+    }
 
     // Send email to all Admin accounts that have 'receiveAdminNotifications' turned on.
     protected function sendCourseRequestedAdminNotification ($request, $account)
