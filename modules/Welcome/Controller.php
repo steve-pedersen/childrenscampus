@@ -22,6 +22,8 @@ class Ccheckin_Welcome_Controller extends Ccheckin_Master_Controller
 		if ($user = $this->getUserContext()->getAccount())
 		{
 			// redirect to /home or is that not needed anymore?
+	        $reqSchema = $this->schema('Ccheckin_Courses_Request');
+	        $this->template->pendingRequests = $reqSchema->find($reqSchema->requestedBy->id->equals($user->id)); 
 		}
 
 		$siteSettings = $this->getApplication()->siteSettings;
@@ -47,8 +49,6 @@ class Ccheckin_Welcome_Controller extends Ccheckin_Master_Controller
 			$this->template->locationMessage = $locationMessage;
 		}
 
-        $reqSchema = $this->schema('Ccheckin_Courses_Request');
-        $this->template->pendingRequests = $reqSchema->find($reqSchema->requestedBy->id->equals($user->id)); 
 	}
 
 }

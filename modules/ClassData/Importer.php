@@ -139,7 +139,10 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
                     {
                         if ($key == 'description')
                         {
-                            $course->facets->index(0)->description = $value;
+                            foreach ($course->facets as $facet)
+                            {
+                                $facet->description = $value;
+                            }
                         }
                         else
                         {
@@ -154,7 +157,11 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
                 list($teacherAdds, $teacherDrops) = $this->syncEnrollments(
                     $course, $course->getTeachers(true,true), $cdTeachers, $teacherRole, $semester);
 
-                $course->facets->index(0)->save();
+                foreach ($course->facets as $facet)
+                {
+                    $facet->save();
+                    break;
+                }
                 $course->save();
 
                 $req = $requests->findOne($requests->courseId->equals($course->id));
