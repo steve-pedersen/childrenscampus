@@ -191,51 +191,57 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
         $newDrops = array();
         
         // create new account and enroll user in course as needed
-        foreach ($fetchedUsers as $user)
+        if (!empty($fetchedUsers))
         {
-            $account = $accounts->findOne($accounts->username->equals($user['id']));
-            if (!$account)
+            foreach ($fetchedUsers as $user)
             {
-                $account = $accounts->createInstance();
-                $account->username = $user['id'];
-                $account->firstName = $user['first'];
-                $account->lastName = $user['last'];
-                $account->emailAddress = $user['mail'];
-                $account->roles->add($role);
-                $account->save();
-                $account->roles->save();
-            }
+                $account = $accounts->findOne($accounts->username->equals($user['id']));
+                if (!$account)
+                {
+                    $account = $accounts->createInstance();
+                    $account->username = $user['id'];
+                    $account->firstName = $user['first'];
+                    $account->lastName = $user['last'];
+                    $account->emailAddress = $user['mail'];
+                    $account->roles->add($role);
+                    $account->save();
+                    $account->roles->save();
+                }
 
-            if (!$course->enrollments->has($account))
-            {
-                $course->enrollments->add($account);
-                $course->enrollments->setProperty($account, 'term', $semester->internal);
-                $course->enrollments->setProperty($account, 'role', $role->name);
-                $course->enrollments->setProperty($account, 'enrollment_method', 'Class Data');
-                $course->enrollments->setProperty($account, 'drop_date', null);
-                $newAdds[] = $account;             
-            }
+                if (!$course->enrollments->has($account))
+                {
+                    $course->enrollments->add($account);
+                    $course->enrollments->setProperty($account, 'term', $semester->internal);
+                    $course->enrollments->setProperty($account, 'role', $role->name);
+                    $course->enrollments->setProperty($account, 'enrollment_method', 'Class Data');
+                    $course->enrollments->setProperty($account, 'drop_date', null);
+                    $newAdds[] = $account;             
+                }
 
-            $fetchedUserIds[] = $account->username;
+                $fetchedUserIds[] = $account->username;
+            }            
         }
 
         // If a user that was previously enrolled is not in the list of enrollments
         // fetched from ClassData we will consider them as dropped.
         // However, if they are in the fetched list and they have a drop_date set,
         // we consider them as re-enrolled and set drop_date to null.
-        foreach ($existingUsers as $user)
+        if (!empty($existingUsers))
         {
-            $account = $accounts->findOne($accounts->username->equals($user->username));
-            if (!in_array($user->username, $fetchedUserIds))
-            {              
-                $course->enrollments->setProperty($account, 'drop_date', new DateTime);
-                $newDrops[] = $user;
-            }
-            elseif ($course->enrollments->getProperty($account, 'drop_date') !== null)
+            foreach ($existingUsers as $user)
             {
-                $course->enrollments->setProperty($account, 'drop_date', null);
-                $newAdds[] = $user;
-            }
+                $account = $accounts->findOne($accounts->username->equals($user->username));
+                if (!in_array($user->username, $fetchedUserIds))
+                {              
+                    $course->enrollments->setProperty($account, 'drop_date', new DateTime);
+                    $newDrops[] = $user;
+                }
+                elseif ($course->enrollments->getProperty($account, 'drop_date') !== null)
+                {
+                    $course->enrollments->setProperty($account, 'drop_date', null);
+                    $newAdds[] = $user;
+                }
+            }            
         }
 
         $course->enrollments->save();

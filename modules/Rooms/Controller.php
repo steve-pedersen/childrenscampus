@@ -231,7 +231,8 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
 
         foreach ($courses as $course)
         {
-            if ($currentSemester && ($currentSemester->id === $course->semester->id))
+            if ($currentSemester && (@isset($currentSemester->id)) && (@isset($course->semester->id)) 
+                && (@$currentSemester->id === @$course->semester->id))
             {
                 $courseInSemester = true;
             }

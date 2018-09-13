@@ -8,7 +8,7 @@
  */
 class Ccheckin_Rooms_ReservationCleanupCronJob extends Bss_Cron_Job
 {
-	const PROCESS_ACTIVE_JOBS_EVERY = 60 * 24; // once a day
+	const PROCESS_ACTIVE_JOBS_EVERY = 60 * 6; // once every 6 hours
 
     private $userContext = null;
 
@@ -128,10 +128,11 @@ class Ccheckin_Rooms_ReservationCleanupCronJob extends Bss_Cron_Job
         $emailManager->setTemplateInstance($this->createTemplateInstance());
         $reservations = $schemaManager->getSchema('Ccheckin_Rooms_Reservation');
 
-        // Get the observations which were never checked out and close them.
+        // Get the observations which were never checked out, are at least 11 hours past their start time,
+        // and close them.
         $cond = $reservations->allTrue(
         	$reservations->checkedIn->isTrue(),
-        	$reservations->startTime->before(new DateTime('-12 hours'))
+        	$reservations->startTime->before(new DateTime('-11 hours'))
         );        
         $results = $reservations->find($cond);
 
