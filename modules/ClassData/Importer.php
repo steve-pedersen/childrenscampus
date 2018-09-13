@@ -128,8 +128,8 @@ class Ccheckin_ClassData_Importer extends Ccheckin_Courses_EnrollmentsImporterEx
             }
             else
             {
-                $cdTeachers = $data['instructors'];
-                $cdStudents = $data['students'];
+                $cdTeachers = isset($data['instructors']) ? $data['instructors'] : array();
+                $cdStudents = isset($data['students']) ? $data['students'] : array();
                 unset($data['instructors']);
                 unset($data['students']);
 
