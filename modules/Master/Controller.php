@@ -98,12 +98,14 @@ abstract class Ccheckin_Master_Controller extends Bss_Master_Controller
 
             $sameSession = false;
             
+            // if same month, day, and res start < now < res end
             if ($now->format('m')===$st->format('m') && $now->format('d')===$st->format('d') && 
                 ($observation->startTime < $now && $now < $reservation->endTime))
             {
                 $sameSession = true;
             }
             
+            // if above was true and now is same hour as res start hour
             if ($sameSession && ($now->format('G') === $st->format('G')))
             {
                 $duration = intval($now->format('i') - $st->format('i'));

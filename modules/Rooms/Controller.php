@@ -399,10 +399,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
                 switch ($command)
                 {
                     case 'delete':
-                        if ($this->hasPermission('programadmin'))
-                        {
-                            $this->sendReservationCanceledNotification($reservation, $viewer);
-                        }                 	
+                        $this->sendReservationCanceledNotification($reservation, $reservation->account);
                         $reservation->delete();
                         $this->flash('The reservation has been canceled.');
                         $this->response->redirect('reservations/upcoming');
@@ -787,8 +784,7 @@ class Ccheckin_Rooms_Controller extends Ccheckin_Master_Controller
     }
     
     private function buildDay ($room, $date, $month = null, $reservations)
-    {
-        
+    {     
         $day = array();
         $today = new DateTime();
         
